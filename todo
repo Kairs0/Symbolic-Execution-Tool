@@ -1,0 +1,14 @@
+1)
+INPUT
+AST -> CFG
+critères
+tests
+
+OUTPUT
+Couveture (oui, no)
+2)
+INPUTS 
+AST-> CFG
+critères
+OUTPUT
+tests qui respecte,t
