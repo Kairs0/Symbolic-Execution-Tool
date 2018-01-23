@@ -32,6 +32,9 @@ tuple[3] is the following node
 tuple[1] is the following node
 """
 
+from tree import Node
+
+
 graph_prog = {
     1: ("if", "<=", [0], (2, 3)),
     2: ("assign", "-x", "", 4),
@@ -165,6 +168,16 @@ def toutes_decisions(valeurs_test, graph):
     else:
         print("TD fails:")
         print("Nodes " + str(objective) + " were never reached.")
+
+def buildTree():
+    tree_prog = Node("sequence")
+    if1 = Node("if")
+    compare1 = Node("compare", "<=")
+    var1 = Node("variable", "X")
+    cst1 = Node("constant", 0)
+    compare1.add_child(var1)
+    compare1.add_child(cst1)
+    if1.add_child(compare1)
 
 
 if __name__ == '__main__':
