@@ -4,7 +4,7 @@ The graph is a dictionary.
 Key is the number of the node
 Value is a tuple containing instructions
 tuple[0] contains the command type:
-it can be assign, while, if or skip
+it can be "assign", "while", "if" or "skip"
 
 ***** For "if" and "while" commands:
 tuple[1] is the comparator it can be "<=" to ">="
@@ -120,17 +120,17 @@ def comparison(a, b, operator, out1, out2):
         else:
             return out2
 
-def toutes_affectation(path_tests, graph):
-    valeurs_test = []
-    with open(path_tests) as file:
-        for line in file:
-            valeurs_test.append(int(line))
+def toutes_affectation(valeurs_test, graph):
+    print("Critère: toutes les affectations")
 
     objective = []
     for key, value in graph.items():
-        objective.append(key)
+        if value[0] == "assign":
+            objective.append(key)
 
-    print("test values processed:" + str(valeurs_test))
+    print("We want the following nodes to be visited: " + str(objective))
+
+    # print("test values processed:" + str(valeurs_test))
     for value in valeurs_test:
         path = process_value_test(value, graph)
         for step in path:
@@ -138,14 +138,46 @@ def toutes_affectation(path_tests, graph):
                 objective.remove(step)
     
     if len(objective) == 0:
-        print("TA rules")
+        print("TA is operational")
     else:
-        print("TA fails.")
+        print("TA fails:")
+        print("Nodes " + str(objective) + " were never reached.")
+
+
+def toutes_decisions(valeurs_test, graph):
+    print("Critère: toutes les décisions")
+
+    objective = []
+    for key, value in graph.items():
+        if value[0] == "if" or value[0] == "while":
+            objective.append(key)
+            for following_nodes in value[3]:
+                objective.append(following_nodes)
+
+    for value in valeurs_test:
+        path = process_value_test(value, graph)
+        for step in path:
+            if step in objective:
+                objective.remove(step)
+    
+    if len(objective) == 0:
+        print("TD is operational")
+    else:
+        print("TD fails:")
         print("Nodes " + str(objective) + " were never reached.")
 
 
 if __name__ == '__main__':
-    toutes_affectation("tests/test.txt", graph_prog)
+
+    PATH_TESTS = "tests/test.txt"
+
+    valeurs_test = []
+    with open(PATH_TESTS) as file:
+        for line in file:
+            valeurs_test.append(int(line))
+
+    toutes_affectation(valeurs_test, graph_prog)
+    toutes_decisions(valeurs_test, graph_prog)
 
 
 
