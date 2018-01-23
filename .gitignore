@@ -1,2 +1,5 @@
-analyse_couverture/__pychache__
-generation_tests/__pychache__
+analyse_couverture/__pychache__/*
+generation_tests/__pychache__/*
+
+analyse_couverture/__pycache__/*
+generation_tests/__pychache__/*
