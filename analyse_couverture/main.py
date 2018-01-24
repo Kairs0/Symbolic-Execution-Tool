@@ -265,12 +265,4 @@ if __name__ == '__main__':
 
     ast_test = buildTree()
 
-    ast_test.print_me()
-
-
-
-
-# NOEUD:
-# while ou if,
-# Arret:
-# assing ou skip
+    # ast_test.print_me()
