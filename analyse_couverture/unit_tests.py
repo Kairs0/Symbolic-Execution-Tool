@@ -39,6 +39,17 @@ if __name__ == "__main__":
     ifTree = create_if_cfg()
     print(str(childrenAreCstOrVar(ifTree)))
     bodyPart = ifTree.children[1]
+    elsePart = ifTree.children[2]
     print(str(childrenAreCstOrVar(bodyPart)))
+
+    parser = astToCfg(ifTree)
+
+    print(parser.treat_compare_node(ifTree.children[0]))
+
+    print(parser.treat_operation_node(elsePart.children[1]))
+
+    print(parser.treat_assign_node(elsePart))
+
+    print(parser.treat_if_node(ifTree))
 
 

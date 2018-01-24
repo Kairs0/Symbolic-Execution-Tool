@@ -37,12 +37,21 @@ tuple[1] is the following node
 
 from asttree import Node
 
+"""
+{
+1: ('if', '==', [1], (2, 3)), 
+2: ('assign', '1', '', 4), 
+3: ('assign', 'X+1', '', 4)
+}
+
+"""
+
 
 graph_prog = {
     1: ("if", "<=", [0], (2, 3)),
     2: ("assign", "-x", "", 4),
     3: ("assign", "1-x", "", 4),
-    4: ("if", "==", "1", (5, 6)),
+    4: ("if", "==", [1], (5, 6)),
     5: ("assign", "1", "", 0),
     6: ("assign", "x+1", "", 0)
 }
