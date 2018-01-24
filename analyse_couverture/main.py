@@ -16,7 +16,7 @@ operator given in tuple[1]. If the list is empty,
 the first variable will be checked against the 
 second variable of the program.
 If the list is len 1, the first variable of the program
-will be checked against the value given in the list !TODO compare y
+will be checked against the value given in the list ! TODO compare y
 If the list is len 2, the first value will be checked 
 against the second
 tuple[3] contains a tuple of 2 elements.
@@ -48,19 +48,20 @@ graph_prog = {
 }
 
 graph_prog_test = {
-    1: ("if","<=", [0],(2, 3)), # node[0] : type (assign, while, if, skip)
-    2: ("assign", "-x","", 4),
-    3: ("assign", "1-x","", 4),
-    4: ("if","==", [0], (5,6)),
-    5: ("assign", "1","", 8),
-    6: ("assign", "x+1","", 8),
+    1: ("if","<=", [0], (2, 3)), # node[0] : type (assign, while, if, skip)
+    2: ("assign", "-x", "", 4),
+    3: ("assign", "1-x", "", 4),
+    4: ("if","==", [0], (5, 6)),
+    5: ("assign", "1", "", 8),
+    6: ("assign", "x+1", "", 8),
     7: ("skip", 9),
     8: ("while", "<=", [4], (6, 7)),
-    9: ("assign", "x*x","", 0)
+    9: ("assign", "x*x", "", 0)
 }
 
 # TODO: compare between x and y for if and while
 # while loop is made with a second node which points to the while node
+
 
 def process_value_test(x, graph, y=0):
     path = []
@@ -126,6 +127,7 @@ def comparison(a, b, operator, out1, out2):
         else:
             return out2
 
+
 def toutes_affectation(valeurs_test, graph):
     print("Critère: toutes les affectations")
 
@@ -171,6 +173,7 @@ def toutes_decisions(valeurs_test, graph):
     else:
         print("TD fails:")
         print("Nodes " + str(objective) + " were never reached.")
+
 
 def buildTree():
     tree_prog = Node("sequence")
