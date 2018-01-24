@@ -35,7 +35,7 @@ tuple[3] is the following node
 tuple[1] is the following node
 """
 
-from tree import Node
+from asttree import Node
 
 
 graph_prog = {
