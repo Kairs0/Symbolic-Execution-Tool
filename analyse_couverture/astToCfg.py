@@ -4,6 +4,20 @@ class astToCfg(object):
         self.astTree = astTree
         self.step = 1
 
+    def treat_seq_node(self, node):
+        full_graph = {}
+        for child in node.children:
+            if child.category == "if":
+                partial_graph = self.treat_if_node(child)
+                full_graph.update(partial_graph)
+                self.step += 1
+            else:
+                # TODO
+                pass
+
+        return full_graph
+
+
     def treat_if_node(self, node):
         operator = self.treat_compare_node(node.children[0])
         partial_graph = {}

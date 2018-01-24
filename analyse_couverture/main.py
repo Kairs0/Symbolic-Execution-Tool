@@ -38,12 +38,12 @@ tuple[1] is the following node
 from asttree import Node
 
 """
-{
-1: ('if', '==', [1], (2, 3)), 
-2: ('assign', '1', '', 4), 
-3: ('assign', 'X+1', '', 4)
-}
-
+{1: ('if', '<=', [0], (2, 3)),
+2: ('assign', '0-X', '', 4),
+3: ('assign', '1-X', '', 4),
+4: ('if', '==', [1], (5, 6)),
+5: ('assign', '1', '', 7), 
+6: ('assign', 'X+1', '', 7)}
 """
 
 
