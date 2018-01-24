@@ -130,6 +130,7 @@ if __name__ == "__main__":
     # print(parser.treat_if_node(ifTree))
 
     prog_tree = create_prog_tree()
+
     parser2 = astToCfg(prog_tree)
 
     print(parser2.treat_seq_node(prog_tree))

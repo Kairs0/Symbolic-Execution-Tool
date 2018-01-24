@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-Structure du CFG Graph:
+CFG Graph Structure:
 The graph is a dictionary.
-Key is the number of the node
+Key is the numeration of the node
 Value is a tuple containing instructions
 tuple[0] contains the command type:
 it can be "assign", "while", "if" or "skip"
@@ -15,9 +15,9 @@ tuple[2] is a list of values used to operate the
 operator given in tuple[1]. If the list is empty,
 the first variable will be checked against the 
 second variable of the program.
-If the list is len 1, the first variable of the program
+If the list is length 1, the first variable of the program
 will be checked against the value given in the list ! TODO compare y
-If the list is len 2, the first value will be checked 
+If the list is length 2, the first value will be checked 
 against the second
 tuple[3] contains a tuple of 2 elements.
 The first one is the following node when the
