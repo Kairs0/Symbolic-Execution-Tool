@@ -1,6 +1,6 @@
 import unittest
-from AstToCfgConverter import AstToCfgConverter, check_children_are_cst_or_var
-from asttree import Node, GeneratorAstTree
+from ast_to_cfg import AstToCfgConverter, check_children_are_cst_or_var
+from ast_tree import Node, GeneratorAstTree
 
 
 class TestAstToCfgMethods(unittest.TestCase):

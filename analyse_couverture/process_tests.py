@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from asttree import Node
+from ast_tree import Node
 
 # while loop is made with a second node which points to the while node
 
