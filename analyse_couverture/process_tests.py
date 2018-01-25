@@ -11,7 +11,6 @@ def process_value_test(x, graph, y=0):
     limit = 0
     while next_node != 0 and limit <= 100:
         node = graph[next_node]
-        # print(node)
         if node[0] == "if" or node[0] == "while":
             values = node[2]
             next_node = comparison(eval(str(values[0])),
@@ -23,23 +22,19 @@ def process_value_test(x, graph, y=0):
         elif node[0] == "skip":
             next_node = node[1]
         elif node[0] == "assign":
-            consigne_x = node[1]
-            consigne_y = node[2]
-            # print("consigne: x=" + consigne.replace("x", str(x)))
-            if consigne_x != "":
-                x = eval(consigne_x.replace("x", str(x)))
+            instruction_x = node[1]
+            instruction_y = node[2]
+            if instruction_x != "":
+                x = eval(instruction_x.replace("x", str(x)))
 
-            if consigne_y != "":
-                y = eval(consigne_y.replace("y", str(y)))
+            if instruction_y != "":
+                y = eval(instruction_y.replace("y", str(y)))
 
             next_node = node[3]
 
         path.append(next_node)
         limit += 1
     return path
-    # print("final value: " + str(x))
-    # print("final step: " + str(next_node))
-    # print("path:" + str(path))
 
 
 def comparison(a, b, operator, out1, out2):
@@ -70,8 +65,8 @@ def comparison(a, b, operator, out1, out2):
             return out2
 
 
-def toutes_affectation(valeurs_test, graph):
-    print("Critère: toutes les affectations")
+def all_affectations(values_test, graph):
+    print("Criterion: all affectations")
 
     objective = []
     for key, value in graph.items():
@@ -80,22 +75,21 @@ def toutes_affectation(valeurs_test, graph):
 
     print("We want the following nodes to be visited: " + str(objective))
 
-    # print("test values processed:" + str(valeurs_test))
-    for value in valeurs_test:
+    for value in values_test:
         path = process_value_test(value, graph)
         for step in path:
             if step in objective:
                 objective.remove(step)
     
     if len(objective) == 0:
-        print("TA is operational")
+        print("TA: OK")
     else:
         print("TA fails:")
         print("Nodes " + str(objective) + " were never reached.")
 
 
-def toutes_decisions(valeurs_test, graph):
-    print("Critère: toutes les décisions")
+def all_decisions(values_test, graph):
+    print("Criterion: all decisions")
 
     objective = []
     for key, value in graph.items():
@@ -104,14 +98,16 @@ def toutes_decisions(valeurs_test, graph):
             for following_nodes in value[3]:
                 objective.append(following_nodes)
 
-    for value in valeurs_test:
+    print("We want the following nodes to be visited: " + str(objective))
+
+    for value in values_test:
         path = process_value_test(value, graph)
         for step in path:
             if step in objective:
                 objective.remove(step)
     
     if len(objective) == 0:
-        print("TD is operational")
+        print("TD: OK")
     else:
         print("TD fails:")
         print("Nodes " + str(objective) + " were never reached.")
@@ -145,8 +141,8 @@ if __name__ == '__main__':
         for line in file:
             test_values.append(int(line))
 
-    toutes_affectation(test_values, new_graph_prog)
-    toutes_decisions(test_values, new_graph_prog)
+    all_affectations(test_values, new_graph_prog)
+    all_decisions(test_values, new_graph_prog)
 
-    toutes_affectation(test_values, new_test_two_variables)
-    toutes_decisions(test_values, new_test_two_variables)
+    all_affectations(test_values, new_test_two_variables)
+    all_decisions(test_values, new_test_two_variables)
