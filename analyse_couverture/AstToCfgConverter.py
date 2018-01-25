@@ -9,12 +9,7 @@ it can be "assign", "while", "if" or "skip"
 ***** For "if" and "while" commands:
 tuple[1] is the comparator it can be "<=" to ">="
 tuple[2] is a list of values used to operate the
-operator given in tuple[1]. If the list is empty,
-the first variable will be checked against the 
-second variable of the program.
-If the list is length 1, the first variable of the program
-will be checked against the value given in the list
-TODO WIP: tuple[2] is going to be a list of len 2, with
+operator given in tuple[1]. It's a length 2 list, with
 list[0] the first value to be compared,
 and list[1] the second value
 these two can either be a string ("x" or "y") or an int
@@ -39,23 +34,13 @@ tuple[1] is the following node
 
 Example graph for "prog" program:
 graph_prog = {
-    1: ("if", "<=", [0], (2, 3)),
-    2: ("assign", "-x", "", 4),
-    3: ("assign", "1-x", "", 4),
-    4: ("if", "==", [1], (5, 6)),
-    5: ("assign", "1", "", 0),
-    6: ("assign", "x+1", "", 0)
-}
-graph_prog = {
     1: ("if", "<=", ["x", 0], (2, 3)),
     2: ("assign", "-x", "", 4),
     3: ("assign", "1-x", "", 4),
-    4: ("if", "==", [1], (5, 6)),
+    4: ("if", "==", ["x", 1], (5, 6)),
     5: ("assign", "1", "", 0),
     6: ("assign", "x+1", "", 0)
 }
-
-TODO WIP: NEW EXAMPLE GRAPH FOR "prog" program:
 
 """
 
@@ -133,9 +118,6 @@ class AstToCfgConverter(object):
 
         for child in node.children:
             values.append(child.data)
-            # TODO WIP REFACTOR TUPLE[2] for if and while
-            # if child.category == "constant":
-            #     cst.append(child.data)
         
         result.append(values)
         return result

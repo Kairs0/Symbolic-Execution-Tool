@@ -3,7 +3,6 @@
 
 from asttree import Node
 
-# TODO: compare between x and y for if and while
 # while loop is made with a second node which points to the while node
 
 
@@ -16,13 +15,13 @@ def process_value_test(x, graph, y=0):
         node = graph[next_node]
         # print(node)
         if node[0] == "if" or node[0] == "while":
-            # TODO: here we have to change process to know which comparaison we have to do
-            if len(node[2]) == 0:
-                next_node = comparison(x, y, node[1], node[3][0], node[3][1])
-            elif len(node[2]) == 1:
-                next_node = comparison(x, int(node[2][0]), node[1], node[3][0], node[3][1])
-            elif len(node[2]) == 2:
-                next_node = comparison(int(node[2][0]), int(node[2][1]), node[1], node[3][0], node[3][1])
+            values = node[2]
+            next_node = comparison(eval(str(values[0])),
+                                   eval(str(values[1])),
+                                   node[1],
+                                   node[3][0],
+                                   node[3][1]
+                                   )
         elif node[0] == "skip":
             next_node = node[1]
         elif node[0] == "assign":
@@ -127,45 +126,53 @@ if __name__ == '__main__':
     ### TMP: graph générés ou écrits à la main
     # pour process tests avant branchement convertisseut astToCfg
 
-    generated_graph_prog = {
-        1: ('if', '<=', [0], (2, 3)),
-        2: ('assign', '0-x', '', 4),
-        3: ('assign', '1-x', '', 4),
-        4: ('if', '==', [1], (5, 6)),
-        5: ('assign', '1', '', 0), 
-        6: ('assign', 'x+1', '', 0)
-    }
-
-
-    graph_prog = {
-        1: ("if", "<=", [0], (2, 3)),
+    new_graph_prog = {
+        1: ("if", "<=", ["x", 0], (2, 3)),
         2: ("assign", "-x", "", 4),
         3: ("assign", "1-x", "", 4),
-        4: ("if", "==", [1], (5, 6)),
+        4: ("if", "==", ["x", 1], (5, 6)),
         5: ("assign", "1", "", 0),
         6: ("assign", "x+1", "", 0)
     }
 
-    graph_prog_test = {
-        1: ("if","<=", [0], (2, 3)), # node[0] : type (assign, while, if, skip)
-        2: ("assign", "-x", "", 4),
-        3: ("assign", "1-x", "", 4),
-        4: ("if","==", [0], (5, 6)),
-        5: ("assign", "1", "", 8),
-        6: ("assign", "x+1", "", 8),
-        7: ("skip", 9),
-        8: ("while", "<=", [4], (6, 7)),
-        9: ("assign", "x*x", "", 0)
-    }
+    # generated_graph_prog = {
+    #     1: ('if', '<=', [0], (2, 3)),
+    #     2: ('assign', '0-x', '', 4),
+    #     3: ('assign', '1-x', '', 4),
+    #     4: ('if', '==', [1], (5, 6)),
+    #     5: ('assign', '1', '', 0),
+    #     6: ('assign', 'x+1', '', 0)
+    # }
+    #
+    #
+    # graph_prog = {
+    #     1: ("if", "<=", [0], (2, 3)),
+    #     2: ("assign", "-x", "", 4),
+    #     3: ("assign", "1-x", "", 4),
+    #     4: ("if", "==", [1], (5, 6)),
+    #     5: ("assign", "1", "", 0),
+    #     6: ("assign", "x+1", "", 0)
+    # }
+    #
+    # graph_prog_test = {
+    #     1: ("if","<=", [0], (2, 3)), # node[0] : type (assign, while, if, skip)
+    #     2: ("assign", "-x", "", 4),
+    #     3: ("assign", "1-x", "", 4),
+    #     4: ("if","==", [0], (5, 6)),
+    #     5: ("assign", "1", "", 8),
+    #     6: ("assign", "x+1", "", 8),
+    #     7: ("skip", 9),
+    #     8: ("while", "<=", [4], (6, 7)),
+    #     9: ("assign", "x*x", "", 0)
+    # }
 
-
-    valeurs_test = []
+    test_values = []
     with open(PATH_TESTS) as file:
         for line in file:
-            valeurs_test.append(int(line))
+            test_values.append(int(line))
 
-    toutes_affectation(valeurs_test, graph_prog)
-    toutes_decisions(valeurs_test, graph_prog)
-
-    toutes_affectation(valeurs_test, generated_graph_prog)
-    toutes_decisions(valeurs_test, generated_graph_prog)
+    toutes_affectation(test_values, new_graph_prog)
+    toutes_decisions(test_values, new_graph_prog)
+    #
+    # toutes_affectation(test_values, generated_graph_prog)
+    # toutes_decisions(test_values, generated_graph_prog)

@@ -20,6 +20,7 @@ class Node(object):
         self.data = data
         self.category = category
         self.children = []
+        self.level = 0
 
     def add_child(self, obj):
         self.children.append(obj)
