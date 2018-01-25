@@ -152,7 +152,6 @@ class GeneratorAstTree(object):
 
         return tree_prog
 
-
     def create_if_cfg():
         '''
         Creates a basic if node
