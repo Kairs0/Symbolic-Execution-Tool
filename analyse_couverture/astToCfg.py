@@ -11,10 +11,16 @@ class astToCfg(object):
                 partial_graph = self.treat_if_node(child)
                 full_graph.update(partial_graph)
                 self.step += 1
+            elif child.category == "assign":
+                tmp = self.treat_assign_node(child) # ["x+1", ""]
+                # 2: ("assign", "-x", "", 4),
+                partial_graph = {
+                    self.step: ("assign", tmp[0], tmp[1], self.step + 1)
+                }
+                full_graph.update(partial_graph)
+                self.step += 1
             else:
-                # TODO
                 pass
-
         return full_graph
 
 
@@ -23,11 +29,22 @@ class astToCfg(object):
         partial_graph = {}
         partial_graph[self.step] = ("if", operator[0], operator[1], (self.step+1, self.step+2))
 
+        delta = 1
+        if node.children[1].category == "sequence":
+            if delta < len(node.children[1].children):
+                delta = len(node.children[1].children)
+        if node.children[2].category == "sequence":
+            if delta < len(node.children[2].children):
+                delta = len(node.children[2].children)
         
         if node.children[1].category == "assign":
             self.step += 1
             if_body_assign = self.treat_assign_node(node.children[1])
-            partial_graph[self.step] = ("assign", if_body_assign[0], if_body_assign[1], self.step+2)
+            partial_graph[self.step] = ("assign", if_body_assign[0], if_body_assign[1], self.step + delta + 1)
+        elif node.children[1].category == "sequence":
+            self.step += 1
+            seq = node.children[1]
+            partial_graph.update(self.treat_seq_node(seq))
         else:
             # TODO
             pass
@@ -35,7 +52,11 @@ class astToCfg(object):
         if node.children[2].category == "assign":
             self.step += 1
             else_body_assign = self.treat_assign_node(node.children[2])
-            partial_graph[self.step] = ("assign", else_body_assign[0], else_body_assign[1], self.step+1)
+            partial_graph[self.step] = ("assign", else_body_assign[0], else_body_assign[1], self.step + delta)
+        elif node.children[2].category == "sequence":
+            self.step += 1
+            seq = node.children[2]
+            partial_graph.update(self.treat_seq_node(seq))
         else:
             # TODO
             pass

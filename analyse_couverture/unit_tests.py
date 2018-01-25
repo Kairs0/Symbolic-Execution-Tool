@@ -110,6 +110,47 @@ def create_if_cfg():
     return if2
 
 
+def create_if_cfg_else_is_seq():
+    if2 = Node("if")
+    # condition if
+    compare2 = Node("compare", "==")
+    var5 = Node("variable", "X")
+    cst4 = Node("constant", 1)
+    compare2.add_child(var5)
+    compare2.add_child(cst4)
+    if2.add_child(compare2)
+    # if body if
+    assign3 = Node("assign")
+    var6 = Node("variable", "X")
+    cst5 = Node("constant", 1)
+    assign3.add_child(var6)
+    assign3.add_child(cst5)
+    if2.add_child(assign3)
+    # else body if
+    seq = Node("sequence")
+    # 1 assign
+    assign4 = Node("assign")
+    var7 = Node("variable", "X")
+    cst8 = Node("constant", 32)
+    assign4.add_child(var7)
+    assign4.add_child(cst8)
+    seq.add_child(assign4)
+
+    # 2 assign
+    assign5 = Node("assign")
+    var8 = Node("variable", "X")
+    op = Node("operation", "*")
+    var9 = Node("variable", "X")
+    cst9 = Node("constant", 4)
+    op.add_child(var9)
+    op.add_child(cst9)
+    assign5.add_child(var8)
+    assign5.add_child(op)
+    seq.add_child(assign5)
+
+    if2.add_child(seq)
+    return if2
+
 
 if __name__ == "__main__":
 
@@ -133,6 +174,11 @@ if __name__ == "__main__":
 
     parser2 = astToCfg(prog_tree)
 
-    print(parser2.treat_seq_node(prog_tree))
+    # print(parser2.treat_seq_node(prog_tree))
 
+    a = create_if_cfg_else_is_seq()
+
+    parser3 = astToCfg(a)
+
+    print(parser3.treat_if_node(a))
 
