@@ -49,6 +49,14 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(result, expected)
         self.assertEqual(resultBasic, expectedBasic)
 
+    def test_get_height(self):
+        prog_tree = GeneratorAstTree.create_prog_tree()
+        basic_if_tree = GeneratorAstTree.create_if_cfg()
+        h_prog = prog_tree.get_height()
+        h_if = basic_if_tree.get_height()
+        self.assertEqual(h_prog, 4)
+        self.assertEqual(h_if, 3)
+
     def test_treat_compare_node(self):
         pass
 
