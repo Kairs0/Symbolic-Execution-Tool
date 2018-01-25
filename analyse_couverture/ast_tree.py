@@ -72,6 +72,65 @@ def rec_calc_level(node, lvl):
 class GeneratorAstTree(object):
 
     @staticmethod
+    def create_test_assign():
+        """
+        if X <= 0
+            then Y := X
+            else Y := -X
+        X := 2*Y
+        :return: ast tree
+        """
+        seq = Node("sequence")
+
+        # sequence 1
+        if1 = Node("if")
+        # condition
+        compare = Node("compare", "<=")
+        var1 = Node("variable", "x")
+        cst1 = Node("constant", 0)
+        compare.add_child(var1)
+        compare.add_child(cst1)
+
+        # then body
+        assign = Node("assign")
+        var2 = Node("variable", "y")
+        var3 = Node("variable", "x")
+        assign.add_child(var2)
+        assign.add_child(var3)
+
+        # else body
+        assign2 = Node("assign")
+        var4 = Node("variable", "y")
+        op1 = Node("operation", "-")
+        cst2 = Node("constant", 0)
+        var5 = Node("variable", "x")
+        op1.add_child(cst2)
+        op1.add_child(var5)
+        assign2.add_child(var4)
+        assign2.add_child(op1)
+
+        if1.add_child(compare)
+        if1.add_child(assign)
+        if1.add_child(assign2)
+
+        # sequence 2
+        assign3 = Node("assign")
+        var6 = Node("variable", "x")
+        op2 = Node("operation", "*")
+        var7 = Node("variable", "y")
+        cst3 = Node("constant", 2)
+        op2.add_child(var7)
+        op2.add_child(cst3)
+        assign3.add_child(var6)
+        assign3.add_child(op2)
+
+        # seq
+        seq.add_child(if1)
+        seq.add_child(assign3)
+
+        return seq
+
+    @staticmethod
     def create_prog_tree():
         """
         The prog program (from subject) implemented with our tree

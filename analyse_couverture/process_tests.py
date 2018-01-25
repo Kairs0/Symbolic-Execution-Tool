@@ -125,25 +125,20 @@ if __name__ == '__main__':
     # (temporary - while ast_to_cfg isn't connected to process_tests)
 
     new_graph_prog = {
-        1: ("if", "<=", ["x", 0], (2, 3)),
-        2: ("assign", "-x", "", 4),
-        3: ("assign", "1-x", "", 4),
-        4: ("if", "==", ["x", 1], (5, 6)),
-        5: ("assign", "1", "", 0),
-        6: ("assign", "x+1", "", 0)
+        1: ["if", "<=", ["x", 0], [2, 3]],
+        2: ["assign", "-x", "", 4],
+        3: ["assign", "1-x", "", 4],
+        4: ["if", "==", ["x", 1], [5, 6]],
+        5: ["assign", "1", "", 0],
+        6: ["assign", "x+1", "", 0]
     }
 
-    # graph_prog_test = {
-    #     1: ("if","<=", [0], (2, 3)), # node[0] : type (assign, while, if, skip)
-    #     2: ("assign", "-x", "", 4),
-    #     3: ("assign", "1-x", "", 4),
-    #     4: ("if","==", [0], (5, 6)),
-    #     5: ("assign", "1", "", 8),
-    #     6: ("assign", "x+1", "", 8),
-    #     7: ("skip", 9),
-    #     8: ("while", "<=", [4], (6, 7)),
-    #     9: ("assign", "x*x", "", 0)
-    # }
+    new_test_two_variables = {
+        1: ['if', '<=', ['x', 0], [2, 3]],
+        2: ['assign', '', 'x', 4],
+        3: ['assign', '', '0-x', 4],
+        4: ['assign', 'y*2', '', 0]
+    }
 
     test_values = []
     with open(PATH_TESTS) as file:
@@ -153,5 +148,5 @@ if __name__ == '__main__':
     toutes_affectation(test_values, new_graph_prog)
     toutes_decisions(test_values, new_graph_prog)
 
-    # toutes_affectation(test_values, generated_graph_prog)
-    # toutes_decisions(test_values, generated_graph_prog)
+    toutes_affectation(test_values, new_test_two_variables)
+    toutes_decisions(test_values, new_test_two_variables)

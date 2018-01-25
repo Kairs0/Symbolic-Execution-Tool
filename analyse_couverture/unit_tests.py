@@ -1,6 +1,6 @@
 import unittest
 
-from ast_to_cfg import AstToCfgConverter, check_children_are_cst_or_var
+from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
 
 
@@ -8,20 +8,20 @@ class TestAstToCfgMethods(unittest.TestCase):
     def test_childrenAreCstOrVar(self):
         if_tree = GeneratorAstTree.create_if_cfg()
         body_part = if_tree.children[1]
-        self.assertEqual(check_children_are_cst_or_var(if_tree), False)
-        self.assertEqual(check_children_are_cst_or_var(body_part), True)
+        self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(if_tree), False)
+        self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(body_part), True)
 
     def test_treat_seq_node(self):
         prog_tree = GeneratorAstTree.create_prog_tree()
         parser = AstToCfgConverter(prog_tree)
         result = parser.treat_seq_node(prog_tree)
         expected = {
-            1: ('if', '<=', ["x", 0], (2, 3)),
-            2: ('assign', '0-x', '', 4),
-            3: ('assign', '1-x', '', 4),
-            4: ('if', '==', ["x", 1], (5, 6)),
-            5: ('assign', '1', '', 7), 
-            6: ('assign', 'x+1', '', 7)
+            1: ['if', '<=', ["x", 0], [2, 3]],
+            2: ['assign', '0-x', '', 4],
+            3: ['assign', '1-x', '', 4],
+            4: ['if', '==', ["x", 1], [5, 6]],
+            5: ['assign', '1', '', 7],
+            6: ['assign', 'x+1', '', 7]
         }
         self.assertEqual(result, expected)
 
@@ -35,16 +35,16 @@ class TestAstToCfgMethods(unittest.TestCase):
         result_for_basic = parser_for_basic.treat_if_node(basic_if_tree)
 
         expected = {
-            1: ('if', '==', ["x", 1], (2, 3)),
-            2: ('assign', '1', '', 5),
-            3: ('assign', '32', '', 4),
-            4: ('assign', 'x*4', '', 5)
+            1: ['if', '==', ["x", 1], [2, 3]],
+            2: ['assign', '1', '', 5],
+            3: ['assign', '32', '', 4],
+            4: ['assign', 'x*4', '', 5]
         }
 
         expected_basic = {
-            1: ('if', '==', ["x", 1], (2, 3)),
-            2: ('assign', '1', '', 4),
-            3: ('assign', 'x+1', '', 4)
+            1: ['if', '==', ["x", 1], [2, 3]],
+            2: ['assign', '1', '', 4],
+            3: ['assign', 'x+1', '', 4]
         }
 
         self.assertEqual(result, expected)
@@ -58,8 +58,18 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(h_prog, 4)
         self.assertEqual(h_if, 3)
 
-    def test_treat_compare_node(self):
-        pass
+    def test_get_cfg_graph(self):
+        assign_prog = GeneratorAstTree.create_test_assign()
+        parser = AstToCfgConverter(assign_prog)
+        result = parser.get_cfg_graph()
+        expected = {
+            1: ['if', '<=', ['x', 0], [2, 3]],
+            2: ['assign', '', 'x', 4],
+            3: ['assign', '', '0-x', 4],
+            4: ['assign', 'y*2', '', 0]
+        }
+
+        self.assertEqual(result, expected)
 
 
 if __name__ == "__main__":

@@ -3,7 +3,7 @@
 
 The CFG Graph is stored as a dictionary.
     Key is the number of the node
-    Value is a tuple containing information about the node:
+    Value is a list containing information about the node:
 
     Value[0] contains the command type:
     it can be "assign", "while", "if" or "skip"
@@ -16,7 +16,7 @@ The CFG Graph is stored as a dictionary.
             list[1] the second value
             These two values can either be a string ("x" or "y") or an int
 
-        Value[3] contains a tuple of 2 integer.
+        Value[3] contains a list of 2 integer.
         The first one is the following node when the statement is true,
         the second one the following node when the statement is false.
 
@@ -33,14 +33,14 @@ The CFG Graph is stored as a dictionary.
 We can see that the ultimate value of the value is always one or more following node.
 Value zero represents the _ sign (absence of following node)
 
-An Example: graph for "prog" program:
+An example: graph for "prog" program:
 graph_prog = {
-    1: ("if", "<=", ["x", 0], (2, 3)),
-    2: ("assign", "-x", "", 4),
-    3: ("assign", "1-x", "", 4),
-    4: ("if", "==", ["x", 1], (5, 6)),
-    5: ("assign", "1", "", 0),
-    6: ("assign", "x+1", "", 0)
+    1: ["if", "<=", ["x", 0], [2, 3]],
+    2: ["assign", "-x", "", 4],
+    3: ["assign", "1-x", "", 4],
+    4: ["if", "==", ["x", 1], [5, 6]],
+    5: ["assign", "1", "", 0],
+    6: ["assign", "x+1", "", ],
 }
 
 """
@@ -50,6 +50,24 @@ class AstToCfgConverter(object):
     def __init__(self, ast_tree):
         self.ast_tree = ast_tree
         self.step = 1
+
+    def get_cfg_graph(self):
+        # master node must be a sequence
+        if self.ast_tree.category == "sequence":
+            # TODO: WIP : set last step to zero ; test if it effectively does the job
+            uncompleted_graph = self.treat_seq_node(self.ast_tree)
+            for key, value in uncompleted_graph.items():
+                next_steps = value[-1]
+                if isinstance(next_steps, list):
+                    for index, item in enumerate(next_steps):
+                        if item == self.step:
+                            next_steps[index] = 0
+                else:
+                    if next_steps == self.step:
+                        value[-1] = 0
+            return uncompleted_graph
+        else:
+            return None
 
     def treat_seq_node(self, node):
         full_graph = {}
@@ -62,19 +80,20 @@ class AstToCfgConverter(object):
                 tmp = self.treat_assign_node(child)  # ["x+1", ""]
                 # 2: ("assign", "-x", "", 4),
                 partial_graph = {
-                    self.step: ("assign", tmp[0], tmp[1], self.step + 1)
+                    self.step: ["assign", tmp[0], tmp[1], self.step + 1]
                 }
                 full_graph.update(partial_graph)
                 self.step += 1
             else:
-                # TODO
+                # TODO (sequence, while)
                 pass
         return full_graph
 
     def treat_if_node(self, node):
         operator = self.treat_compare_node(node.children[0])
-        partial_graph = {self.step: ("if", operator[0], operator[1], (self.step+1, self.step+2))}
+        partial_graph = {self.step: ["if", operator[0], operator[1], [self.step+1, self.step+2]]}
 
+        # delta is used to set the number of next step (by default one, could be more for sequence)
         delta = 1
         if node.children[1].category == "sequence":
             if delta < len(node.children[1].children):
@@ -86,19 +105,19 @@ class AstToCfgConverter(object):
         if node.children[1].category == "assign":
             self.step += 1
             if_body_assign = self.treat_assign_node(node.children[1])
-            partial_graph[self.step] = ("assign", if_body_assign[0], if_body_assign[1], self.step + delta + 1)
+            partial_graph[self.step] = ["assign", if_body_assign[0], if_body_assign[1], self.step + delta + 1]
         elif node.children[1].category == "sequence":
             self.step += 1
             seq = node.children[1]
             partial_graph.update(self.treat_seq_node(seq))
         else:
-            # TODO
+            # TODO (while)
             pass
 
         if node.children[2].category == "assign":
             self.step += 1
             else_body_assign = self.treat_assign_node(node.children[2])
-            partial_graph[self.step] = ("assign", else_body_assign[0], else_body_assign[1], self.step + delta)
+            partial_graph[self.step] = ["assign", else_body_assign[0], else_body_assign[1], self.step + delta]
         elif node.children[2].category == "sequence":
             self.step += 1
             seq = node.children[2]
@@ -106,7 +125,7 @@ class AstToCfgConverter(object):
         else:
             # TODO
             pass
-
+        # print(partial_graph)
         return partial_graph
 
     @staticmethod
@@ -156,9 +175,9 @@ class AstToCfgConverter(object):
         
         return result
 
-
-def check_children_are_cst_or_var(node):
-    for child in node.children:
-        if child.category != "constant" and child.category != "variable":
-            return False
-    return True
+    @staticmethod
+    def check_children_are_cst_or_var(node):
+        for child in node.children:
+            if child.category != "constant" and child.category != "variable":
+                return False
+        return True
