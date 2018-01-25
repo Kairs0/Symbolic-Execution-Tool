@@ -3,7 +3,7 @@
 ## TODOs
 - finish ASTtoCFG conversion (manage while loop)
 - implement criteria tests (2/9)
--
+- parsing : see https://tomassetti.me/parsing-in-python/#tools
 
 ## Summary Work to do
 #### Part 1
