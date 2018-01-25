@@ -27,7 +27,7 @@ class Node(object):
     def calc_level(self):
         rec_calc_level(self, 0)
 
-    def getHeight(self):
+    def get_height(self):
         self.calc_level()
         h = 0
         for n in get_all_nodes_and_leaves(self):
@@ -37,7 +37,7 @@ class Node(object):
         return h
 
     def print_me(self):
-        h = self.getHeight()
+        h = self.get_height()
         tree_list = get_all_nodes_and_leaves(self)
         to_print = []
         for i in range(h):
@@ -53,8 +53,7 @@ class Node(object):
 
 
 def get_all_nodes_and_leaves(node):
-    result = []
-    result.append(node)
+    result = [node]
     if len(node.children) == 0:
         return result
     else:
@@ -71,9 +70,10 @@ def rec_calc_level(node, lvl):
 
 class GeneratorAstTree(object):
 
+    @staticmethod
     def create_prog_tree():
         """
-        The prog programm (from subject) implemented with our tree
+        The prog program (from subject) implemented with our tree
         """
         tree_prog = Node("sequence")
 
@@ -152,10 +152,11 @@ class GeneratorAstTree(object):
 
         return tree_prog
 
+    @staticmethod
     def create_if_cfg():
-        '''
+        """
         Creates a basic if node
-        '''
+        """
         if2 = Node("if")
         # condition if
         compare2 = Node("compare", "==")
@@ -185,6 +186,7 @@ class GeneratorAstTree(object):
 
         return if2
 
+    @staticmethod
     def create_if_cfg_else_is_seq():
         """
         Creates a if node in which the else part contains a sequence

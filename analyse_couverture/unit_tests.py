@@ -1,17 +1,17 @@
 import unittest
-from astToCfg import astToCfg, childrenAreCstOrVar
+from AstToCfgConverter import AstToCfgConverter, check_children_are_cst_or_var
 from asttree import Node, GeneratorAstTree
 
 class TestAstToCfgMethods(unittest.TestCase):
     def test_childrenAreCstOrVar(self):
         ifTree = GeneratorAstTree.create_if_cfg()
         bodyPart = ifTree.children[1]
-        self.assertEqual(childrenAreCstOrVar(ifTree), False)
-        self.assertEqual(childrenAreCstOrVar(bodyPart), True)
+        self.assertEqual(check_children_are_cst_or_var(ifTree), False)
+        self.assertEqual(check_children_are_cst_or_var(bodyPart), True)
 
     def test_treat_seq_node(self):
         prog_tree = GeneratorAstTree.create_prog_tree()
-        parser = astToCfg(prog_tree)
+        parser = AstToCfgConverter(prog_tree)
         result = parser.treat_seq_node(prog_tree)
         expected = {
             1: ('if', '<=', [0], (2, 3)),
@@ -26,10 +26,10 @@ class TestAstToCfgMethods(unittest.TestCase):
     def test_treat_if_node(self):
         basic_if_tree = GeneratorAstTree.create_if_cfg()
         if_tree_with_seq = GeneratorAstTree.create_if_cfg_else_is_seq()
-        parser = astToCfg(if_tree_with_seq)
+        parser = AstToCfgConverter(if_tree_with_seq)
         result = parser.treat_if_node(if_tree_with_seq)
 
-        parserBasic = astToCfg(basic_if_tree)
+        parserBasic = AstToCfgConverter(basic_if_tree)
         resultBasic = parserBasic.treat_if_node(basic_if_tree)
 
         expected = {

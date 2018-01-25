@@ -14,6 +14,11 @@ the first variable will be checked against the
 second variable of the program.
 If the list is length 1, the first variable of the program
 will be checked against the value given in the list
+TODO WIP: tuple[2] is going to be a list of len 2, with
+list[0] the first value to be compared,
+and list[1] the second value
+these two can either be a string ("x" or "y") or an int
+
 ****** ******* TODO add ability to compare y without comparing x
 If the list is length 2, the first value will be checked 
 against the second
@@ -32,7 +37,7 @@ tuple[3] is the following node
 ***** For "skip" commands:
 tuple[1] is the following node
 
-Example graph for prog program:
+Example graph for "prog" program:
 graph_prog = {
     1: ("if", "<=", [0], (2, 3)),
     2: ("assign", "-x", "", 4),
@@ -44,9 +49,9 @@ graph_prog = {
 """
 
 
-class astToCfg(object):
-    def __init__(self, astTree):
-        self.astTree = astTree
+class AstToCfgConverter(object):
+    def __init__(self, ast_tree):
+        self.ast_tree = ast_tree
         self.step = 1
 
     def treat_seq_node(self, node):
@@ -57,7 +62,7 @@ class astToCfg(object):
                 full_graph.update(partial_graph)
                 self.step += 1
             elif child.category == "assign":
-                tmp = self.treat_assign_node(child) # ["x+1", ""]
+                tmp = self.treat_assign_node(child)  # ["x+1", ""]
                 # 2: ("assign", "-x", "", 4),
                 partial_graph = {
                     self.step: ("assign", tmp[0], tmp[1], self.step + 1)
@@ -69,11 +74,9 @@ class astToCfg(object):
                 pass
         return full_graph
 
-
     def treat_if_node(self, node):
         operator = self.treat_compare_node(node.children[0])
-        partial_graph = {}
-        partial_graph[self.step] = ("if", operator[0], operator[1], (self.step+1, self.step+2))
+        partial_graph = {self.step: ("if", operator[0], operator[1], (self.step+1, self.step+2))}
 
         delta = 1
         if node.children[1].category == "sequence":
@@ -109,15 +112,12 @@ class astToCfg(object):
 
         return partial_graph
 
-
-
-
-    def treat_compare_node(self, node):
-        '''
-        Returns a list [operator(string), [csts]]
-        '''
-        result = []
-        result.append(node.data) # append operator
+    @staticmethod
+    def treat_compare_node(node):
+        """
+        Returns a list [operator(string), [constants]]
+        """
+        result = [node.data]  # append operator
         cst = []
 
         for child in node.children:
@@ -125,33 +125,31 @@ class astToCfg(object):
                 cst.append(child.data)
         
         result.append(cst)
-
         return result
 
-    def treat_operation_node(self, node):
-        '''
+    @staticmethod
+    def treat_operation_node(node):
+        """
         Returns a string containing the operation
-        '''
+        """
         return str(node.children[0].data) + node.data + str(node.children[1].data)
 
-    
-    def treat_assign_node(self, node):
-        '''
+    @staticmethod
+    def treat_assign_node(node):
+        """
         Returns a list of two elements, the first one being the new affectation of X,
         the second one the new affectation of Y ("" is no new affectation)
-        '''
+        """
         result = []
-        left_member_str = ""
-        right_member_str = ""
         if node.children[0].category == "constant" or node.children[0].category == "variable":
             left_member_str = str(node.children[0].data)
         else:
-            left_member_str = self.treat_operation_node(node.children[0])
+            left_member_str = AstToCfgConverter.treat_operation_node(node.children[0])
 
         if node.children[1].category == "constant" or node.children[1].category == "variable":
             right_member_str = str(node.children[1].data)
         else:
-            right_member_str = self.treat_operation_node(node.children[1])
+            right_member_str = AstToCfgConverter.treat_operation_node(node.children[1])
         
         if left_member_str == "X" or left_member_str == "x":
             result.append(right_member_str)
@@ -163,9 +161,8 @@ class astToCfg(object):
         return result
 
 
-def childrenAreCstOrVar(node):
+def check_children_are_cst_or_var(node):
     for child in node.children:
-        if child.category != "constant" and child.category !="variable":
+        if child.category != "constant" and child.category != "variable":
             return False
     return True
-
