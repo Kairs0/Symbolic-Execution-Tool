@@ -16,6 +16,7 @@ def process_value_test(x, graph, y=0):
         node = graph[next_node]
         # print(node)
         if node[0] == "if" or node[0] == "while":
+            # TODO: here we have to change process to know which comparaison we have to do
             if len(node[2]) == 0:
                 next_node = comparison(x, y, node[1], node[3][0], node[3][1])
             elif len(node[2]) == 1:

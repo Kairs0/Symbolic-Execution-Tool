@@ -46,6 +46,17 @@ graph_prog = {
     5: ("assign", "1", "", 0),
     6: ("assign", "x+1", "", 0)
 }
+graph_prog = {
+    1: ("if", "<=", ["x", 0], (2, 3)),
+    2: ("assign", "-x", "", 4),
+    3: ("assign", "1-x", "", 4),
+    4: ("if", "==", [1], (5, 6)),
+    5: ("assign", "1", "", 0),
+    6: ("assign", "x+1", "", 0)
+}
+
+TODO WIP: NEW EXAMPLE GRAPH FOR "prog" program:
+
 """
 
 
@@ -118,13 +129,15 @@ class AstToCfgConverter(object):
         Returns a list [operator(string), [constants]]
         """
         result = [node.data]  # append operator
-        cst = []
+        values = []
 
         for child in node.children:
-            if child.category == "constant":
-                cst.append(child.data)
+            values.append(child.data)
+            # TODO WIP REFACTOR TUPLE[2] for if and while
+            # if child.category == "constant":
+            #     cst.append(child.data)
         
-        result.append(cst)
+        result.append(values)
         return result
 
     @staticmethod
