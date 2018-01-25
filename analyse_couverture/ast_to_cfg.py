@@ -54,9 +54,9 @@ class AstToCfgConverter(object):
     def get_cfg_graph(self):
         # master node must be a sequence
         if self.ast_tree.category == "sequence":
-            # TODO: WIP : set last step to zero ; test if it effectively does the job
-            uncompleted_graph = self.treat_seq_node(self.ast_tree)
-            for key, value in uncompleted_graph.items():
+            graph = self.treat_seq_node(self.ast_tree)
+            # before returning the graph, with set the last steps to 0 (exit node)
+            for key, value in graph.items():
                 next_steps = value[-1]
                 if isinstance(next_steps, list):
                     for index, item in enumerate(next_steps):
@@ -65,7 +65,7 @@ class AstToCfgConverter(object):
                 else:
                     if next_steps == self.step:
                         value[-1] = 0
-            return uncompleted_graph
+            return graph
         else:
             return None
 
@@ -85,7 +85,7 @@ class AstToCfgConverter(object):
                 full_graph.update(partial_graph)
                 self.step += 1
             else:
-                # TODO (sequence, while)
+                # TODO (while)
                 pass
         return full_graph
 
@@ -123,7 +123,7 @@ class AstToCfgConverter(object):
             seq = node.children[2]
             partial_graph.update(self.treat_seq_node(seq))
         else:
-            # TODO
+            # TODO (while)
             pass
         # print(partial_graph)
         return partial_graph

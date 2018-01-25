@@ -1,9 +1,7 @@
 # Formal Verification Project - January 2018
 
 ## TODOs
-- reorganize code structure
-- complete AST tree structure
-- implement ASTtoCFG conversion
+- finish ASTtoCFG conversion (manage while loop)
 - implement criteria tests (2/9)
 -
 
