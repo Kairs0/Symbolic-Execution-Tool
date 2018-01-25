@@ -83,7 +83,7 @@ class GeneratorAstTree(object):
 
         # condition if1
         compare1 = Node("compare", "<=")
-        var1 = Node("variable", "X")
+        var1 = Node("variable", "x")
         cst1 = Node("constant", 0)
         compare1.add_child(var1)
         compare1.add_child(cst1)
@@ -91,10 +91,10 @@ class GeneratorAstTree(object):
 
         # if body if1
         assign1 = Node("assign")
-        var1 = Node("variable", "X")
+        var1 = Node("variable", "x")
         op1 = Node("operation", "-")
         cst2 = Node("constant", 0)
-        var2 = Node("variable", "X")
+        var2 = Node("variable", "x")
         op1.add_child(cst2)
         op1.add_child(var2)
         assign1.add_child(var1)
@@ -103,10 +103,10 @@ class GeneratorAstTree(object):
 
         # else body if1
         assign2 = Node("assign")
-        var3 = Node("variable", "X")
+        var3 = Node("variable", "x")
         op2 = Node("operation", "-")
         cst3 = Node("constant", 1)
-        var4 = Node("variable", "X")
+        var4 = Node("variable", "x")
         op2.add_child(cst3)
         op2.add_child(var4)
         assign2.add_child(var3)
@@ -121,7 +121,7 @@ class GeneratorAstTree(object):
 
         # condition if2
         compare2 = Node("compare", "==")
-        var5 = Node("variable", "X")
+        var5 = Node("variable", "x")
         cst4 = Node("constant", 1)
         compare2.add_child(var5)
         compare2.add_child(cst4)
@@ -129,7 +129,7 @@ class GeneratorAstTree(object):
 
         # if body if2
         assign3 = Node("assign")
-        var6 = Node("variable", "X")
+        var6 = Node("variable", "x")
         cst5 = Node("constant", 1)
         assign3.add_child(var6)
         assign3.add_child(cst5)
@@ -137,9 +137,9 @@ class GeneratorAstTree(object):
 
         # else body if2
         assign4 = Node("assign")
-        var7 = Node("variable", "X")
+        var7 = Node("variable", "x")
         op3 = Node("operation", "+")
-        var8 = Node("variable", "X")
+        var8 = Node("variable", "x")
         cst6 = Node("constant", 1)
         op3.add_child(var8)
         op3.add_child(cst6)
@@ -161,23 +161,23 @@ class GeneratorAstTree(object):
         if2 = Node("if")
         # condition if
         compare2 = Node("compare", "==")
-        var5 = Node("variable", "X")
+        var5 = Node("variable", "x")
         cst4 = Node("constant", 1)
         compare2.add_child(var5)
         compare2.add_child(cst4)
         if2.add_child(compare2)
         # if body if
         assign3 = Node("assign")
-        var6 = Node("variable", "X")
+        var6 = Node("variable", "x")
         cst5 = Node("constant", 1)
         assign3.add_child(var6)
         assign3.add_child(cst5)
         if2.add_child(assign3)
         # else body if
         assign4 = Node("assign")
-        var7 = Node("variable", "X")
+        var7 = Node("variable", "x")
         op3 = Node("operation", "+")
-        var8 = Node("variable", "X")
+        var8 = Node("variable", "x")
         cst6 = Node("constant", 1)
         op3.add_child(var8)
         op3.add_child(cst6)
@@ -195,14 +195,14 @@ class GeneratorAstTree(object):
         if2 = Node("if")
         # condition if
         compare2 = Node("compare", "==")
-        var5 = Node("variable", "X")
+        var5 = Node("variable", "x")
         cst4 = Node("constant", 1)
         compare2.add_child(var5)
         compare2.add_child(cst4)
         if2.add_child(compare2)
         # if body if
         assign3 = Node("assign")
-        var6 = Node("variable", "X")
+        var6 = Node("variable", "x")
         cst5 = Node("constant", 1)
         assign3.add_child(var6)
         assign3.add_child(cst5)
@@ -211,7 +211,7 @@ class GeneratorAstTree(object):
         seq = Node("sequence")
         # 1 assign
         assign4 = Node("assign")
-        var7 = Node("variable", "X")
+        var7 = Node("variable", "x")
         cst8 = Node("constant", 32)
         assign4.add_child(var7)
         assign4.add_child(cst8)
@@ -219,9 +219,9 @@ class GeneratorAstTree(object):
 
         # 2 assign
         assign5 = Node("assign")
-        var8 = Node("variable", "X")
+        var8 = Node("variable", "x")
         op = Node("operation", "*")
-        var9 = Node("variable", "X")
+        var9 = Node("variable", "x")
         cst9 = Node("constant", 4)
         op.add_child(var9)
         op.add_child(cst9)

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ast_tree import Node
-
 # while loop is made with a second node which points to the while node
 
 
@@ -123,8 +121,8 @@ if __name__ == '__main__':
 
     PATH_TESTS = "tests_txt/test.txt"
 
-    ### TMP: graph générés ou écrits à la main
-    # pour process tests avant branchement convertisseut astToCfg
+    # Hand written CFG graphs
+    # (temporary - while ast_to_cfg isn't connected to process_tests)
 
     new_graph_prog = {
         1: ("if", "<=", ["x", 0], (2, 3)),
@@ -135,25 +133,6 @@ if __name__ == '__main__':
         6: ("assign", "x+1", "", 0)
     }
 
-    # generated_graph_prog = {
-    #     1: ('if', '<=', [0], (2, 3)),
-    #     2: ('assign', '0-x', '', 4),
-    #     3: ('assign', '1-x', '', 4),
-    #     4: ('if', '==', [1], (5, 6)),
-    #     5: ('assign', '1', '', 0),
-    #     6: ('assign', 'x+1', '', 0)
-    # }
-    #
-    #
-    # graph_prog = {
-    #     1: ("if", "<=", [0], (2, 3)),
-    #     2: ("assign", "-x", "", 4),
-    #     3: ("assign", "1-x", "", 4),
-    #     4: ("if", "==", [1], (5, 6)),
-    #     5: ("assign", "1", "", 0),
-    #     6: ("assign", "x+1", "", 0)
-    # }
-    #
     # graph_prog_test = {
     #     1: ("if","<=", [0], (2, 3)), # node[0] : type (assign, while, if, skip)
     #     2: ("assign", "-x", "", 4),
@@ -173,6 +152,6 @@ if __name__ == '__main__':
 
     toutes_affectation(test_values, new_graph_prog)
     toutes_decisions(test_values, new_graph_prog)
-    #
+
     # toutes_affectation(test_values, generated_graph_prog)
     # toutes_decisions(test_values, generated_graph_prog)
