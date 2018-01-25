@@ -1,40 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-"""
-CFG Graph Structure:
-The graph is a dictionary.
-Key is the numeration of the node
-Value is a tuple containing instructions
-tuple[0] contains the command type:
-it can be "assign", "while", "if" or "skip"
-
-***** For "if" and "while" commands:
-tuple[1] is the comparator it can be "<=" to ">="
-tuple[2] is a list of values used to operate the
-operator given in tuple[1]. If the list is empty,
-the first variable will be checked against the 
-second variable of the program.
-If the list is length 1, the first variable of the program
-will be checked against the value given in the list ! TODO compare y
-If the list is length 2, the first value will be checked 
-against the second
-tuple[3] contains a tuple of 2 elements.
-The first one is the following node when the
-statement is true, the second one the following node when the 
-statement is false.
-
-***** For "assign" commands:
-tuple[1] is the new value of the first variable x
-it reads like : x = tuple[1]
-tuple[2] is the new value of the second variable y
-it reads like y = tuple[2]
-tuple[3] is the following node
-
-***** For "skip" commands:
-tuple[1] is the following node
-"""
-
 from asttree import Node
 
 """
