@@ -6,3 +6,6 @@ generation_tests/__pychache__/*
 
 analyse_couverture/*.pyc
 generation_tests/*.pyc
+
+analyse_couverture/.idea/*
+generation_tests/.idea/*
