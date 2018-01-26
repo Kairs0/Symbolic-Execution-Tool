@@ -9,3 +9,5 @@ generation_tests/*.pyc
 
 analyse_couverture/.idea/*
 generation_tests/.idea/*
+
+.idea/*
