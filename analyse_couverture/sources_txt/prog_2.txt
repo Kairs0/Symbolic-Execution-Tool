@@ -1,0 +1,6 @@
+if X <= 0
+then X := - X
+else X := 1 - X
+if x = 1
+then X := 1
+else X := X + 1

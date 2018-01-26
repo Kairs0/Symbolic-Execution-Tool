@@ -4,3 +4,10 @@ else 3 : X = 1 − X;
 4 : if X = 1
 then 5 : X := 1
 else 6 : X = X + 1
+
+if X <= 0
+then X := -X
+else X := 1 - X
+if x = 1
+then X := 1
+else X := X + 1
