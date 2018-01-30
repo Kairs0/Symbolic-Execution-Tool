@@ -36,12 +36,18 @@ def process_value_test(x, graph, variables, y=0):
             instruct = node[1]
             # instruct: {'x': 'x+1'}
             for key, instruction in instruct.items():
-                variables[key] = eval(instruction.replace(key, str(variables[key])))
+                variables[key] = eval(replace_any_var_by_value(instruction, variables))
             next_node = node[2]
 
         path.append(next_node)
         count += 1
     return path, variables
+
+
+def replace_any_var_by_value(instruction, variables):
+    for key, value in variables.items():
+        instruction = instruction.replace(key, str(variables[key]))
+    return instruction
 
 
 def comparison(a, b, operator, out1, out2):

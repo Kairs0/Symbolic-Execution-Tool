@@ -112,6 +112,16 @@ class TestProcessTestsMethods(unittest.TestCase):
         result_path, result_var = process_value_test(-1, graph_prog, {})
         self.assertEqual(result_var['x'], 1)
 
+        graph_while = {
+            1: ["while", '<', ['x', 5], [2, 4]],
+            2: ['assign', {'x': 'x+x'}, 3],
+            3: ['assign', {'x': 'x-1'}, 1],
+            4: ['assign', {'y': 'x*2'}, 0]
+        }
+        result_path, result_var = process_value_test(2, graph_while, {})
+        self.assertEqual(result_var['y'], 10)
+        self.assertEqual(result_var['x'], 5)
+
 
 if __name__ == "__main__":
     unittest.main()
