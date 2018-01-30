@@ -12,6 +12,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(body_part), True)
 
     def test_treat_while_node(self):
+        # test simple while loop
         while_tree = GeneratorAstTree.create_basic_while_tree()
         parser = AstToCfgConverter(while_tree)
         result = parser.treat_while_node(while_tree)
@@ -21,13 +22,18 @@ class TestAstToCfgMethods(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
+        # test tree with sequence inside
         while_tree_seq = GeneratorAstTree.while_tree_with_sequence()
         parser2 = AstToCfgConverter(while_tree_seq)
-        result2 = parser.treat_while_node(while_tree_seq)
-        expected = {
-            
+        result2 = parser2.treat_while_node(while_tree_seq)
+
+        expected2 = {
+            1: ["while", '<', ['x', 5], [2, 4]],
+            2: ['assign', 'x+x', '', 3],
+            3: ['assign', 'x-1', '', 1]
         }
 
+        self.assertEqual(result2, expected2)
 
     def test_treat_seq_node(self):
         prog_tree = GeneratorAstTree.create_prog_tree()

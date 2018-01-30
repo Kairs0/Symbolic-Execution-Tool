@@ -21,6 +21,7 @@ The CFG Graph is stored as a dictionary.
         the second one the following node when the statement is false.
 
     ***** "assign" commands:
+        TODO: change in order that value[1] is a dic {variable: new value}
         Value[1] is the new value of the first variable x
         it reads like : x = tuple[1]
         Value[2] is the new value of the second variable y
@@ -33,7 +34,7 @@ The CFG Graph is stored as a dictionary.
 We can see that the ultimate value of the value is always one or more following node.
 Value zero represents the _ sign (absence of following node)
 
-An example: graph for "prog" program:
+An example: graph for "prog" program given in the subject:
 graph_prog = {
     1: ["if", "<=", ["x", 0], [2, 3]],
     2: ["assign", "-x", "", 4],
@@ -56,7 +57,7 @@ class AstToCfgConverter(object):
         if self.ast_tree.category == "sequence":
             graph = self.treat_seq_node(self.ast_tree)
             # before returning the graph, we set the last steps to 0 (exit node)
-            self.set_value_following_node(graph, self.step, 0)
+            AstToCfgConverter.set_value_following_node(graph, self.step, 0)
             return graph
         else:
             return None
@@ -90,7 +91,7 @@ class AstToCfgConverter(object):
                 full_graph.update(partial_graph)
                 self.step += 1
             else:
-                # TODO (while)
+                # TODO (while and sequence)
                 pass
         return full_graph
 
@@ -112,13 +113,12 @@ class AstToCfgConverter(object):
             loop_body = self.treat_assign_node(node.children[1])
             to_add = {self.step: ["assign", loop_body[0], loop_body[1], while_number_step]}  # Back to loop
         elif node.children[1].category == "sequence":
+            self.step += 1
             to_change_before_add = self.treat_seq_node(node.children[1])
             # set last step of sequence to while step number
             self.set_value_following_node(to_change_before_add, self.step, while_number_step)
-
             # get delta
             delta += len(to_change_before_add)
-
             to_add = to_change_before_add
         else:
             to_add = {}
@@ -214,6 +214,10 @@ class AstToCfgConverter(object):
         else:
             result.append("")
             result.append(right_member_str)
+            
+        # WIP return a dictionary
+        newresult = {}
+        newresult[left_member_str] = right_member_str
         
         return result
 
