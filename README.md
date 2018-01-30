@@ -1,9 +1,9 @@
 # Formal Verification Project - January 2018
 
 ## TODOs
-- finish ASTtoCFG conversion (manage while loop)
 - manage and, or in comparisons
 - implement criteria tests (2/9)
+- push tests further on ast to cfg converter
 
 - parsing : see https://tomassetti.me/parsing-in-python/#tools
 - also see https://github.com/c2nes/javalang.git
@@ -13,7 +13,7 @@
 - Inputs:
     - AST
     - Requirements
-    - Tests
+    - Value tests
 - Output:
     - Coverage
 
@@ -22,5 +22,5 @@
     - AST
     - Requirements
 - Output:
-    - Tests
+    - Values tests
     - Coverage
