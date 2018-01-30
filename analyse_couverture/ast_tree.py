@@ -357,3 +357,12 @@ class GeneratorAstTree(object):
 
         while_node.add_child(seq)
         return while_node
+
+    @staticmethod
+    def sequence_with_while():
+        seq = Node("sequence")
+        if_part = GeneratorAstTree.create_if_cfg()
+        while_part = GeneratorAstTree.create_basic_while_tree()
+        seq.add_child(if_part)
+        seq.add_child(while_part)
+        return seq

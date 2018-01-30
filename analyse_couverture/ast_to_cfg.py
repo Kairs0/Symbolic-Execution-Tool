@@ -86,9 +86,15 @@ class AstToCfgConverter(object):
                 }
                 full_graph.update(partial_graph)
                 self.step += 1
-            else:
-                # TODO (while and sequence)
-                pass
+            elif child.category == "while":
+                partial_graph = self.treat_while_node(child)
+                full_graph.update(partial_graph)
+                self.step += 1
+            elif child.category == "sequence":
+                # TODO: test
+                partial_graph = self.treat_seq_node(child)
+                full_graph.update(partial_graph)
+                self.step += 1
         return full_graph
 
     def treat_while_node(self, node):
@@ -120,7 +126,7 @@ class AstToCfgConverter(object):
             to_add = to_change_before_add
         else:
             to_add = {}
-            # TODO
+            # TODO : if
 
         partial_graph = {while_number_step: ["while",
                                              operator[0],

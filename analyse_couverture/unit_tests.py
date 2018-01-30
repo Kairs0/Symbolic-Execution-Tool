@@ -50,6 +50,21 @@ class TestAstToCfgMethods(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
+    def test_treat_seq_with_while(self):
+        seq_tree = GeneratorAstTree.sequence_with_while()
+
+        expected = {
+            1: ['if', '==', ["x", 1], [2, 3]],
+            2: ['assign', {'x': '1'}, 4],
+            3: ['assign', {'x': 'x+1'}, 4],
+            4: ['while', '<', ['x', 5], [5, 6]],
+            5: ['assign', {'x': 'x+1'}, 4]
+        }
+        parser = AstToCfgConverter(seq_tree)
+        result = parser.treat_seq_node(seq_tree)
+
+        self.assertEqual(result, expected)
+
     def test_treat_if_node(self):
         basic_if_tree = GeneratorAstTree.create_if_cfg()
         if_tree_with_seq = GeneratorAstTree.create_if_cfg_else_is_seq()
