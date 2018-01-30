@@ -3,17 +3,12 @@
 
 # while loop is made with a second node which points to the while node
 
-"""
-TODO
-This is the best way, I know of to create dynamic variables in python.
-
-my_dict = {}
-x = "Buffalo"
-my_dict[x] = 4
-"""
-
 
 def process_value_test(x, graph, variables, y=0):
+    # TODO: replace these two affectation in order to:
+    #  - either match the variables in the graph
+    #  - or make the affectation before, while parsing the text file (requires matching
+    # test file and variables from the program tested)
     variables['x'] = x
     variables['y'] = y
     path = []
@@ -35,17 +30,10 @@ def process_value_test(x, graph, variables, y=0):
         elif node[0] == "skip":
             next_node = node[1]
         elif node[0] == "assign":
-            # NEW: adaptation to dic for assignations
             instruct = node[1]
-
             # instruct: {'x': 'x+1'}
             for key, instruction in instruct.items():
                 variables[key] = eval(instruction.replace(key, str(variables[key])))
-
-                # if key == 'x' or key == 'X':
-                #     x = eval(instruction.replace("x", str(x)))
-                # else:
-                #     y = eval(instruction.replace("y", str(y)))
             next_node = node[2]
 
         path.append(next_node)
@@ -165,7 +153,3 @@ if __name__ == '__main__':
     all_decisions(test_values, graph_prog)
     all_affectations(test_values, test_two_variables)
     all_decisions(test_values, test_two_variables)
-
-    print('test: to rm: second return of process')
-    x, y = process_value_test(2, graph_prog, {})
-    print(y)

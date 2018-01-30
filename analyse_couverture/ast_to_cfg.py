@@ -21,12 +21,8 @@ The CFG Graph is stored as a dictionary.
         the second one the following node when the statement is false.
 
     ***** "assign" commands:
-        TODO: change in order that value[1] is a dic {variable: new value}
-        Value[1] is the new value of the first variable x
-        it reads like : x = tuple[1]
-        Value[2] is the new value of the second variable y
-        it reads like y = tuple[2]
-        Value[3] is the number of the following node
+        Value[1] is a dic {variable: new value}
+        Value[2] is the number of the following node
 
     ***** For "skip" commands:
         Value[1] is the number of the following node
@@ -200,10 +196,8 @@ class AstToCfgConverter(object):
     @staticmethod
     def treat_assign_node(node):
         """
-        Returns a list of two elements, the first one being the new affectation of X,
-        the second one the new affectation of Y ("" is no new affectation)
+        Returns a dictionary. Key is the variable, Value is the new affectation
         """
-        result = []
         if node.children[0].category == "constant" or node.children[0].category == "variable":
             left_member_str = str(node.children[0].data)
         else:
@@ -213,20 +207,9 @@ class AstToCfgConverter(object):
             right_member_str = str(node.children[1].data)
         else:
             right_member_str = AstToCfgConverter.treat_operation_node(node.children[1])
-        
-        # if left_member_str == "X" or left_member_str == "x":
-        #     result.append(right_member_str)
-        #     result.append("")
-        # else:
-        #     result.append("")
-        #     result.append(right_member_str)
 
-        # TODO CLEAN
-        # WIP return a dictionary
-        newresult = {}
-        newresult[left_member_str] = right_member_str
-        
-        return newresult
+        result = {left_member_str: right_member_str}
+        return result
 
     @staticmethod
     def check_children_are_cst_or_var(node):
