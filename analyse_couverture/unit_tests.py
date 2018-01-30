@@ -80,29 +80,40 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_treat_if_node(self):
+        # basic if tree
         basic_if_tree = GeneratorAstTree.create_if_cfg()
+        parser_for_basic = AstToCfgConverter(basic_if_tree)
+        result_for_basic = parser_for_basic.treat_if_node(basic_if_tree)
+        expected_basic = {
+            1: ['if', '==', ["x", 1], [2, 3]],
+            2: ['assign', {'x': '1'}, 4],
+            3: ['assign', {'x': 'x+1'}, 4]
+        }
+        self.assertEqual(result_for_basic, expected_basic)
+
+        # if with sequence inside
         if_tree_with_seq = GeneratorAstTree.create_if_cfg_else_is_seq()
         parser = AstToCfgConverter(if_tree_with_seq)
         result = parser.treat_if_node(if_tree_with_seq)
-
-        parser_for_basic = AstToCfgConverter(basic_if_tree)
-        result_for_basic = parser_for_basic.treat_if_node(basic_if_tree)
-
         expected = {
             1: ['if', '==', ["x", 1], [2, 3]],
             2: ['assign', {'x': '1'}, 5],
             3: ['assign', {'x': '32'}, 4],
             4: ['assign', {'x': 'x*4'}, 5]
         }
-
-        expected_basic = {
-            1: ['if', '==', ["x", 1], [2, 3]],
-            2: ['assign', {'x': '1'}, 4],
-            3: ['assign', {'x': 'x+1'}, 4]
-        }
-
         self.assertEqual(result, expected)
-        self.assertEqual(result_for_basic, expected_basic)
+        
+        # if with nested while
+        if_with_while = GeneratorAstTree.if_with_while()
+        parser_for_if_while = AstToCfgConverter(if_with_while)
+        result_for_if_while = parser_for_if_while.treat_if_node(if_with_while)
+        expected_for_if_while = {
+            1: ['if', '<', ['x', 5], [2, 3]],
+            2: ['assign', {'x': '1'}, 5],
+            3: ['while', '<', ['x', 5], [4, 5]],
+            4: ['assign', {'x': 'x+1'}, 3]
+        }
+        self.assertEqual(result_for_if_while, expected_for_if_while)
 
     def test_get_height(self):
         prog_tree = GeneratorAstTree.create_prog_tree()

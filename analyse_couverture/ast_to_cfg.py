@@ -102,8 +102,6 @@ class AstToCfgConverter(object):
         while_number_step = self.step
         delta = 1
 
-        # tmp_result = {self.step: ["while", operator[0], operator[1], [self.step + 1, self.step + delta]]}
-
         # The loop is inside node.children[1].
         # We have to build the graph for this inside loop,
         # and set the exit step to the step number of the while node
@@ -135,7 +133,6 @@ class AstToCfgConverter(object):
             to_add = to_change_before_add
         else:
             to_add = {}
-            # TODO
 
         partial_graph = {while_number_step: ["while",
                                              operator[0],
@@ -148,12 +145,12 @@ class AstToCfgConverter(object):
         operator = self.treat_compare_node(node.children[0])
         partial_graph = {self.step: ["if", operator[0], operator[1], [self.step+1, self.step+2]]}
 
-        # delta is used to set the number of next step (by default one, could be more for sequence)
+        # delta is used to set the number of next step (by default one, could be more for sequence, if, while)
         delta = 1
-        if node.children[1].category == "sequence":
+        if node.children[1].category == "sequence" or node.children[1].category == "while":
             if delta < len(node.children[1].children):
                 delta = len(node.children[1].children)
-        if node.children[2].category == "sequence":
+        if node.children[2].category == "sequence" or node.children[2].category == "while":
             if delta < len(node.children[2].children):
                 delta = len(node.children[2].children)
         
@@ -167,8 +164,13 @@ class AstToCfgConverter(object):
             self.step += 1
             seq = node.children[1]
             partial_graph.update(self.treat_seq_node(seq))
+        elif node.children[1].category == "while":
+            self.step += 1
+            if_body_while = self.treat_while_node(node.children[1])
+            delta = len(if_body_while)
+            partial_graph.update(if_body_while)
         else:
-            # TODO (while)
+            # TODO (nested if)
             pass
 
         if node.children[2].category == "assign":
@@ -181,8 +183,12 @@ class AstToCfgConverter(object):
             self.step += 1
             seq = node.children[2]
             partial_graph.update(self.treat_seq_node(seq))
+        elif node.children[2].category == "while":
+            self.step += 1
+            else_body_while = self.treat_while_node(node.children[2])
+            partial_graph.update(else_body_while)
         else:
-            # TODO (while)
+            # TODO (nested if)
             pass
 
         return partial_graph
