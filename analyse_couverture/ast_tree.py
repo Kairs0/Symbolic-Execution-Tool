@@ -318,3 +318,42 @@ class GeneratorAstTree(object):
         assign.add_child(op)
         while_node.add_child(assign)
         return while_node
+
+    @staticmethod
+    def while_tree_with_sequence():
+        while_node = Node("while")
+        # condition node
+        comp = Node("compare", "<")
+        var0 = Node("variable", "x")
+        var5 = Node("constant", 5)
+        comp.add_child(var0)
+        comp.add_child(var5)
+        while_node.add_child(comp)
+
+        # action node
+        seq = Node("sequence")
+        assign1 = Node("assign")
+        var1 = Node("variable", "x")
+        op1 = Node("operation", "+")
+        var2 = Node("variable", "x")
+        var3 = Node("variable", "x")
+        op1.add_child(var2)
+        op1.add_child(var3)
+        assign1.add_child(var1)
+        assign1.add_child(op1)
+
+        assign2 = Node("assign")
+        var4 = Node("variable", "x")
+        op2 = Node("operation", "-")
+        var6 = Node("variable", "x")
+        cst = Node("constant", 1)
+        op2.add_child(var6)
+        op2.add_child(cst)
+        assign2.add_child(var4)
+        assign2.add_child(op2)
+
+        seq.add_child(assign1)
+        seq.add_child(assign2)
+
+        while_node.add_child(seq)
+        return while_node

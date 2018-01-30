@@ -21,6 +21,14 @@ class TestAstToCfgMethods(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
+        while_tree_seq = GeneratorAstTree.while_tree_with_sequence()
+        parser2 = AstToCfgConverter(while_tree_seq)
+        result2 = parser.treat_while_node(while_tree_seq)
+        expected = {
+            
+        }
+
+
     def test_treat_seq_node(self):
         prog_tree = GeneratorAstTree.create_prog_tree()
         parser = AstToCfgConverter(prog_tree)

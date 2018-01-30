@@ -56,18 +56,23 @@ class AstToCfgConverter(object):
         if self.ast_tree.category == "sequence":
             graph = self.treat_seq_node(self.ast_tree)
             # before returning the graph, we set the last steps to 0 (exit node)
-            for key, value in graph.items():
-                next_steps = value[-1]
-                if isinstance(next_steps, list):
-                    for index, item in enumerate(next_steps):
-                        if item == self.step:
-                            next_steps[index] = 0
-                else:
-                    if next_steps == self.step:
-                        value[-1] = 0
+            self.set_value_following_node(graph, self.step, 0)
             return graph
         else:
             return None
+
+    @staticmethod
+    def set_value_following_node(graph, target_step, new_value):
+        for key, value_list in graph.items():
+            next_steps = value_list[-1]
+            if isinstance(next_steps, list):
+                for index, item in enumerate(next_steps):
+                    if item == target_step:
+                        next_steps[index] = new_value
+            else:
+                if next_steps == target_step:
+                    value_list[-1] = new_value
+        return graph
 
     def treat_seq_node(self, node):
         full_graph = {}
@@ -106,6 +111,15 @@ class AstToCfgConverter(object):
             delta += 1
             loop_body = self.treat_assign_node(node.children[1])
             to_add = {self.step: ["assign", loop_body[0], loop_body[1], while_number_step]}  # Back to loop
+        elif node.children[1].category == "sequence":
+            to_change_before_add = self.treat_seq_node(node.children[1])
+            # set last step of sequence to while step number
+            self.set_value_following_node(to_change_before_add, self.step, while_number_step)
+
+            # get delta
+            delta += len(to_change_before_add)
+
+            to_add = to_change_before_add
         else:
             to_add = {}
             # TODO
