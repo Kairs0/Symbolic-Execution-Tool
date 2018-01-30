@@ -91,7 +91,7 @@ class AstToCfgConverter(object):
                 full_graph.update(partial_graph)
                 self.step += 1
             elif child.category == "sequence":
-                # TODO: test
+                # TODO: test if working
                 partial_graph = self.treat_seq_node(child)
                 full_graph.update(partial_graph)
                 self.step += 1
@@ -124,9 +124,18 @@ class AstToCfgConverter(object):
             # get delta
             delta += len(to_change_before_add)
             to_add = to_change_before_add
+        elif node.children[1].category == "if":
+            self.step += 1
+            to_change_before_add = self.treat_if_node(node.children[1])
+            # set last steps of if graph to while step number
+            self.set_value_following_node(to_change_before_add, self.step + 1, while_number_step)
+
+            # get delta
+            delta += len(to_change_before_add)
+            to_add = to_change_before_add
         else:
             to_add = {}
-            # TODO : if
+            # TODO
 
         partial_graph = {while_number_step: ["while",
                                              operator[0],
@@ -175,7 +184,7 @@ class AstToCfgConverter(object):
         else:
             # TODO (while)
             pass
-        # print(partial_graph)
+
         return partial_graph
 
     @staticmethod

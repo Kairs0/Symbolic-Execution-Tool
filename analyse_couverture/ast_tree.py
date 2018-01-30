@@ -366,3 +366,20 @@ class GeneratorAstTree(object):
         seq.add_child(if_part)
         seq.add_child(while_part)
         return seq
+
+    @staticmethod
+    def while_with_if():
+        while_node = Node("while")
+        # condition node
+        comp = Node("compare", "<")
+        var0 = Node("variable", "x")
+        var5 = Node("constant", 5)
+        comp.add_child(var0)
+        comp.add_child(var5)
+        while_node.add_child(comp)
+        # action node
+        if_node = GeneratorAstTree.create_if_cfg()
+        while_node.add_child(if_node)
+        return while_node
+
+
