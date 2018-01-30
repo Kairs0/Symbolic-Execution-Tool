@@ -3,8 +3,19 @@
 
 # while loop is made with a second node which points to the while node
 
+"""
+TODO
+This is the best way, I know of to create dynamic variables in python.
 
-def process_value_test(x, graph, y=0):
+my_dict = {}
+x = "Buffalo"
+my_dict[x] = 4
+"""
+
+
+def process_value_test(x, graph, variables, y=0):
+    variables['x'] = x
+    variables['y'] = y
     path = []
     next_node = 1
     path.append(next_node)
@@ -27,11 +38,14 @@ def process_value_test(x, graph, y=0):
             # NEW: adaptation to dic for assignations
             instruct = node[1]
 
+            # instruct: {'x': 'x+1'}
             for key, instruction in instruct.items():
-                if key == 'x' or key == 'X':
-                    x = eval(instruction.replace("x", str(x)))
-                else:
-                    y = eval(instruction.replace("y", str(y)))
+                variables[key] = eval(instruction.replace(key, str(variables[key])))
+
+                # if key == 'x' or key == 'X':
+                #     x = eval(instruction.replace("x", str(x)))
+                # else:
+                #     y = eval(instruction.replace("y", str(y)))
             next_node = node[2]
 
         path.append(next_node)
@@ -78,7 +92,9 @@ def all_affectations(values_test, graph):
     print("We want the following nodes to be visited: " + str(objective))
 
     for value in values_test:
-        path = process_value_test(value, graph)
+        # dic to dynamically keep track of variables
+        variables = {}
+        path = process_value_test(value, graph, variables)
         for step in path:
             if step in objective:
                 objective.remove(step)
@@ -103,7 +119,9 @@ def all_decisions(values_test, graph):
     print("We want the following nodes to be visited: " + str(objective))
 
     for value in values_test:
-        path = process_value_test(value, graph)
+        # dic to dynamically keep track of variables
+        variables = {}
+        path = process_value_test(value, graph, variables)
         for step in path:
             if step in objective:
                 objective.remove(step)
@@ -147,3 +165,7 @@ if __name__ == '__main__':
     all_decisions(test_values, graph_prog)
     all_affectations(test_values, test_two_variables)
     all_decisions(test_values, test_two_variables)
+
+    print('test: to rm: second return of process')
+    x, y = process_value_test(2, graph_prog, {})
+    print(y)
