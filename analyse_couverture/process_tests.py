@@ -29,12 +29,7 @@ def process_value_test(x, graph, variables, y=0):
                 node[3][0],
                 node[3][1]
             )
-            # next_node = comparison(eval(str(values[0])),
-            #                        eval(str(values[1])),
-            #                        node[1],
-            #                        node[3][0],
-            #                        node[3][1]
-            #                        )
+
         elif node[0] == "skip":
             next_node = node[1]
         elif node[0] == "assign":
@@ -162,6 +157,3 @@ if __name__ == '__main__':
     all_affectations(test_values, test_two_variables)
     all_decisions(test_values, test_two_variables)
 
-    result_path, result_var = process_value_test(3, graph_prog, {})
-    print(result_path)
-    print(result_var)

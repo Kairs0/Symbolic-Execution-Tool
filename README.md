@@ -2,7 +2,9 @@
 
 ## TODOs
 - finish ASTtoCFG conversion (manage while loop)
+- manage and, or in comparisons
 - implement criteria tests (2/9)
+
 - parsing : see https://tomassetti.me/parsing-in-python/#tools
 - also see https://github.com/c2nes/javalang.git
 

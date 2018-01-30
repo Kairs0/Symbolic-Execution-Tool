@@ -2,6 +2,7 @@ import unittest
 
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
+from process_tests import process_value_test
 
 
 class TestAstToCfgMethods(unittest.TestCase):
@@ -94,6 +95,22 @@ class TestAstToCfgMethods(unittest.TestCase):
         }
 
         self.assertEqual(result, expected)
+
+
+class TestProcessTestsMethods(unittest.TestCase):
+    def test_process_value_test(self):
+        graph_prog = {
+            1: ['if', '<=', ["x", 0], [2, 3]],
+            2: ['assign', {'x': '0-x'}, 4],
+            3: ['assign', {'x': '1-x'}, 4],
+            4: ['if', '==', ["x", 1], [5, 6]],
+            5: ['assign', {'x': '1'}, 0],
+            6: ['assign', {'x': 'x+1'}, 0]
+        }
+        result_path, result_var = process_value_test(3, graph_prog, {})
+        self.assertEqual(result_var['x'], -1)
+        result_path, result_var = process_value_test(-1, graph_prog, {})
+        self.assertEqual(result_var['x'], 1)
 
 
 if __name__ == "__main__":
