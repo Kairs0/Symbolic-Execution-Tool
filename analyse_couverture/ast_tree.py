@@ -2,7 +2,7 @@
 #### AST Tree structure:
 
 # Each node has a category (string), values can be : 
-sequence, if, variable, constant, operation, assign, compare TODO: WHILE
+sequence, if, variable, constant, operation, assign, compare, while
 
 # Each node has a list of nodes which are his children
 
@@ -72,7 +72,7 @@ def rec_calc_level(node, lvl):
 class GeneratorAstTree(object):
 
     @staticmethod
-    def create_test_assign():
+    def sequence_if_and_assign():
         """
         if X <= 0
             then Y := X
@@ -131,7 +131,7 @@ class GeneratorAstTree(object):
         return seq
 
     @staticmethod
-    def create_prog_tree():
+    def prog_tree():
         """
         The prog program (from subject) implemented with our tree
         """
@@ -213,7 +213,7 @@ class GeneratorAstTree(object):
         return tree_prog
 
     @staticmethod
-    def create_basic_if():
+    def basic_if():
         """
         Creates a basic if node
         """
@@ -247,7 +247,7 @@ class GeneratorAstTree(object):
         return if2
 
     @staticmethod
-    def create_if_cfg_else_is_seq():
+    def if_nested_seq():
         """
         Creates a if node in which the else part contains a sequence
         """
@@ -292,7 +292,7 @@ class GeneratorAstTree(object):
         return if2
 
     @staticmethod
-    def create_basic_while_tree():
+    def basic_while_tree():
         """
         while X < 5
         X := X + 1
@@ -320,7 +320,7 @@ class GeneratorAstTree(object):
         return while_node
 
     @staticmethod
-    def while_tree_with_sequence():
+    def while_tree_with_seq():
         while_node = Node("while")
         # condition node
         comp = Node("compare", "<")
@@ -359,10 +359,10 @@ class GeneratorAstTree(object):
         return while_node
 
     @staticmethod
-    def sequence_with_while():
+    def seq_with_while():
         seq = Node("sequence")
-        if_part = GeneratorAstTree.create_basic_if()
-        while_part = GeneratorAstTree.create_basic_while_tree()
+        if_part = GeneratorAstTree.basic_if()
+        while_part = GeneratorAstTree.basic_while_tree()
         seq.add_child(if_part)
         seq.add_child(while_part)
         return seq
@@ -378,7 +378,7 @@ class GeneratorAstTree(object):
         comp.add_child(var5)
         while_node.add_child(comp)
         # action node
-        if_node = GeneratorAstTree.create_basic_if()
+        if_node = GeneratorAstTree.basic_if()
         while_node.add_child(if_node)
         return while_node
 
@@ -402,7 +402,7 @@ class GeneratorAstTree(object):
         if_node.add_child(assign3)
 
         # else body - with while
-        while_part = GeneratorAstTree.create_basic_while_tree()
+        while_part = GeneratorAstTree.basic_while_tree()
         if_node.add_child(while_part)
         return if_node
 
@@ -424,6 +424,6 @@ class GeneratorAstTree(object):
         assign3.add_child(cst5)
         if_main_node.add_child(assign3)
         # else body - if nested
-        nested_if = GeneratorAstTree.create_basic_if()
+        nested_if = GeneratorAstTree.basic_if()
         if_main_node.add_child(nested_if)
         return if_main_node

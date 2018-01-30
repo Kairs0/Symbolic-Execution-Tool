@@ -1,14 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+LIMIT_FOR_INFINITE_LOOP = 100
+
 
 def process_value_test(graph, variables):
     path = []
     next_node = 1
     path.append(next_node)
     count = 0
-    limit = 100  # TODO: limit has been put to 100 avoid infinite loop. To remove or increment value
-    while next_node != 0 and count <= limit:
+    while next_node != 0 and count <= LIMIT_FOR_INFINITE_LOOP:
         node = graph[next_node]
         if node[0] == "if" or node[0] == "while":
             # TODO: check if ok for while
