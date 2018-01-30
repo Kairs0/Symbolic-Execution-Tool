@@ -290,3 +290,31 @@ class GeneratorAstTree(object):
 
         if2.add_child(seq)
         return if2
+
+    @staticmethod
+    def create_basic_while_tree():
+        """
+        while X < 5
+        X := X + 1
+        """
+        while_node = Node("while")
+        # condition node
+        comp = Node("compare", "<")
+        var0 = Node("variable", "x")
+        var5 = Node("constant", 5)
+        comp.add_child(var0)
+        comp.add_child(var5)
+        while_node.add_child(comp)
+
+        # action node
+        assign = Node("assign")
+        var1 = Node("variable", "x")
+        op = Node("operation", "+")
+        var2 = Node("variable", "x")
+        cst = Node("constant", 1)
+        op.add_child(var2)
+        op.add_child(cst)
+        assign.add_child(var1)
+        assign.add_child(op)
+        while_node.add_child(assign)
+        return while_node

@@ -31,7 +31,7 @@ def tokenize_line(program_line):
 
 
 if __name__ == "__main__":
-    with open("../analyse_couverture/sources_txt/prog_2.txt") as file:
+    with open("../analyse_couverture/sources_txt/prog_3.txt") as file:
         program = file.read().splitlines()
 
     print(tokenize(program))

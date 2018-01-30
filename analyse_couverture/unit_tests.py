@@ -11,6 +11,16 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(if_tree), False)
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(body_part), True)
 
+    def test_treat_while_node(self):
+        while_tree = GeneratorAstTree.create_basic_while_tree()
+        parser = AstToCfgConverter(while_tree)
+        result = parser.treat_while_node(while_tree)
+        expected = {
+            1: ['while', '<', ['x', 5], [2, 3]],
+            2: ['assign', 'x+1', '', 1],
+        }
+        self.assertEqual(result, expected)
+
     def test_treat_seq_node(self):
         prog_tree = GeneratorAstTree.create_prog_tree()
         parser = AstToCfgConverter(prog_tree)

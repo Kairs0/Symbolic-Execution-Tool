@@ -55,7 +55,7 @@ class AstToCfgConverter(object):
         # master node must be a sequence
         if self.ast_tree.category == "sequence":
             graph = self.treat_seq_node(self.ast_tree)
-            # before returning the graph, with set the last steps to 0 (exit node)
+            # before returning the graph, we set the last steps to 0 (exit node)
             for key, value in graph.items():
                 next_steps = value[-1]
                 if isinstance(next_steps, list):
@@ -88,6 +88,34 @@ class AstToCfgConverter(object):
                 # TODO (while)
                 pass
         return full_graph
+
+    def treat_while_node(self, node):
+        operator = self.treat_compare_node(node.children[0])
+        while_number_step = self.step
+        delta = 1
+
+        # tmp_result = {self.step: ["while", operator[0], operator[1], [self.step + 1, self.step + delta]]}
+
+        # The loop is inside node.children[1].
+        # We have to build the graph for this inside loop,
+        # and set the exit step to the step number of the while node
+
+        # we have to get the number of steps inside the while loop
+        if node.children[1].category == "assign":
+            self.step += 1
+            delta += 1
+            loop_body = self.treat_assign_node(node.children[1])
+            to_add = {self.step: ["assign", loop_body[0], loop_body[1], while_number_step]}  # Back to loop
+        else:
+            to_add = {}
+            # TODO
+
+        partial_graph = {while_number_step: ["while",
+                                             operator[0],
+                                             operator[1],
+                                             [while_number_step + 1, while_number_step + delta]]}
+        partial_graph.update(to_add)
+        return partial_graph
 
     def treat_if_node(self, node):
         operator = self.treat_compare_node(node.children[0])

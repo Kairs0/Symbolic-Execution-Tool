@@ -8,7 +8,7 @@ def process_value_test(x, graph, y=0):
     path = []
     next_node = 1
     path.append(next_node)
-    limit = 0
+    limit = 0  # TODO: limit has been put to avoid infinite loop. To remove or increment value
     while next_node != 0 and limit <= 100:
         node = graph[next_node]
         if node[0] == "if" or node[0] == "while":
