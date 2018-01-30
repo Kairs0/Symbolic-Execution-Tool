@@ -1,16 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-# while loop is made with a second node which points to the while node
-
 
 def process_value_test(graph, variables):
-    # TODO: replace these two affectation in order to:
-    #  - either match the variables in the graph
-    #  - or make the affectation before, while parsing the text file (requires matching
-    # test file and variables from the program tested)
-    # variables['x'] = x
-    # variables['y'] = y
     path = []
     next_node = 1
     path.append(next_node)
@@ -34,7 +26,6 @@ def process_value_test(graph, variables):
             next_node = node[1]
         elif node[0] == "assign":
             instruct = node[1]
-            # instruct: {'x': 'x+1'}
             for key, instruction in instruct.items():
                 variables[key] = eval(replace_any_var_by_value(instruction, variables))
             next_node = node[2]

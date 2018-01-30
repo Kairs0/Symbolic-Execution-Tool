@@ -107,9 +107,9 @@ class TestProcessTestsMethods(unittest.TestCase):
             5: ['assign', {'x': '1'}, 0],
             6: ['assign', {'x': 'x+1'}, 0]
         }
-        result_path, result_var = process_value_test(3, graph_prog, {})
+        result_path, result_var = process_value_test(graph_prog, {'x': 3})
         self.assertEqual(result_var['x'], -1)
-        result_path, result_var = process_value_test(-1, graph_prog, {})
+        result_path, result_var = process_value_test(graph_prog, {'x': -1})
         self.assertEqual(result_var['x'], 1)
 
         graph_while = {
@@ -118,7 +118,7 @@ class TestProcessTestsMethods(unittest.TestCase):
             3: ['assign', {'x': 'x-1'}, 1],
             4: ['assign', {'y': 'x*2'}, 0]
         }
-        result_path, result_var = process_value_test(2, graph_while, {})
+        result_path, result_var = process_value_test(graph_while, {'x': 2, 'y': 0})
         self.assertEqual(result_var['y'], 10)
         self.assertEqual(result_var['x'], 5)
 
