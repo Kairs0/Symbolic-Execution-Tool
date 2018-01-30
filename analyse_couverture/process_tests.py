@@ -21,12 +21,20 @@ def process_value_test(x, graph, variables, y=0):
         if node[0] == "if" or node[0] == "while":
             # TODO: check if ok for while
             values = node[2]
-            next_node = comparison(eval(str(values[0])),
-                                   eval(str(values[1])),
-                                   node[1],
-                                   node[3][0],
-                                   node[3][1]
-                                   )
+            # adapt to dic
+            next_node = comparison(
+                variables[values[0]] if values[0] in variables else values[0],
+                variables[values[1]] if values[1] in variables else values[1],
+                node[1],
+                node[3][0],
+                node[3][1]
+            )
+            # next_node = comparison(eval(str(values[0])),
+            #                        eval(str(values[1])),
+            #                        node[1],
+            #                        node[3][0],
+            #                        node[3][1]
+            #                        )
         elif node[0] == "skip":
             next_node = node[1]
         elif node[0] == "assign":
@@ -38,7 +46,7 @@ def process_value_test(x, graph, variables, y=0):
 
         path.append(next_node)
         count += 1
-    return path
+    return path, variables
 
 
 def comparison(a, b, operator, out1, out2):
@@ -82,7 +90,7 @@ def all_affectations(values_test, graph):
     for value in values_test:
         # dic to dynamically keep track of variables
         variables = {}
-        path = process_value_test(value, graph, variables)
+        path, var = process_value_test(value, graph, variables)
         for step in path:
             if step in objective:
                 objective.remove(step)
@@ -109,7 +117,7 @@ def all_decisions(values_test, graph):
     for value in values_test:
         # dic to dynamically keep track of variables
         variables = {}
-        path = process_value_test(value, graph, variables)
+        path, var = process_value_test(value, graph, variables)
         for step in path:
             if step in objective:
                 objective.remove(step)
@@ -153,3 +161,7 @@ if __name__ == '__main__':
     all_decisions(test_values, graph_prog)
     all_affectations(test_values, test_two_variables)
     all_decisions(test_values, test_two_variables)
+
+    result_path, result_var = process_value_test(3, graph_prog, {})
+    print(result_path)
+    print(result_var)
