@@ -8,10 +8,12 @@ def process_value_test(x, graph, y=0):
     path = []
     next_node = 1
     path.append(next_node)
-    limit = 0  # TODO: limit has been put to avoid infinite loop. To remove or increment value
-    while next_node != 0 and limit <= 100:
+    count = 0
+    limit = 100  # TODO: limit has been put to 100 avoid infinite loop. To remove or increment value
+    while next_node != 0 and count <= limit:
         node = graph[next_node]
         if node[0] == "if" or node[0] == "while":
+            # TODO: check if ok for while
             values = node[2]
             next_node = comparison(eval(str(values[0])),
                                    eval(str(values[1])),
@@ -22,18 +24,18 @@ def process_value_test(x, graph, y=0):
         elif node[0] == "skip":
             next_node = node[1]
         elif node[0] == "assign":
-            instruction_x = node[1]
-            instruction_y = node[2]
-            if instruction_x != "":
-                x = eval(instruction_x.replace("x", str(x)))
+            # NEW: adaptation to dic for assignations
+            instruct = node[1]
 
-            if instruction_y != "":
-                y = eval(instruction_y.replace("y", str(y)))
-
-            next_node = node[3]
+            for key, instruction in instruct.items():
+                if key == 'x' or key == 'X':
+                    x = eval(instruction.replace("x", str(x)))
+                else:
+                    y = eval(instruction.replace("y", str(y)))
+            next_node = node[2]
 
         path.append(next_node)
-        limit += 1
+        count += 1
     return path
 
 
@@ -120,29 +122,28 @@ if __name__ == '__main__':
     # Hand written CFG graphs
     # (temporary - while ast_to_cfg isn't connected to process_tests)
 
-    new_graph_prog = {
-        1: ["if", "<=", ["x", 0], [2, 3]],
-        2: ["assign", "-x", "", 4],
-        3: ["assign", "1-x", "", 4],
-        4: ["if", "==", ["x", 1], [5, 6]],
-        5: ["assign", "1", "", 0],
-        6: ["assign", "x+1", "", 0]
+    test_two_variables = {
+        1: ['if', '<=', ['x', 0], [2, 3]],
+        2: ['assign', {'y': 'x'}, 4],
+        3: ['assign', {'y': '0-x'}, 4],
+        4: ['assign', {'x': 'y*2'}, 0]
     }
 
-    new_test_two_variables = {
-        1: ['if', '<=', ['x', 0], [2, 3]],
-        2: ['assign', '', 'x', 4],
-        3: ['assign', '', '0-x', 4],
-        4: ['assign', 'y*2', '', 0]
-    }
+    graph_prog = {
+            1: ['if', '<=', ["x", 0], [2, 3]],
+            2: ['assign', {'x': '0-x'}, 4],
+            3: ['assign', {'x': '1-x'}, 4],
+            4: ['if', '==', ["x", 1], [5, 6]],
+            5: ['assign', {'x': '1'}, 0],
+            6: ['assign', {'x': 'x+1'}, 0]
+        }
 
     test_values = []
     with open(PATH_TESTS) as file:
         for line in file:
             test_values.append(int(line))
 
-    all_affectations(test_values, new_graph_prog)
-    all_decisions(test_values, new_graph_prog)
-
-    all_affectations(test_values, new_test_two_variables)
-    all_decisions(test_values, new_test_two_variables)
+    all_affectations(test_values, graph_prog)
+    all_decisions(test_values, graph_prog)
+    all_affectations(test_values, test_two_variables)
+    all_decisions(test_values, test_two_variables)

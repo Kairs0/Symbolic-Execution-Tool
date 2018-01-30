@@ -86,7 +86,7 @@ class AstToCfgConverter(object):
                 tmp = self.treat_assign_node(child)  # ["x+1", ""]
                 # 2: ("assign", "-x", "", 4),
                 partial_graph = {
-                    self.step: ["assign", tmp[0], tmp[1], self.step + 1]
+                    self.step: ["assign", tmp, self.step + 1]
                 }
                 full_graph.update(partial_graph)
                 self.step += 1
@@ -111,7 +111,9 @@ class AstToCfgConverter(object):
             self.step += 1
             delta += 1
             loop_body = self.treat_assign_node(node.children[1])
-            to_add = {self.step: ["assign", loop_body[0], loop_body[1], while_number_step]}  # Back to loop
+            # new: replace two places in list by dic
+            # to_add = {self.step: ["assign", loop_body[0], loop_body[1], while_number_step]}  # Back to loop
+            to_add = {self.step: ["assign", loop_body, while_number_step]}  # Back to loop
         elif node.children[1].category == "sequence":
             self.step += 1
             to_change_before_add = self.treat_seq_node(node.children[1])
@@ -147,7 +149,9 @@ class AstToCfgConverter(object):
         if node.children[1].category == "assign":
             self.step += 1
             if_body_assign = self.treat_assign_node(node.children[1])
-            partial_graph[self.step] = ["assign", if_body_assign[0], if_body_assign[1], self.step + delta + 1]
+            # partial_graph[self.step] = ["assign", if_body_assign[0], if_body_assign[1], self.step + delta + 1]
+            # new: replace two places in list by dic
+            partial_graph[self.step] = ["assign", if_body_assign, self.step + delta + 1]
         elif node.children[1].category == "sequence":
             self.step += 1
             seq = node.children[1]
@@ -159,7 +163,9 @@ class AstToCfgConverter(object):
         if node.children[2].category == "assign":
             self.step += 1
             else_body_assign = self.treat_assign_node(node.children[2])
-            partial_graph[self.step] = ["assign", else_body_assign[0], else_body_assign[1], self.step + delta]
+            # partial_graph[self.step] = ["assign", else_body_assign[0], else_body_assign[1], self.step + delta]
+            # new: replace two places in list by dic
+            partial_graph[self.step] = ["assign", else_body_assign, self.step + delta]
         elif node.children[2].category == "sequence":
             self.step += 1
             seq = node.children[2]
@@ -208,18 +214,19 @@ class AstToCfgConverter(object):
         else:
             right_member_str = AstToCfgConverter.treat_operation_node(node.children[1])
         
-        if left_member_str == "X" or left_member_str == "x":
-            result.append(right_member_str)
-            result.append("")
-        else:
-            result.append("")
-            result.append(right_member_str)
-            
+        # if left_member_str == "X" or left_member_str == "x":
+        #     result.append(right_member_str)
+        #     result.append("")
+        # else:
+        #     result.append("")
+        #     result.append(right_member_str)
+
+        # TODO CLEAN
         # WIP return a dictionary
         newresult = {}
         newresult[left_member_str] = right_member_str
         
-        return result
+        return newresult
 
     @staticmethod
     def check_children_are_cst_or_var(node):

@@ -18,7 +18,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         result = parser.treat_while_node(while_tree)
         expected = {
             1: ['while', '<', ['x', 5], [2, 3]],
-            2: ['assign', 'x+1', '', 1],
+            2: ['assign', {'x': 'x+1'}, 1],
         }
         self.assertEqual(result, expected)
 
@@ -29,8 +29,8 @@ class TestAstToCfgMethods(unittest.TestCase):
 
         expected2 = {
             1: ["while", '<', ['x', 5], [2, 4]],
-            2: ['assign', 'x+x', '', 3],
-            3: ['assign', 'x-1', '', 1]
+            2: ['assign', {'x': 'x+x'}, 3],
+            3: ['assign', {'x': 'x-1'}, 1]
         }
 
         self.assertEqual(result2, expected2)
@@ -41,11 +41,11 @@ class TestAstToCfgMethods(unittest.TestCase):
         result = parser.treat_seq_node(prog_tree)
         expected = {
             1: ['if', '<=', ["x", 0], [2, 3]],
-            2: ['assign', '0-x', '', 4],
-            3: ['assign', '1-x', '', 4],
+            2: ['assign', {'x': '0-x'}, 4],
+            3: ['assign', {'x': '1-x'}, 4],
             4: ['if', '==', ["x", 1], [5, 6]],
-            5: ['assign', '1', '', 7],
-            6: ['assign', 'x+1', '', 7]
+            5: ['assign', {'x': '1'}, 7],
+            6: ['assign', {'x': 'x+1'}, 7]
         }
         self.assertEqual(result, expected)
 
@@ -60,15 +60,15 @@ class TestAstToCfgMethods(unittest.TestCase):
 
         expected = {
             1: ['if', '==', ["x", 1], [2, 3]],
-            2: ['assign', '1', '', 5],
-            3: ['assign', '32', '', 4],
-            4: ['assign', 'x*4', '', 5]
+            2: ['assign', {'x': '1'}, 5],
+            3: ['assign', {'x': '32'}, 4],
+            4: ['assign', {'x': 'x*4'}, 5]
         }
 
         expected_basic = {
             1: ['if', '==', ["x", 1], [2, 3]],
-            2: ['assign', '1', '', 4],
-            3: ['assign', 'x+1', '', 4]
+            2: ['assign', {'x': '1'}, 4],
+            3: ['assign', {'x': 'x+1'}, 4]
         }
 
         self.assertEqual(result, expected)
@@ -88,9 +88,9 @@ class TestAstToCfgMethods(unittest.TestCase):
         result = parser.get_cfg_graph()
         expected = {
             1: ['if', '<=', ['x', 0], [2, 3]],
-            2: ['assign', '', 'x', 4],
-            3: ['assign', '', '0-x', 4],
-            4: ['assign', 'y*2', '', 0]
+            2: ['assign', {'y': 'x'}, 4],
+            3: ['assign', {'y': '0-x'}, 4],
+            4: ['assign', {'x': 'y*2'}, 0]
         }
 
         self.assertEqual(result, expected)
