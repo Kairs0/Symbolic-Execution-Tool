@@ -213,7 +213,7 @@ class GeneratorAstTree(object):
         return tree_prog
 
     @staticmethod
-    def create_if_cfg():
+    def create_basic_if():
         """
         Creates a basic if node
         """
@@ -361,7 +361,7 @@ class GeneratorAstTree(object):
     @staticmethod
     def sequence_with_while():
         seq = Node("sequence")
-        if_part = GeneratorAstTree.create_if_cfg()
+        if_part = GeneratorAstTree.create_basic_if()
         while_part = GeneratorAstTree.create_basic_while_tree()
         seq.add_child(if_part)
         seq.add_child(while_part)
@@ -378,7 +378,7 @@ class GeneratorAstTree(object):
         comp.add_child(var5)
         while_node.add_child(comp)
         # action node
-        if_node = GeneratorAstTree.create_if_cfg()
+        if_node = GeneratorAstTree.create_basic_if()
         while_node.add_child(if_node)
         return while_node
 
@@ -406,4 +406,24 @@ class GeneratorAstTree(object):
         if_node.add_child(while_part)
         return if_node
 
-
+    @staticmethod
+    def if_with_if():
+        if_main_node = Node("if")
+        # condition node
+        comp = Node("compare", "<")
+        var0 = Node("variable", "x")
+        var5 = Node("constant", 5)
+        comp.add_child(var0)
+        comp.add_child(var5)
+        if_main_node.add_child(comp)
+        # if body
+        assign3 = Node("assign")
+        var6 = Node("variable", "x")
+        cst5 = Node("constant", 1)
+        assign3.add_child(var6)
+        assign3.add_child(cst5)
+        if_main_node.add_child(assign3)
+        # else body - if nested
+        nested_if = GeneratorAstTree.create_basic_if()
+        if_main_node.add_child(nested_if)
+        return if_main_node

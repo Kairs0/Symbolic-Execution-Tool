@@ -7,7 +7,7 @@ from process_tests import process_value_test
 
 class TestAstToCfgMethods(unittest.TestCase):
     def test_childrenAreCstOrVar(self):
-        if_tree = GeneratorAstTree.create_if_cfg()
+        if_tree = GeneratorAstTree.create_basic_if()
         body_part = if_tree.children[1]
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(if_tree), False)
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(body_part), True)
@@ -81,7 +81,7 @@ class TestAstToCfgMethods(unittest.TestCase):
 
     def test_treat_if_node(self):
         # basic if tree
-        basic_if_tree = GeneratorAstTree.create_if_cfg()
+        basic_if_tree = GeneratorAstTree.create_basic_if()
         parser_for_basic = AstToCfgConverter(basic_if_tree)
         result_for_basic = parser_for_basic.treat_if_node(basic_if_tree)
         expected_basic = {
@@ -102,7 +102,7 @@ class TestAstToCfgMethods(unittest.TestCase):
             4: ['assign', {'x': 'x*4'}, 5]
         }
         self.assertEqual(result, expected)
-        
+
         # if with nested while
         if_with_while = GeneratorAstTree.if_with_while()
         parser_for_if_while = AstToCfgConverter(if_with_while)
@@ -113,11 +113,25 @@ class TestAstToCfgMethods(unittest.TestCase):
             3: ['while', '<', ['x', 5], [4, 5]],
             4: ['assign', {'x': 'x+1'}, 3]
         }
+
         self.assertEqual(result_for_if_while, expected_for_if_while)
+
+        # if with nested if
+        if_with_if = GeneratorAstTree.if_with_if()
+        parser_for_if_if = AstToCfgConverter(if_with_if)
+        result_for_if_if = parser_for_if_if.treat_if_node(if_with_if)
+        expected_for_if_within_if = {
+            1: ['if', '<', ['x', 5], [2, 3]],
+            2: ['assign', {'x': '1'}, 6],
+            3: ['if', '==', ['x', 1], [4, 5]],
+            4: ['assign', {'x': '1'}, 6],
+            5: ['assign', {'x': 'x+1'}, 6]
+        }
+        self.assertEqual(result_for_if_if, expected_for_if_within_if)
 
     def test_get_height(self):
         prog_tree = GeneratorAstTree.create_prog_tree()
-        basic_if_tree = GeneratorAstTree.create_if_cfg()
+        basic_if_tree = GeneratorAstTree.create_basic_if()
         h_prog = prog_tree.get_height()
         h_if = basic_if_tree.get_height()
         self.assertEqual(h_prog, 4)

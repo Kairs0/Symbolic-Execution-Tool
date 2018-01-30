@@ -32,13 +32,13 @@ Value zero represents the _ sign (absence of following node)
 
 An example: graph for "prog" program given in the subject:
 graph_prog = {
-    1: ["if", "<=", ["x", 0], [2, 3]],
-    2: ["assign", "-x", "", 4],
-    3: ["assign", "1-x", "", 4],
-    4: ["if", "==", ["x", 1], [5, 6]],
-    5: ["assign", "1", "", 0],
-    6: ["assign", "x+1", "", ],
-}
+            1: ['if', '<=', ["x", 0], [2, 3]],
+            2: ['assign', {'x': '-x'}, 4],
+            3: ['assign', {'x': '1-x'}, 4],
+            4: ['if', '==', ["x", 1], [5, 6]],
+            5: ['assign', {'x': '1'}, 0],
+            6: ['assign', {'x': 'x+1'}, 0]
+        }
 
 """
 
@@ -147,13 +147,14 @@ class AstToCfgConverter(object):
 
         # delta is used to set the number of next step (by default one, could be more for sequence, if, while)
         delta = 1
-        if node.children[1].category == "sequence" or node.children[1].category == "while":
+        if node.children[1].category == "sequence" or node.children[1].category == "while" or node.children[1].category == "if":
             if delta < len(node.children[1].children):
                 delta = len(node.children[1].children)
-        if node.children[2].category == "sequence" or node.children[2].category == "while":
+        if node.children[2].category == "sequence" or node.children[2].category == "while" or node.children[2].category == "if":
             if delta < len(node.children[2].children):
                 delta = len(node.children[2].children)
-        
+
+        # left member
         if node.children[1].category == "assign":
             self.step += 1
             if_body_assign = self.treat_assign_node(node.children[1])
@@ -169,10 +170,13 @@ class AstToCfgConverter(object):
             if_body_while = self.treat_while_node(node.children[1])
             delta = len(if_body_while)
             partial_graph.update(if_body_while)
-        else:
-            # TODO (nested if)
-            pass
+        elif node.children[1].category == "if":
+            self.step += 1
+            if_body_if = self.treat_if_node(node.children[1])
+            delta = len(if_body_if)
+            partial_graph.update(if_body_if)
 
+        # right member
         if node.children[2].category == "assign":
             self.step += 1
             else_body_assign = self.treat_assign_node(node.children[2])
@@ -187,9 +191,10 @@ class AstToCfgConverter(object):
             self.step += 1
             else_body_while = self.treat_while_node(node.children[2])
             partial_graph.update(else_body_while)
-        else:
-            # TODO (nested if)
-            pass
+        elif node.children[2].category == "if":
+            self.step += 1
+            else_body_if = self.treat_if_node(node.children[2])
+            partial_graph.update(else_body_if)
 
         return partial_graph
 
