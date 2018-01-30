@@ -4,13 +4,13 @@
 # while loop is made with a second node which points to the while node
 
 
-def process_value_test(x, graph, variables, y=0):
+def process_value_test(graph, variables):
     # TODO: replace these two affectation in order to:
     #  - either match the variables in the graph
     #  - or make the affectation before, while parsing the text file (requires matching
     # test file and variables from the program tested)
-    variables['x'] = x
-    variables['y'] = y
+    # variables['x'] = x
+    # variables['y'] = y
     path = []
     next_node = 1
     path.append(next_node)
@@ -89,9 +89,7 @@ def all_affectations(values_test, graph):
     print("We want the following nodes to be visited: " + str(objective))
 
     for value in values_test:
-        # dic to dynamically keep track of variables
-        variables = {}
-        path, var = process_value_test(value, graph, variables)
+        path, var = process_value_test(graph, value)
         for step in path:
             if step in objective:
                 objective.remove(step)
@@ -116,9 +114,7 @@ def all_decisions(values_test, graph):
     print("We want the following nodes to be visited: " + str(objective))
 
     for value in values_test:
-        # dic to dynamically keep track of variables
-        variables = {}
-        path, var = process_value_test(value, graph, variables)
+        path, var = process_value_test(graph, value)
         for step in path:
             if step in objective:
                 objective.remove(step)
@@ -128,6 +124,20 @@ def all_decisions(values_test, graph):
     else:
         print("TD fails:")
         print("Nodes " + str(objective) + " were never reached.")
+
+
+def read_test_file(path_tests):
+    values_tests = []
+    with open(path_tests) as file:
+        for line in file:
+            variables = {}
+            assignments = line.split(",")
+            for assignment in assignments:
+                var = assignment.split(":")[0]
+                value = assignment.split(":")[1]
+                variables[var] = int(value)
+            values_tests.append(variables)
+    return values_tests
 
 
 if __name__ == '__main__':
@@ -153,13 +163,12 @@ if __name__ == '__main__':
             6: ['assign', {'x': 'x+1'}, 0]
         }
 
-    test_values = []
-    with open(PATH_TESTS) as file:
-        for line in file:
-            test_values.append(int(line))
-
-    all_affectations(test_values, graph_prog)
-    all_decisions(test_values, graph_prog)
+    test_values = read_test_file(PATH_TESTS)
     all_affectations(test_values, test_two_variables)
+    test_values = read_test_file(PATH_TESTS)
     all_decisions(test_values, test_two_variables)
+    test_values = read_test_file(PATH_TESTS)
+    all_affectations(test_values, graph_prog)
+    test_values = read_test_file(PATH_TESTS)
+    all_decisions(test_values, graph_prog)
 
