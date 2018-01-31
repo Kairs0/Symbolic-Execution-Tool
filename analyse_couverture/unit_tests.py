@@ -107,6 +107,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         if_with_while = GeneratorAstTree.if_with_while()
         parser_for_if_while = AstToCfgConverter(if_with_while)
         result_for_if_while = parser_for_if_while.treat_if_node(if_with_while)
+
         expected_for_if_while = {
             1: ['if', '<', ['x', 5], [2, 3]],
             2: ['assign', {'x': '1'}, 5],

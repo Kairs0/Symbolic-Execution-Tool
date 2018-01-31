@@ -147,11 +147,13 @@ class AstToCfgConverter(object):
         # delta is used to set the number of next step (by default one, could be more for sequence, if, while)
         delta = 1
         if any(node.children[1].category == x for x in ("sequence", "while", "if")):
-            if delta < len(node.children[1].children):
-                delta = len(node.children[1].children)
+            # WIP TODO change that: not necessary len(node.children[1].children to get delta)
+            if delta < AstToCfgConverter.get_length_node(node.children[1]):
+                delta = AstToCfgConverter.get_length_node(node.children[1])
         if any(node.children[2].category == x for x in ("sequence", "while", "if")):
-            if delta < len(node.children[2].children):
-                delta = len(node.children[2].children)
+            # WIP TODO change that: not necessary len(node.children[1].children to get delta)
+            if delta < AstToCfgConverter.get_length_node(node.children[2]):
+                delta = AstToCfgConverter.get_length_node(node.children[2])
 
         # left member
         if node.children[1].category == "assign":
@@ -242,3 +244,66 @@ class AstToCfgConverter(object):
             if child.category != "constant" and child.category != "variable":
                 return False
         return True
+
+    @staticmethod
+    def get_length_node(node):
+        if node.category == "sequence":
+            return AstToCfgConverter.get_length_sequence(node)
+        elif node.category == "if":
+            return AstToCfgConverter.get_length_if(node)
+        elif node.category == "while":
+            return AstToCfgConverter.get_length_while(node)
+        else:
+            return 1
+
+    @staticmethod
+    def get_length_if(node):
+        if node.children[1] == "sequence":
+            length_if_body = AstToCfgConverter.get_length_sequence(node.children[1])
+        elif node.children[1] == "while":
+            length_if_body = AstToCfgConverter.get_length_while(node.children[1])
+        elif node.children[1] == "if":
+            length_if_body = AstToCfgConverter.get_length_if(node.children[1])
+        else:
+            length_if_body = 1
+
+        if node.children[2] == "sequence":
+            length_else_body = AstToCfgConverter.get_length_sequence(node.children[2])
+        elif node.children[2] == "while":
+            length_else_body = AstToCfgConverter.get_length_while(node.children[2])
+        elif node.children[2] == "if":
+            length_else_body = AstToCfgConverter.get_length_if(node.children[2])
+        else:
+            length_else_body = 1
+        # TODO check if correct (maybe return 1 + max(length_if_body, length_else_body))
+        # TODO understand why 2 is correct
+        return 2 + max(length_if_body, length_else_body)
+
+    @staticmethod
+    def get_length_while(node):
+        if node.children[1] == "sequence":
+            length_body = AstToCfgConverter.get_length_sequence(node.children[1])
+        elif node.children[1] == "while":
+            length_body = AstToCfgConverter.get_length_while(node.children[1])
+        elif node.children[1] == "if":
+            length_body = AstToCfgConverter.get_length_if(node.children[1])
+        else:
+            length_body = 1
+            # TODO check if correct (maybe return 1 + length_body)
+        return 1 + length_body
+
+    @staticmethod
+    def get_length_sequence(node):
+        # tODO : check if correct
+        if all(child != long_cat for child in node.children for long_cat in ("sequence", "while", "if")):
+            return len(node.children)
+        else:
+            length = 0
+            for child in node.children:
+                if child.category == "sequence":
+                    length += AstToCfgConverter.get_length_sequence(child)
+                elif child.category == "if":
+                    length += AstToCfgConverter.get_length_if(child)
+                elif child.category == "while":
+                    length += AstToCfgConverter.get_length_while(child)
+            return length
