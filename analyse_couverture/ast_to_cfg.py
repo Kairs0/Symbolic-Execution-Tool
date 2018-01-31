@@ -21,7 +21,7 @@ The CFG Graph is stored as a dictionary.
         the second one the following node when the statement is false.
 
     ***** "assign" commands:
-        Value[1] is a dic {variable: new value}
+        Value[1] is a dic {variable: new value}, (keys and values are string, eg {'x': '4'}
         Value[2] is the number of the following node
 
     ***** For "skip" commands:
@@ -143,7 +143,7 @@ class AstToCfgConverter(object):
     def treat_if_node(self, node):
         operator = self.treat_compare_node(node.children[0])
 
-        # delta is used to set the number of next step (by default one, could be more for sequence, if, while)
+        # delta is used to set the number of next step (by default one, and more for sequence, if, while)
         delta = 1
         delta_left = 2
         delta_right = 1
@@ -262,6 +262,7 @@ class AstToCfgConverter(object):
 
     @staticmethod
     def get_length_if(node):
+        # TODO maybe not correct (what is the "length" of a if?)
         if node.children[1] == "sequence":
             length_if_body = AstToCfgConverter.get_length_sequence(node.children[1])
         elif node.children[1] == "while":
@@ -279,7 +280,6 @@ class AstToCfgConverter(object):
             length_else_body = AstToCfgConverter.get_length_if(node.children[2])
         else:
             length_else_body = 1
-        # TODO check if correct (maybe return 1 + max(length_if_body, length_else_body))
         # TODO understand why 2 is correct
         return 2 + max(length_if_body, length_else_body)
 
@@ -293,12 +293,10 @@ class AstToCfgConverter(object):
             length_body = AstToCfgConverter.get_length_if(node.children[1])
         else:
             length_body = 1
-            # TODO check if correct (maybe return 1 + length_body)
         return 1 + length_body
 
     @staticmethod
     def get_length_sequence(node):
-        # tODO : check if correct
         if all(child != long_cat for child in node.children for long_cat in ("sequence", "while", "if")):
             return len(node.children)
         else:
