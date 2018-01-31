@@ -72,7 +72,7 @@ def rec_calc_level(node, lvl):
 class GeneratorAstTree(object):
 
     @staticmethod
-    def sequence_if_and_assign():
+    def seq_if_and_assign():
         """
         if X <= 0
             then Y := X
@@ -383,7 +383,7 @@ class GeneratorAstTree(object):
         return while_node
 
     @staticmethod
-    def if_with_while():
+    def if_with_while_right_part():
         if_node = Node("if")
         # condition node
         comp = Node("compare", "<")
@@ -405,6 +405,31 @@ class GeneratorAstTree(object):
         while_part = GeneratorAstTree.basic_while_tree()
         if_node.add_child(while_part)
         return if_node
+
+    @staticmethod
+    def if_with_while_left_part():
+        if_node = Node("if")
+        # condition node
+        comp = Node("compare", "<")
+        var0 = Node("variable", "x")
+        var5 = Node("constant", 5)
+        comp.add_child(var0)
+        comp.add_child(var5)
+        if_node.add_child(comp)
+
+        # if body - with while
+        while_part = GeneratorAstTree.basic_while_tree()
+        if_node.add_child(while_part)
+
+        # else body - with while
+        assign3 = Node("assign")
+        var6 = Node("variable", "x")
+        cst5 = Node("constant", 1)
+        assign3.add_child(var6)
+        assign3.add_child(cst5)
+        if_node.add_child(assign3)
+        return if_node
+
 
     @staticmethod
     def if_with_if():

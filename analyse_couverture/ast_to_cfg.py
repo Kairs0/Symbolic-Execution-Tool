@@ -142,25 +142,30 @@ class AstToCfgConverter(object):
 
     def treat_if_node(self, node):
         operator = self.treat_compare_node(node.children[0])
-        partial_graph = {self.step: ["if", operator[0], operator[1], [self.step+1, self.step+2]]}
+        # partial_graph = {self.step: ["if", operator[0], operator[1], [self.step+1, self.step+2]]}
 
         # delta is used to set the number of next step (by default one, could be more for sequence, if, while)
         delta = 1
+        delta_left = 2
+        delta_right = 1
         if any(node.children[1].category == x for x in ("sequence", "while", "if")):
-            # WIP TODO change that: not necessary len(node.children[1].children to get delta)
-            if delta < AstToCfgConverter.get_length_node(node.children[1]):
-                delta = AstToCfgConverter.get_length_node(node.children[1])
+            length_child_node = AstToCfgConverter.get_length_node(node.children[1])
+            if delta < length_child_node:
+                delta = length_child_node
+                delta_left = 1 + length_child_node
         if any(node.children[2].category == x for x in ("sequence", "while", "if")):
-            # WIP TODO change that: not necessary len(node.children[1].children to get delta)
-            if delta < AstToCfgConverter.get_length_node(node.children[2]):
-                delta = AstToCfgConverter.get_length_node(node.children[2])
+            length_child_node = AstToCfgConverter.get_length_node(node.children[2])
+            if delta < length_child_node:
+                delta = length_child_node
+                delta_right = length_child_node
+
+        right_value_next_step = self.step + delta_left
+        partial_graph = {self.step: ["if", operator[0], operator[1], [self.step + 1, right_value_next_step]]}
 
         # left member
         if node.children[1].category == "assign":
             self.step += 1
             if_body_assign = self.treat_assign_node(node.children[1])
-            # partial_graph[self.step] = ["assign", if_body_assign[0], if_body_assign[1], self.step + delta + 1]
-            # new: replace two places in list by dic
             partial_graph[self.step] = ["assign", if_body_assign, self.step + delta + 1]
         elif node.children[1].category == "sequence":
             self.step += 1
@@ -169,21 +174,20 @@ class AstToCfgConverter(object):
         elif node.children[1].category == "while":
             self.step += 1
             if_body_while = self.treat_while_node(node.children[1])
-            delta = len(if_body_while)
+            # delta = len(if_body_while)
+            AstToCfgConverter.set_value_following_node(if_body_while, self.step + 1, right_value_next_step + delta_right)
             partial_graph.update(if_body_while)
         elif node.children[1].category == "if":
             self.step += 1
             if_body_if = self.treat_if_node(node.children[1])
-            delta = len(if_body_if)
+            # delta = len(if_body_if)
             partial_graph.update(if_body_if)
 
         # right member
         if node.children[2].category == "assign":
             self.step += 1
             else_body_assign = self.treat_assign_node(node.children[2])
-            # partial_graph[self.step] = ["assign", else_body_assign[0], else_body_assign[1], self.step + delta]
-            # new: replace two places in list by dic
-            partial_graph[self.step] = ["assign", else_body_assign, self.step + delta]
+            partial_graph[self.step] = ["assign", else_body_assign, self.step + 1]
         elif node.children[2].category == "sequence":
             self.step += 1
             seq = node.children[2]

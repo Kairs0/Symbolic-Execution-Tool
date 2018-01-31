@@ -103,10 +103,10 @@ class TestAstToCfgMethods(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
-        # if with nested while
-        if_with_while = GeneratorAstTree.if_with_while()
-        parser_for_if_while = AstToCfgConverter(if_with_while)
-        result_for_if_while = parser_for_if_while.treat_if_node(if_with_while)
+        # if with nested while (right)
+        if_with_while_right = GeneratorAstTree.if_with_while_right_part()
+        parser_for_if_while_right = AstToCfgConverter(if_with_while_right)
+        result_for_if_while_right = parser_for_if_while_right.treat_if_node(if_with_while_right)
 
         expected_for_if_while = {
             1: ['if', '<', ['x', 5], [2, 3]],
@@ -115,7 +115,20 @@ class TestAstToCfgMethods(unittest.TestCase):
             4: ['assign', {'x': 'x+1'}, 3]
         }
 
-        self.assertEqual(result_for_if_while, expected_for_if_while)
+        self.assertEqual(result_for_if_while_right, expected_for_if_while)
+
+        # if with nested while (left)
+        if_with_while_left = GeneratorAstTree.if_with_while_left_part()
+        parser_for_if_while_left = AstToCfgConverter(if_with_while_left)
+        result_for_if_while_left = parser_for_if_while_left.treat_if_node(if_with_while_left)
+
+        expected_for_if_while_left = {
+            1: ['if', '<', ['x', 5], [2, 4]],
+            2: ['while', '<', ['x', 5], [3, 5]],
+            3: ['assign', {'x': 'x+1'}, 2],
+            4: ['assign', {'x': '1'}, 5]
+        }
+        self.assertEqual(result_for_if_while_left, expected_for_if_while_left)
 
         # if with nested if
         if_with_if = GeneratorAstTree.if_with_if()
@@ -139,7 +152,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(h_if, 3)
 
     def test_get_cfg_graph(self):
-        assign_prog = GeneratorAstTree.sequence_if_and_assign()
+        assign_prog = GeneratorAstTree.seq_if_and_assign()
         parser = AstToCfgConverter(assign_prog)
         result = parser.get_cfg_graph()
         expected = {
