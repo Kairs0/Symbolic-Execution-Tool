@@ -421,7 +421,7 @@ class GeneratorAstTree(object):
         while_part = GeneratorAstTree.basic_while_tree()
         if_node.add_child(while_part)
 
-        # else body - with while
+        # else body - without while
         assign3 = Node("assign")
         var6 = Node("variable", "x")
         cst5 = Node("constant", 1)
@@ -430,6 +430,25 @@ class GeneratorAstTree(object):
         if_node.add_child(assign3)
         return if_node
 
+    @staticmethod
+    def if_with_two_while():
+        if_node = Node("if")
+        # condition node
+        comp = Node("compare", "<")
+        var0 = Node("variable", "x")
+        var5 = Node("constant", 5)
+        comp.add_child(var0)
+        comp.add_child(var5)
+        if_node.add_child(comp)
+
+        # if body - with while
+        while_part = GeneratorAstTree.basic_while_tree()
+        if_node.add_child(while_part)
+
+        # else body - also with while
+        while_part_else = GeneratorAstTree.basic_while_tree()
+        if_node.add_child(while_part_else)
+        return if_node
 
     @staticmethod
     def if_with_if():

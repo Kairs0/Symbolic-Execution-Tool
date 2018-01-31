@@ -50,6 +50,8 @@ class TestAstToCfgMethods(unittest.TestCase):
 
         self.assertEqual(result3, expected3)
 
+        # TODO: test with more complex if loop (sequence inside right left, ...)
+
     def test_treat_seq_node(self):
         prog_tree = GeneratorAstTree.prog_tree()
         parser = AstToCfgConverter(prog_tree)
@@ -129,6 +131,21 @@ class TestAstToCfgMethods(unittest.TestCase):
             4: ['assign', {'x': '1'}, 5]
         }
         self.assertEqual(result_for_if_while_left, expected_for_if_while_left)
+
+        # if with two nested while (left and right)
+        if_with_two_while = GeneratorAstTree.if_with_two_while()
+        parser_for_if_two_while = AstToCfgConverter(if_with_two_while)
+        result_for_if_two_while = parser_for_if_two_while.treat_if_node(if_with_two_while)
+
+        expected_for_if_two_while = {
+            1: ['if', '<', ['x', 5], [2, 4]],
+            2: ['while', '<', ['x', 5], [3, 6]],
+            3: ['assign', {'x': 'x+1'}, 2],
+            4: ['while', '<', ['x', 5], [5, 6]],
+            5: ['assign', {'x': 'x+1'}, 4],
+        }
+
+        self.assertEqual(result_for_if_two_while, expected_for_if_two_while)
 
         # if with nested if
         if_with_if = GeneratorAstTree.if_with_if()
