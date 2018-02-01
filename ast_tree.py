@@ -490,6 +490,60 @@ class GeneratorAstTree(object):
     @staticmethod
     def fact_tree():
         seq = Node("sequence")
+
+        # seq part 1
+        assign1 = Node("assign")
+        var1 = Node("variable", "n")
+        cst = Node("constant", 1)
+        assign1.add_child(var1)
+        assign1.add_child(cst)
+
+        # seq part 2
+        whileloop = Node("while")
+
+        # compar
+        comp = Node("compare", ">=")
+        var2 = Node("variable", "x")
+        cst1 = Node("constant", 1)
+        comp.add_child(var2)
+        comp.add_child(cst1)
+
+        # body while
+        seq_inside_while = Node("sequence")
+
+        assign2 = Node("assign")
+        var3 = Node("variable", "n")
+        op1 = Node("operation", "*")
+        var4 = Node("variable", "n")
+        var5 = Node("variable", "x")
+        op1.add_child(var4)
+        op1.add_child(var5)
+        assign2.add_child(var3)
+        assign2.add_child(op1)
+
+        assign3 = Node("assign")
+        var4 = Node("variable", "x")
+        op2 = Node("operation", "-")
+        var5 = Node("variable", "x")
+        cst2 = Node("constant", 1)
+        op2.add_child(var5)
+        op2.add_child(cst2)
+        assign3.add_child(var4)
+        assign3.add_child(op2)
+
+        seq_inside_while.add_child(assign2)
+        seq_inside_while.add_child(assign3)
+
+        whileloop.add_child(comp)
+        whileloop.add_child(seq_inside_while)
+
+        seq.add_child(assign1)
+        seq.add_child(whileloop)
+        return seq
+
+    @staticmethod
+    def false_fact_tree():
+        seq = Node("sequence")
         part1 = Node("while")
 
         # condition while

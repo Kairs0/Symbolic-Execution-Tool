@@ -90,6 +90,11 @@ def process_comparison(a, b, operator, out1, out2):
             return out1
         else:
             return out2
+    elif operator == "!=":
+        if a != b:
+            return out1
+        else:
+            return out2
 
 
 def all_affectations(values_test, graph):
@@ -232,6 +237,13 @@ if __name__ == '__main__':
             6: ['assign', {'x': 'x+1'}, [0]]
         }
 
+    graph_factorial = {
+            1: ['while', '!=', ['i', 'x+1'], [2, 4]],
+            2: ['assign', {'i': 'i+1'}, [3]],
+            3: ['assign', {'f': 'f*i'}, [1]],
+            4: ['assign', {'i': '1'}, [0]]
+        }
+
     test_values = read_test_file(PATH_TESTS)
     all_affectations(test_values, test_two_variables)
     test_values = read_test_file(PATH_TESTS)
@@ -248,3 +260,6 @@ if __name__ == '__main__':
     all_k_paths(test_values, test_two_variables, 3)
     test_values = read_test_file(PATH_TESTS)
     all_k_paths(test_values, test_two_variables, 5)
+
+    test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
+    all_affectations(test_values, graph_factorial)

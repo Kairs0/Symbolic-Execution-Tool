@@ -48,12 +48,20 @@ class AstToCfgConverter(object):
         self.ast_tree = ast_tree
         self.step = 1
 
+    @staticmethod
+    def get_last_step_graph(graph):
+        max_step = 0
+        for key, value in graph.items():
+            if max_step < max(value[-1]):
+                max_step = max(value[-1])
+        return max_step
+
     def get_cfg_graph(self):
         # master node must be a sequence
         if self.ast_tree.category == "sequence":
             graph = self.treat_seq_node(self.ast_tree)
             # before returning the graph, we set the last steps to 0 (exit node)
-            AstToCfgConverter.set_value_following_node(graph, self.step, 0)
+            AstToCfgConverter.set_value_following_node(graph, AstToCfgConverter.get_last_step_graph(graph), 0)
             # before returning the graph, we check for any inconsistencies like
             # node jumping a step (passing from step 3 to 5 for example),
             # and if it is the case we clean the graph

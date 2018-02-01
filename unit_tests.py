@@ -218,10 +218,10 @@ class TestAstToCfgMethods(unittest.TestCase):
         result_fact = parser_fact.get_cfg_graph()
 
         expected_fact = {
-            1: ['while', '!=', ['i', 'x+1'], [2, 4]],
-            2: ['assign', {'i': 'i+1'}, [3]],
-            3: ['assign', {'f': 'f*i'}, [1]],
-            4: ['assign', {'i': '1'}, [0]]
+            1: ['assign', {'n': '1'}, [2]],
+            2: ['while', '>=', ['x', 1], [3, 0]],
+            3: ['assign', {'n': 'n*x'}, [4]],
+            4: ['assign', {'x': 'x-1'}, [2]]
         }
 
         self.assertEqual(result_fact, expected_fact)
@@ -248,9 +248,22 @@ class TestProcessTestsMethods(unittest.TestCase):
             3: ['assign', {'x': 'x-1'}, [1]],
             4: ['assign', {'y': 'x*2'}, [0]]
         }
+
         result_path, result_var = process_value_test(graph_while, {'x': 2, 'y': 0})
         self.assertEqual(result_var['y'], 10)
         self.assertEqual(result_var['x'], 5)
+
+        graph_fact = {
+            1: ['assign', {'n': '1'}, [2]],
+            2: ['while', '>=', ['x', 1], [3, 0]],
+            3: ['assign', {'n': 'n*x'}, [4]],
+            4: ['assign', {'x': 'x-1'}, [2]]
+        }
+
+        result_path, result_var = process_value_test(graph_fact, {'x': 5, 'n': 1})
+
+        self.assertEqual(result_var['n'], 120)
+        self.assertEqual(result_var['x'], 0)
 
     def test_get_all_paths(self):
         graph_prog = {
