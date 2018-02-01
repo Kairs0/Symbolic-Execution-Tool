@@ -163,4 +163,3 @@ if __name__ == '__main__':
     all_affectations(test_values, graph_prog)
     test_values = read_test_file(PATH_TESTS)
     all_decisions(test_values, graph_prog)
-

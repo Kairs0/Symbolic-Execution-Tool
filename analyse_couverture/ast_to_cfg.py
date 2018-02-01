@@ -54,6 +54,10 @@ class AstToCfgConverter(object):
             graph = self.treat_seq_node(self.ast_tree)
             # before returning the graph, we set the last steps to 0 (exit node)
             AstToCfgConverter.set_value_following_node(graph, self.step, 0)
+            # before returning the graph, we check for any inconsistencies like
+            # node jumping a step (passing from step 3 to 5 for example),
+            # and if it is the case we clean the graph
+            graph = AstToCfgConverter.clean_inconsistent_node(graph)
             return graph
         else:
             return None
@@ -69,6 +73,33 @@ class AstToCfgConverter(object):
             else:
                 if next_steps == target_step:
                     value_list[-1] = new_value
+        return graph
+
+    @staticmethod
+    def clean_inconsistent_node(graph):
+        # TODO: comment and refactor
+        first_keys = []
+        for key, value_list in graph.items():
+            first_keys.append(key)
+
+        max_borne = max(first_keys)
+
+        error = 0
+        for i in range(max_borne):
+            if i not in first_keys:
+                error = i
+
+        if error == 0:
+            return graph
+
+        sub_graph = {key-1: graph[key] for key in graph if key > error}
+
+        for j in range(error, max_borne + 1):
+            AstToCfgConverter.set_value_following_node(sub_graph, j, j-1)
+            if j < max_borne:
+                graph.pop(j+1)
+
+        graph.update(sub_graph)
         return graph
 
     def treat_seq_node(self, node):
@@ -94,6 +125,7 @@ class AstToCfgConverter(object):
                 partial_graph = self.treat_seq_node(child)
                 full_graph.update(partial_graph)
                 self.step += 1
+
         return full_graph
 
     def treat_while_node(self, node):

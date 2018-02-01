@@ -169,8 +169,8 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(h_if, 3)
 
     def test_get_cfg_graph(self):
-        assign_prog = GeneratorAstTree.seq_if_and_assign()
-        parser = AstToCfgConverter(assign_prog)
+        assign_tree = GeneratorAstTree.seq_if_and_assign()
+        parser = AstToCfgConverter(assign_tree)
         result = parser.get_cfg_graph()
         expected = {
             1: ['if', '<=', ['x', 0], [2, 3]],
@@ -180,6 +180,38 @@ class TestAstToCfgMethods(unittest.TestCase):
         }
 
         self.assertEqual(result, expected)
+
+        prog_tree = GeneratorAstTree.prog_tree()
+        parser_prog = AstToCfgConverter(prog_tree)
+        result_prog = parser_prog.get_cfg_graph()
+        expected_prog = {
+            1: ['if', '<=', ["x", 0], [2, 3]],
+            2: ['assign', {'x': '0-x'}, 4],
+            3: ['assign', {'x': '1-x'}, 4],
+            4: ['if', '==', ["x", 1], [5, 6]],
+            5: ['assign', {'x': '1'}, 0],
+            6: ['assign', {'x': 'x+1'}, 0]
+        }
+
+        self.assertEqual(result_prog, expected_prog)
+
+        complex_tree = GeneratorAstTree.complex_sequence()
+        parser_complex = AstToCfgConverter(complex_tree)
+        result_complex = parser_complex.get_cfg_graph()
+        expected_complex = {
+            1: ['if', '==', ["x", 1], [2, 3]],
+            2: ['assign', {'x': '1'}, 5],
+            3: ['assign', {'x': '32'}, 4],
+            4: ['assign', {'x': 'x*4'}, 5],
+            5: ['if', '<', ['x', 5], [6, 8]],
+            6: ['while', '<', ['x', 5], [7, 10]],
+            7: ['assign', {'x': 'x+1'}, 6],
+            8: ['while', '<', ['x', 5], [9, 10]],
+            9: ['assign', {'x': 'x+1'}, 8],
+            10: ['assign', {'x': '1'}, 0]
+        }
+
+        self.assertEqual(result_complex, expected_complex)
 
 
 class TestProcessTestsMethods(unittest.TestCase):

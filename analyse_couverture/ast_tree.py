@@ -368,6 +368,21 @@ class GeneratorAstTree(object):
         return seq
 
     @staticmethod
+    def complex_sequence():
+        seq = Node("sequence")
+        part1 = GeneratorAstTree.if_nested_seq()
+        part2 = GeneratorAstTree.if_with_two_while()
+        part3 = Node("assign")
+        var6 = Node("variable", "x")
+        cst5 = Node("constant", 1)
+        part3.add_child(var6)
+        part3.add_child(cst5)
+        seq.add_child(part1)
+        seq.add_child(part2)
+        seq.add_child(part3)
+        return seq
+
+    @staticmethod
     def while_with_if():
         while_node = Node("while")
         # condition node
