@@ -5,20 +5,9 @@ else 3 : X = 1 − X;
 then 5 : X := 1
 else 6 : X = X + 1
 
-if X <= 0
-then X := -X
-else X := 1 - X
-if x = 1
-then X := 1
-else X := X + 1
-
-# programme fact
-
-x := 6 ;
-i := 1 ;
-f := 1 ;
-while neg ( i = ( x + 1 ) )  do
-      	       	      { i := ( i + 1 ) ;
-                        f := ( f * i )
-		      } ;
-i := 1
+if ( X <= 0 )
+then ( X := -X )
+else ( X := 1 - X )
+if ( x = 1 )
+then ( X := 1 )
+else ( X := X + 1 )
