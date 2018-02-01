@@ -22,10 +22,10 @@ The CFG Graph is stored as a dictionary.
 
     ***** "assign" commands:
         Value[1] is a dic {variable: new value}, (keys and values are string, eg {'x': '4'}
-        Value[2] is the number of the following node
+        Value[2] is the number of the following node (list)
 
     ***** For "skip" commands:
-        Value[1] is the number of the following node
+        Value[1] is the number of the following node (list)
 
 We can see that the ultimate value of the value is always one or more following node.
 Value zero represents the _ sign (absence of following node)
@@ -33,11 +33,11 @@ Value zero represents the _ sign (absence of following node)
 An example: graph for "prog" program given in the subject:
 graph_prog = {
             1: ['if', '<=', ["x", 0], [2, 3]],
-            2: ['assign', {'x': '-x'}, 4],
-            3: ['assign', {'x': '1-x'}, 4],
+            2: ['assign', {'x': '-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
             4: ['if', '==', ["x", 1], [5, 6]],
-            5: ['assign', {'x': '1'}, 0],
-            6: ['assign', {'x': 'x+1'}, 0]
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
         }
 
 """
@@ -128,7 +128,7 @@ class AstToCfgConverter(object):
                 tmp = self.treat_assign_node(child)  # ["x+1", ""]
                 # 2: ("assign", "-x", "", 4),
                 partial_graph = {
-                    self.step: ["assign", tmp, self.step + 1]
+                    self.step: ["assign", tmp, [self.step + 1]]
                 }
                 full_graph.update(partial_graph)
                 self.step += 1
@@ -159,7 +159,7 @@ class AstToCfgConverter(object):
             loop_body = self.treat_assign_node(node.children[1])
             # new: replace two places in list by dic
             # to_add = {self.step: ["assign", loop_body[0], loop_body[1], while_number_step]}  # Back to loop
-            to_add = {self.step: ["assign", loop_body, while_number_step]}  # Back to loop
+            to_add = {self.step: ["assign", loop_body, [while_number_step]]}  # Back to loop
         elif node.children[1].category == "sequence":
             self.step += 1
             to_change_before_add = self.treat_seq_node(node.children[1])
@@ -213,7 +213,7 @@ class AstToCfgConverter(object):
         if node.children[1].category == "assign":
             self.step += 1
             if_body_assign = self.treat_assign_node(node.children[1])
-            partial_graph[self.step] = ["assign", if_body_assign, self.step + delta + 1]
+            partial_graph[self.step] = ["assign", if_body_assign, [self.step + delta + 1]]
         elif node.children[1].category == "sequence":
             self.step += 1
             seq = node.children[1]
@@ -234,7 +234,7 @@ class AstToCfgConverter(object):
         if node.children[2].category == "assign":
             self.step += 1
             else_body_assign = self.treat_assign_node(node.children[2])
-            partial_graph[self.step] = ["assign", else_body_assign, self.step + 1]
+            partial_graph[self.step] = ["assign", else_body_assign, [self.step + 1]]
         elif node.children[2].category == "sequence":
             self.step += 1
             seq = node.children[2]

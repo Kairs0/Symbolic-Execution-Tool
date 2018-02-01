@@ -7,6 +7,7 @@
 
 - parsing : see https://tomassetti.me/parsing-in-python/#tools
 - also see https://github.com/c2nes/javalang.git
+- and also: http://lisperator.net/pltut/parser/
 
 ## Summary Work to do
 #### Part 1

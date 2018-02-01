@@ -24,12 +24,12 @@ def process_value_test(graph, variables):
             )
 
         elif node[0] == "skip":
-            next_node = node[1]
+            next_node = node[1][0]
         elif node[0] == "assign":
             instruct = node[1]
             for key, instruction in instruct.items():
                 variables[key] = eval(replace_any_var_by_value(instruction, variables))
-            next_node = node[2]
+            next_node = node[2][0]
 
         path.append(next_node)
         count += 1
@@ -116,6 +116,44 @@ def all_decisions(values_test, graph):
     else:
         print("TD fails:")
         print("Nodes " + str(objective) + " were never reached.")
+
+
+# def get_all_paths(graph, start, end, path=[]):
+#     path = path + [start]
+#
+#     if start == end:
+#         return path
+#
+#     if start not in graph:
+#         return []
+#
+#     paths = []
+#     for node in graph[start][-1]:
+#         pass
+#
+#
+#
+#
+#
+# def all_k_paths(values_test, graph, k):
+#     print("Criterion: all k paths for k = " + str(k))
+#     objective = []
+#     for key, value in graph.items():
+#         pass  # TODO
+#
+#     print("We want the following nodes to be visited: " + str(objective))
+#
+#     for value in values_test:
+#         path, var = process_value_test(graph, value)
+#         for step in path:
+#             if step in objective:
+#                 objective.remove(step)
+#
+#     if len(objective) == 0:
+#         print("All k paths: OK")
+#     else:
+#         print("All k paths fails:")
+#         print("Nodes " + str(objective) + " were never reached.")
 
 
 def read_test_file(path_tests):
