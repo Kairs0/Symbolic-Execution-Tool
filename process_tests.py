@@ -134,7 +134,7 @@ def read_test_file(path_tests):
 
 if __name__ == '__main__':
 
-    PATH_TESTS = "tests_txt/test.txt"
+    PATH_TESTS = "sets_tests_txt/test.txt"
 
     # Hand written CFG graphs
     # (temporary - while ast_to_cfg isn't connected to process_tests)

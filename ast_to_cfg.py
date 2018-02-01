@@ -57,7 +57,9 @@ class AstToCfgConverter(object):
             # before returning the graph, we check for any inconsistencies like
             # node jumping a step (passing from step 3 to 5 for example),
             # and if it is the case we clean the graph
-            graph = AstToCfgConverter.clean_inconsistent_node(graph)
+            # can occur when we have sequence while nested in the if of the sequence,
+            # or others cases like that
+            graph = AstToCfgConverter.clean_inconsistent_graph(graph)
             return graph
         else:
             return None
@@ -76,31 +78,44 @@ class AstToCfgConverter(object):
         return graph
 
     @staticmethod
-    def clean_inconsistent_node(graph):
-        # TODO: comment and refactor
-        first_keys = []
+    def clean_inconsistent_graph(graph):
+        """
+        If there is missing nodes or shifted nodes in the graph,
+        will shift every wrong based node.
+        Otherwise, returns the graph
+        :param graph:
+        :return: clean graph
+        """
+        # if their is missing nodes of shifted node in the graph,
+        # will shift every wrong based node.
+        # Otherwise, returns the graph
+        initial_keys = []
         for key, value_list in graph.items():
-            first_keys.append(key)
+            initial_keys.append(key)
 
-        max_borne = max(first_keys)
+        bigger_key = max(initial_keys)
 
         error = 0
-        for i in range(max_borne):
-            if i not in first_keys:
+        # loop through the keys to see if there is any missing
+        for i in range(1, bigger_key):
+            if i not in initial_keys:
                 error = i
 
         if error == 0:
             return graph
 
-        sub_graph = {key-1: graph[key] for key in graph if key > error}
+        # make sub graph of keys to modify, shifting the keys number already
+        sub_graph = {key - 1: graph[key] for key in graph if key > error}
 
-        for j in range(error, max_borne + 1):
+        # shift values for all values inside each node (including last one) from n to n-1
+        for j in range(error, bigger_key + 1):
             AstToCfgConverter.set_value_following_node(sub_graph, j, j-1)
-            if j < max_borne:
+            if j < bigger_key:
                 graph.pop(j+1)
 
         graph.update(sub_graph)
-        return graph
+        # recursive call to clean if their was an other error
+        return AstToCfgConverter.clean_inconsistent_graph(graph)
 
     def treat_seq_node(self, node):
         full_graph = {}
