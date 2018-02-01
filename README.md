@@ -2,7 +2,7 @@
 
 ## TODOs
 - manage and, or in comparisons
-- implement criteria tests (2/9)
+- implement criteria tests (3/9)
 - push tests much further on ast to cfg converter
 
 - parsing : see https://tomassetti.me/parsing-in-python/#tools

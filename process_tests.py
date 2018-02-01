@@ -10,9 +10,11 @@ def process_value_test(graph, variables):
     path.append(next_node)
     count = 0
     while next_node != 0 and count <= LIMIT_FOR_INFINITE_LOOP:
+        if count == LIMIT_FOR_INFINITE_LOOP:
+            raise ValueError('Infinite loop - program stopped')
+
         node = graph[next_node]
         if node[0] == "if" or node[0] == "while":
-            # TODO: check if ok for while
             values = node[2]
             # adapt to dic
             next_node = process_comparison(
@@ -174,7 +176,7 @@ def all_k_paths(values_test, graph, k):
 
 
 def all_i_loops(values_test, graph, k):
-    # TODO: check on while loop
+    # TODO: change - must be at must i times going inside the loop (boucle executées au plus i fois)
     print("\n ------")
     print("Criterion: all i loops")
 
@@ -238,11 +240,11 @@ if __name__ == '__main__':
         }
 
     graph_factorial = {
-            1: ['while', '!=', ['i', 'x+1'], [2, 4]],
-            2: ['assign', {'i': 'i+1'}, [3]],
-            3: ['assign', {'f': 'f*i'}, [1]],
-            4: ['assign', {'i': '1'}, [0]]
-        }
+        1: ['assign', {'n': '1'}, [2]],
+        2: ['while', '>=', ['x', 1], [3, 0]],
+        3: ['assign', {'n': 'n*x'}, [4]],
+        4: ['assign', {'x': 'x-1'}, [2]]
+    }
 
     test_values = read_test_file(PATH_TESTS)
     all_affectations(test_values, test_two_variables)
@@ -263,3 +265,6 @@ if __name__ == '__main__':
 
     test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
     all_affectations(test_values, graph_factorial)
+
+    test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
+    all_i_loops(test_values, graph_factorial, 1)
