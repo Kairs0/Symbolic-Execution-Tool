@@ -2,7 +2,7 @@ import unittest
 
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
-from process_tests import process_value_test
+from process_tests import process_value_test, get_all_paths
 
 
 class TestAstToCfgMethods(unittest.TestCase):
@@ -238,6 +238,21 @@ class TestProcessTestsMethods(unittest.TestCase):
         result_path, result_var = process_value_test(graph_while, {'x': 2, 'y': 0})
         self.assertEqual(result_var['y'], 10)
         self.assertEqual(result_var['x'], 5)
+
+    def test_get_all_paths(self):
+        graph_prog = {
+            1: ['if', '<=', ["x", 0], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', '==', ["x", 1], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        expected = [[1, 2, 4, 5], [1, 2, 4, 6], [1, 3, 4, 5], [1, 3, 4, 6]]
+
+        all_paths = get_all_paths(graph_prog, 1, 6)
+
+        self.assertEqual(all_paths, expected)
 
 
 if __name__ == "__main__":

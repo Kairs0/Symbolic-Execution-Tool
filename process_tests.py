@@ -118,23 +118,31 @@ def all_decisions(values_test, graph):
         print("Nodes " + str(objective) + " were never reached.")
 
 
-# def get_all_paths(graph, start, end, path=[]):
-#     path = path + [start]
-#
-#     if start == end:
-#         return path
-#
-#     if start not in graph:
-#         return []
-#
-#     paths = []
-#     for node in graph[start][-1]:
-#         pass
-#
-#
-#
-#
-#
+def get_all_paths(graph, start, end, path=None):
+    if path is None:
+        path = []
+
+    if start == 0:
+        # end of graph
+        return [path]
+
+    path = path + [start]
+
+    if start == end:
+        return [path]
+
+    if start not in graph:
+        return []
+
+    paths = []
+    for node in graph[start][-1]:
+        if node not in path:
+            new_paths = get_all_paths(graph, node, end, path)
+            for new_path in new_paths:
+                paths.append(new_path)
+    return paths
+
+
 # def all_k_paths(values_test, graph, k):
 #     print("Criterion: all k paths for k = " + str(k))
 #     objective = []
