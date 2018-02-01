@@ -248,9 +248,9 @@ class TestProcessTestsMethods(unittest.TestCase):
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }
-        expected = [[1, 2, 4, 5], [1, 2, 4, 6], [1, 3, 4, 5], [1, 3, 4, 6]]
+        expected = [[1, 2, 4, 5, 0], [1, 2, 4, 6, 0], [1, 3, 4, 5, 0], [1, 3, 4, 6, 0]]
 
-        all_paths = get_all_paths(graph_prog, 1, 6)
+        all_paths = get_all_paths(graph_prog, 1)
 
         self.assertEqual(all_paths, expected)
 

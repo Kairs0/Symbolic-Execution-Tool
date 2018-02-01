@@ -118,18 +118,19 @@ def all_decisions(values_test, graph):
         print("Nodes " + str(objective) + " were never reached.")
 
 
-def get_all_paths(graph, start, end, path=None):
+def get_all_paths(graph, start, path=None):
     if path is None:
         path = []
 
     if start == 0:
         # end of graph
-        return [path]
+        return [path + [start]]
 
     path = path + [start]
 
-    if start == end:
-        return [path]
+    # maybe implement after to get shorter paths
+    # if start == end:
+    #     return [path]
 
     if start not in graph:
         return []
@@ -137,31 +138,32 @@ def get_all_paths(graph, start, end, path=None):
     paths = []
     for node in graph[start][-1]:
         if node not in path:
-            new_paths = get_all_paths(graph, node, end, path)
+            new_paths = get_all_paths(graph, node, path)
             for new_path in new_paths:
                 paths.append(new_path)
     return paths
 
 
-# def all_k_paths(values_test, graph, k):
-#     print("Criterion: all k paths for k = " + str(k))
-#     objective = []
-#     for key, value in graph.items():
-#         pass  # TODO
-#
-#     print("We want the following nodes to be visited: " + str(objective))
-#
-#     for value in values_test:
-#         path, var = process_value_test(graph, value)
-#         for step in path:
-#             if step in objective:
-#                 objective.remove(step)
-#
-#     if len(objective) == 0:
-#         print("All k paths: OK")
-#     else:
-#         print("All k paths fails:")
-#         print("Nodes " + str(objective) + " were never reached.")
+def all_k_paths(values_test, graph, k):
+    print("Criterion: all k paths for k = " + str(k))
+
+    all_paths = get_all_paths(graph, 1)
+
+    objective_paths = [path for path in all_paths if len(path) <= k]
+
+    print("We want the following paths to be taken: " + str(objective_paths))
+
+    for value in values_test:
+        path, var = process_value_test(graph, value)
+        # print("path for value " + str(value) + " : " + str(path))
+        if path in objective_paths:
+            objective_paths.remove(path)
+
+    if len(objective_paths) == 0:
+        print("All k paths: OK")
+    else:
+        print("All k paths fails:")
+        print("Paths " + str(objective_paths) + " were never taken entirely.")
 
 
 def read_test_file(path_tests):
@@ -187,25 +189,29 @@ if __name__ == '__main__':
 
     test_two_variables = {
         1: ['if', '<=', ['x', 0], [2, 3]],
-        2: ['assign', {'y': 'x'}, 4],
-        3: ['assign', {'y': '0-x'}, 4],
-        4: ['assign', {'x': 'y*2'}, 0]
+        2: ['assign', {'y': 'x'}, [4]],
+        3: ['assign', {'y': '0-x'}, [4]],
+        4: ['assign', {'x': 'y*2'}, [0]]
     }
 
     graph_prog = {
             1: ['if', '<=', ["x", 0], [2, 3]],
-            2: ['assign', {'x': '0-x'}, 4],
-            3: ['assign', {'x': '1-x'}, 4],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
             4: ['if', '==', ["x", 1], [5, 6]],
-            5: ['assign', {'x': '1'}, 0],
-            6: ['assign', {'x': 'x+1'}, 0]
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
         }
 
+    # test_values = read_test_file(PATH_TESTS)
+    # all_affectations(test_values, test_two_variables)
+    # test_values = read_test_file(PATH_TESTS)
+    # all_decisions(test_values, test_two_variables)
+    # test_values = read_test_file(PATH_TESTS)
+    # all_affectations(test_values, graph_prog)
+    # test_values = read_test_file(PATH_TESTS)
+    # all_decisions(test_values, graph_prog)
     test_values = read_test_file(PATH_TESTS)
-    all_affectations(test_values, test_two_variables)
-    test_values = read_test_file(PATH_TESTS)
-    all_decisions(test_values, test_two_variables)
-    test_values = read_test_file(PATH_TESTS)
-    all_affectations(test_values, graph_prog)
-    test_values = read_test_file(PATH_TESTS)
-    all_decisions(test_values, graph_prog)
+    all_k_paths(test_values, graph_prog, 5)
+    # test_values = read_test_file(PATH_TESTS)
+    # all_k_paths(test_values, graph_prog, 3)
