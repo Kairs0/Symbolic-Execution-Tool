@@ -71,6 +71,7 @@ def comparison(a, b, operator, out1, out2):
 
 
 def all_affectations(values_test, graph):
+    print("\n ------")
     print("Criterion: all affectations")
 
     objective = []
@@ -94,6 +95,7 @@ def all_affectations(values_test, graph):
 
 
 def all_decisions(values_test, graph):
+    print("\n ------")
     print("Criterion: all decisions")
 
     objective = []
@@ -145,25 +147,29 @@ def get_all_paths(graph, start, path=None):
 
 
 def all_k_paths(values_test, graph, k):
+    print("\n ------")
     print("Criterion: all k paths for k = " + str(k))
 
     all_paths = get_all_paths(graph, 1)
 
-    objective_paths = [path for path in all_paths if len(path) <= k]
+    target_paths = []
+    for path in all_paths:
+        if not path[:k] in target_paths:
+            target_paths.append(path[:k])
 
-    print("We want the following paths to be taken: " + str(objective_paths))
+    print("We want the following paths to be taken: " + str(target_paths))
 
     for value in values_test:
         path, var = process_value_test(graph, value)
         # print("path for value " + str(value) + " : " + str(path))
-        if path in objective_paths:
-            objective_paths.remove(path)
+        if path[:k] in target_paths:
+            target_paths.remove(path[:k])
 
-    if len(objective_paths) == 0:
-        print("All k paths: OK")
+    if len(target_paths) == 0:
+        print("All k paths for k = " + str(k) + ": OK")
     else:
-        print("All k paths fails:")
-        print("Paths " + str(objective_paths) + " were never taken entirely.")
+        print("All k paths for k = " + str(k) + " fails:")
+        print("Paths " + str(target_paths) + " were never taken entirely.")
 
 
 def read_test_file(path_tests):
@@ -203,15 +209,19 @@ if __name__ == '__main__':
             6: ['assign', {'x': 'x+1'}, [0]]
         }
 
-    # test_values = read_test_file(PATH_TESTS)
-    # all_affectations(test_values, test_two_variables)
-    # test_values = read_test_file(PATH_TESTS)
-    # all_decisions(test_values, test_two_variables)
-    # test_values = read_test_file(PATH_TESTS)
-    # all_affectations(test_values, graph_prog)
-    # test_values = read_test_file(PATH_TESTS)
-    # all_decisions(test_values, graph_prog)
+    test_values = read_test_file(PATH_TESTS)
+    all_affectations(test_values, test_two_variables)
+    test_values = read_test_file(PATH_TESTS)
+    all_decisions(test_values, test_two_variables)
+    test_values = read_test_file(PATH_TESTS)
+    all_affectations(test_values, graph_prog)
+    test_values = read_test_file(PATH_TESTS)
+    all_decisions(test_values, graph_prog)
+    test_values = read_test_file(PATH_TESTS)
+    all_k_paths(test_values, graph_prog, 3)
     test_values = read_test_file(PATH_TESTS)
     all_k_paths(test_values, graph_prog, 5)
-    # test_values = read_test_file(PATH_TESTS)
-    # all_k_paths(test_values, graph_prog, 3)
+    test_values = read_test_file(PATH_TESTS)
+    all_k_paths(test_values, test_two_variables, 3)
+    test_values = read_test_file(PATH_TESTS)
+    all_k_paths(test_values, test_two_variables, 5)
