@@ -259,7 +259,10 @@ class AstToCfgConverter(object):
         values = []
 
         for child in node.children:
-            values.append(child.data)
+            if any(child.category == x for x in ("variable", "constant")):
+                values.append(child.data)
+            elif child.category == "operation":
+                values.append(AstToCfgConverter.treat_operation_node(child))
         
         result.append(values)
         return result

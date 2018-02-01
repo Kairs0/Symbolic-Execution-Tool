@@ -15,7 +15,7 @@ def process_value_test(graph, variables):
             # TODO: check if ok for while
             values = node[2]
             # adapt to dic
-            next_node = comparison(
+            next_node = process_comparison(
                 variables[values[0]] if values[0] in variables else values[0],
                 variables[values[1]] if values[1] in variables else values[1],
                 node[1],
@@ -36,13 +36,35 @@ def process_value_test(graph, variables):
     return path, variables
 
 
+def get_all_paths(graph, start, path=None):
+    if path is None:
+        path = []
+
+    if start == 0:
+        # end of graph
+        return [path + [start]]
+
+    path = path + [start]
+
+    if start not in graph:
+        return []
+
+    paths = []
+    for node in graph[start][-1]:
+        if node not in path:
+            new_paths = get_all_paths(graph, node, path)
+            for new_path in new_paths:
+                paths.append(new_path)
+    return paths
+
+
 def replace_any_var_by_value(instruction, variables):
     for key, value in variables.items():
         instruction = instruction.replace(key, str(variables[key]))
     return instruction
 
 
-def comparison(a, b, operator, out1, out2):
+def process_comparison(a, b, operator, out1, out2):
     if operator == "<=":
         if a <= b:
             return out1
@@ -120,32 +142,6 @@ def all_decisions(values_test, graph):
         print("Nodes " + str(objective) + " were never reached.")
 
 
-def get_all_paths(graph, start, path=None):
-    if path is None:
-        path = []
-
-    if start == 0:
-        # end of graph
-        return [path + [start]]
-
-    path = path + [start]
-
-    # maybe implement after to get shorter paths
-    # if start == end:
-    #     return [path]
-
-    if start not in graph:
-        return []
-
-    paths = []
-    for node in graph[start][-1]:
-        if node not in path:
-            new_paths = get_all_paths(graph, node, path)
-            for new_path in new_paths:
-                paths.append(new_path)
-    return paths
-
-
 def all_k_paths(values_test, graph, k):
     print("\n ------")
     print("Criterion: all k paths for k = " + str(k))
@@ -170,6 +166,33 @@ def all_k_paths(values_test, graph, k):
     else:
         print("All k paths for k = " + str(k) + " fails:")
         print("Paths " + str(target_paths) + " were never taken entirely.")
+
+
+def all_i_loops(values_test, graph, k):
+    # TODO: check on while loop
+    print("\n ------")
+    print("Criterion: all i loops")
+
+    objective = []
+    for key, value in graph.items():
+        if value[0] == "while":
+            objective.append(value[-1][0])
+            # for following_nodes in value[3]:
+            #     objective.append(following_nodes)
+
+    print("We want the following nodes to be visited: " + str(objective))
+
+    for value in values_test:
+        path, var = process_value_test(graph, value)
+        for step in path:
+            if step in objective:
+                objective.remove(step)
+
+    if len(objective) == 0:
+        print(str(k) + "-TB: OK")
+    else:
+        print(str(k) + "-TB fails:")
+        print("Nodes " + str(objective) + " were never reached.")
 
 
 def read_test_file(path_tests):

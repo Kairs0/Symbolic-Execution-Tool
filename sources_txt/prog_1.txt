@@ -11,3 +11,14 @@ else X := 1 - X
 if x = 1
 then X := 1
 else X := X + 1
+
+# programme fact
+
+x := 6 ;
+i := 1 ;
+f := 1 ;
+while neg ( i = ( x + 1 ) )  do
+      	       	      { i := ( i + 1 ) ;
+                        f := ( f * i )
+		      } ;
+i := 1

@@ -486,3 +486,57 @@ class GeneratorAstTree(object):
         nested_if = GeneratorAstTree.basic_if()
         if_main_node.add_child(nested_if)
         return if_main_node
+
+    @staticmethod
+    def fact_tree():
+        seq = Node("sequence")
+        part1 = Node("while")
+
+        # condition while
+        comp = Node("compare", "!=")
+        var0 = Node("variable", "i")
+        op1 = Node("operation", "+")
+        var1 = Node("variable", "x")
+        cst1 = Node("constant", 1)
+        op1.add_child(var1)
+        op1.add_child(cst1)
+        comp.add_child(var0)
+        comp.add_child(op1)
+
+        # body while
+        seq_while = Node("sequence")
+        ass1 = Node("assign")
+        var2 = Node("variable", "i")
+        op2 = Node("operation", "+")
+        var3 = Node("variable", "i")
+        cst2 = Node("constant", 1)
+        op2.add_child(var3)
+        op2.add_child(cst2)
+        ass1.add_child(var2)
+        ass1.add_child(op2)
+
+        ass2 = Node("assign")
+        var3 = Node("variable", "f")
+        op3 = Node("operation", "*")
+        var4 = Node("variable", "f")
+        var5 = Node("variable", "i")
+        op3.add_child(var4)
+        op3.add_child(var5)
+        ass2.add_child(var3)
+        ass2.add_child(op3)
+
+        seq_while.add_child(ass1)
+        seq_while.add_child(ass2)
+
+        part1.add_child(comp)
+        part1.add_child(seq_while)
+
+        part2 = Node("assign")
+        var6 = Node("variable", "i")
+        cst3 = Node("constant", 1)
+        part2.add_child(var6)
+        part2.add_child(cst3)
+
+        seq.add_child(part1)
+        seq.add_child(part2)
+        return seq

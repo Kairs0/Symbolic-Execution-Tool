@@ -213,6 +213,19 @@ class TestAstToCfgMethods(unittest.TestCase):
 
         self.assertEqual(result_complex, expected_complex)
 
+        fact_tree = GeneratorAstTree.fact_tree()
+        parser_fact = AstToCfgConverter(fact_tree)
+        result_fact = parser_fact.get_cfg_graph()
+
+        expected_fact = {
+            1: ['while', '!=', ['i', 'x+1'], [2, 4]],
+            2: ['assign', {'i': 'i+1'}, [3]],
+            3: ['assign', {'f': 'f*i'}, [1]],
+            4: ['assign', {'i': '1'}, [0]]
+        }
+
+        self.assertEqual(result_fact, expected_fact)
+
 
 class TestProcessTestsMethods(unittest.TestCase):
     def test_process_value_test(self):
