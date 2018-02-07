@@ -31,16 +31,21 @@
 #### Control Flow Graph - CFG
 
 The CFG Graph is stored as a dictionary.
-- Key is the number of the node
-- Value is a list containing information about the node:
+- The key is the number of the node
+- The value is a list containing information about the node:
 
     - Value[0] contains the command type: it can be "assign", "while", "if" or "skip"
     
+    
+The rest of the list depends of the command type.
+
+    -
+    
+    
     - Value[1]
 
-***** "if" and "while" commands:
-    Value[1] is the comparator. It can be "<=", ..., ">="
-
+*"if" and "while" commands:*
+- Value[1] is the comparator. It can be "<=", ..., ">="
     Value[2] is a length 2 list of values on which the Value[1] operates.
         list[0] is the first value to be compared,
         list[1] the second value
