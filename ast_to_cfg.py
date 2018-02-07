@@ -91,6 +91,8 @@ class AstToCfgConverter(object):
         If there is missing nodes or shifted nodes in the graph,
         will shift every wrong based node.
         Otherwise, returns the graph
+        This method should not be used if all methods of ast to cgf converter are correct.
+        However and sadly, for lack of time, we use this "hack" to make correct tree
         :param graph:
         :return: clean graph
         """
