@@ -82,7 +82,7 @@ def process_list(tokens):
 
     if tokens[0][1] == 'if':
         # behaviour depends on if there's an else part
-        
+
         pass  # TODO
 
     tokens[:] = tokens[target + 1:]
