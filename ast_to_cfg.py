@@ -9,16 +9,16 @@ The CFG Graph is stored as a dictionary.
     it can be "assign", "while", "if" or "skip"
 
     ***** "if" and "while" commands:
-        Value[1] are the conditions written in CNF format.
+        Value[1] are the boolean expressions written in CNF format.
         There is a AND relation between each element.
-        Each element is a list of tuple ; each tuple being a primitive comparison (a < b)
+        Each element is a list of tuple ; each tuple being a primitive condition (a < b)
         There is a OR relation between each tuple.
         Each tuple is a description of the comparison to evaluate.
-        tuple[0] is the comparator. It can be "<=", ..., ">="
+        tuple[0] is the operator. It can be "<=", ..., ">="
         tuple[1] is a length 2 list of values on which the tuple[0] operates.
             list[0] is the first value to be compared,
             list[1] the second value
-            These two values can either be a string ("x" or "y") or an int
+            These two values can either be a string ("x" or "y", value from the variables) or an int
 
         For instance, the statement '( x <= 0 ) and ( ( y == 3 ) or ( y < 0 ) )' is stored as
         [[('<=',['x',0])],[('==', ['y', 3]),('<',['y, 0])]]
@@ -161,9 +161,9 @@ class AstToCfgConverter(object):
 
     def treat_while_node(self, node):
         if node.children[0].category == 'compare':
-            operator = [[tuple(self.treat_compare_node(node.children[0]))]]
+            operator = [[tuple(self.treat_condition(node.children[0]))]]
         elif node.children[0].category == 'logic':
-            operator = self.treat_composed_condition(node.children[0])
+            operator = self.treat_composed_boolean_expr(node.children[0])
         else:
             operator = 'true'  # TODO: fix this
 
@@ -210,9 +210,9 @@ class AstToCfgConverter(object):
 
     def treat_if_node(self, node):
         if node.children[0].category == 'compare':
-            operator = [[tuple(self.treat_compare_node(node.children[0]))]]
+            operator = [[tuple(self.treat_condition(node.children[0]))]]
         elif node.children[0].category == 'logic':
-            operator = self.treat_composed_condition(node.children[0])
+            operator = self.treat_composed_boolean_expr(node.children[0])
         else:
             operator = 'true'  # TODO fix this
 
@@ -277,7 +277,7 @@ class AstToCfgConverter(object):
         return partial_graph
 
     @staticmethod
-    def treat_compare_node(node):
+    def treat_condition(node):
         """
         Returns a list [operator(string), [constants]]
         """
@@ -288,13 +288,14 @@ class AstToCfgConverter(object):
             if any(child.category == x for x in ("variable", "constant")):
                 values.append(child.data)
             elif child.category == "operation":
+                # todo check if ever used or util
                 values.append(AstToCfgConverter.treat_operation_node(child))
         
         result.append(values)
         return result
 
     @staticmethod
-    def treat_composed_condition(conditions):
+    def treat_composed_boolean_expr(conditions):
         # we got : a node type 'logic' ('and'|'or) with children (conditions) that compose the node
         # NOTE: condition tree is expected as CNF form (a1 or a2) and (b1 or b2 or b3)
         if conditions.data == 'or':
@@ -306,7 +307,7 @@ class AstToCfgConverter(object):
     def treat_or_node(conditions):
         result = []
         for condition in conditions:
-            result.append(tuple(AstToCfgConverter.treat_compare_node(condition)))
+            result.append(tuple(AstToCfgConverter.treat_condition(condition)))
         return result
 
     @staticmethod
@@ -317,7 +318,7 @@ class AstToCfgConverter(object):
             if condition.category == 'logic' and condition.data == 'or':
                 result.append(AstToCfgConverter.treat_or_node(condition.children))
             else:
-                to_app = tuple(AstToCfgConverter.treat_compare_node(condition))
+                to_app = tuple(AstToCfgConverter.treat_condition(condition))
                 result.append([to_app])
         return result
 

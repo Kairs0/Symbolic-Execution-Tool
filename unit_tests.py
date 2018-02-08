@@ -18,15 +18,15 @@ class TestAstToCfgMethods(unittest.TestCase):
         complex_cond = GeneratorAstTree.clean_cnf_conditions()
         converter = AstToCfgConverter(and_cond)
         # or_cond
-        result = converter.treat_composed_condition(or_cond)
+        result = converter.treat_composed_boolean_expr(or_cond)
         expected = [[('<=', ['x', 0]), ('>', ['y', 2])]]
         self.assertEqual(result, expected)
         # and_cond
-        result = converter.treat_composed_condition(and_cond)
+        result = converter.treat_composed_boolean_expr(and_cond)
         expected = [[('<=', ['x', 0])], [('>', ['y', 2])]]
         self.assertEqual(result, expected)
         # complex cond (cnf format)
-        result = converter.treat_composed_condition(complex_cond)
+        result = converter.treat_composed_boolean_expr(complex_cond)
         expected = [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
         self.assertEqual(result, expected)
 

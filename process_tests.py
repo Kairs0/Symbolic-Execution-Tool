@@ -20,7 +20,7 @@ def process_value_test(graph, variables):
 
         node = graph[next_node]
         if node[0] == "if" or node[0] == "while":
-            bool_result = process_conditions(node[1], variables)  # check condition, returns True or False
+            bool_result = process_bool_expression(node[1], variables)  # check condition, returns True or False
             next_node = node[-1][0] if bool_result else node[-1][1]
         elif node[0] == "skip":
             next_node = node[1][0]
@@ -35,7 +35,7 @@ def process_value_test(graph, variables):
     return path, variables
 
 
-def process_conditions(conditions, variables):
+def process_bool_expression(conditions, variables):
     """
 
     :param conditions: [[(comp1), (comp2)],[(comp3), (comp4)]], each element is a list of conditions that
@@ -46,28 +46,29 @@ def process_conditions(conditions, variables):
     result = True
     # we want AND between each condition
     # -> if any of the condition is false, the result is false
-    if any(not process_or_conditions(condition, variables) for condition in conditions):
+    if any(not process_or_expression(condition, variables) for condition in conditions):
         result = False
 
     return result
 
 
-def process_or_conditions(conditions, variables):
+def process_or_expression(conditions, variables):
     result = False
     # we want a OR between each condition
     # -> if only one condition is true, the result is true
-    if any(process_comparison(condition, variables) for condition in conditions):
+    if any(process_condition(condition, variables) for condition in conditions):
         result = True
 
     return result
 
 
-def process_comparison(comparison, variables):
+def process_condition(comparison, variables):
     # comparison : tuple ('<=', ['x', 0])
     operator = comparison[0]
     values = comparison[1]
 
-    # if variable, pass its value, else pass the value
+    # if variable in variable, pass its value, else pass the value
+    # there will be an error if the variable given isn't inside the dictionary of variables
     return compare(
         operator,
         variables[values[0]] if values[0] in variables else values[0],
