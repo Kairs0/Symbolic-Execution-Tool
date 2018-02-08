@@ -176,7 +176,8 @@ def all_k_paths(values_test, graph, k):
 
 
 def all_i_loops(values_test, graph, k):
-    # TODO: change - must be at must i times going inside the loop (boucle executées au plus i fois)
+    # TODO: check the condition i loop: the a loop must be visited at must i times,
+    #  but for every test value or for all the data set ?
     print("\n ------")
     print("Criterion: all i loops")
 
@@ -184,22 +185,25 @@ def all_i_loops(values_test, graph, k):
     for key, value in graph.items():
         if value[0] == "while":
             objective.append(value[-1][0])
-            # for following_nodes in value[3]:
-            #     objective.append(following_nodes)
 
-    print("We want the following nodes to be visited: " + str(objective))
+    print("We want the following nodes " + str(objective) + " to be visited. (At must " + str(k) + " times.)")
+
+    count_dic = {obj: 0 for obj in objective}
 
     for value in values_test:
         path, var = process_value_test(graph, value)
         for step in path:
             if step in objective:
-                objective.remove(step)
+                count_dic[step] += 1
 
-    if len(objective) == 0:
+    if all(k >= value > 0 for step, value in count_dic.items()):
         print(str(k) + "-TB: OK")
     else:
         print(str(k) + "-TB fails:")
-        print("Nodes " + str(objective) + " were never reached.")
+        if any(value > k for step, value in count_dic.items()):
+            print("One or more while loop was visited more than " + str(k) + " time.")
+        if any(value == 0 for step, value in count_dic.items()):
+            print("On or more while loop was never visited.")
 
 
 def read_test_file(path_tests):
@@ -267,4 +271,4 @@ if __name__ == '__main__':
     all_affectations(test_values, graph_factorial)
 
     test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
-    all_i_loops(test_values, graph_factorial, 1)
+    all_i_loops(test_values, graph_factorial, 2)
