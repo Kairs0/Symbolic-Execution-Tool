@@ -5,6 +5,11 @@ LIMIT_FOR_INFINITE_LOOP = 100
 
 
 def process_value_test(graph, variables):
+    """
+    :param graph: CFG graph
+    :param variables: a dictionary {var: initial_value}
+    :return: TODO
+    """
     path = []
     next_node = 1
     path.append(next_node)
@@ -15,16 +20,8 @@ def process_value_test(graph, variables):
 
         node = graph[next_node]
         if node[0] == "if" or node[0] == "while":
-            values = node[2]
-            # adapt to dic
-            next_node = process_comparison(
-                variables[values[0]] if values[0] in variables else values[0],
-                variables[values[1]] if values[1] in variables else values[1],
-                node[1],
-                node[3][0],
-                node[3][1]
-            )
-
+            bool_result = process_conditions(node[1], variables)  # check condition, returns True or False
+            next_node = node[-1][0] if bool_result else node[-1][1]
         elif node[0] == "skip":
             next_node = node[1][0]
         elif node[0] == "assign":
@@ -36,6 +33,79 @@ def process_value_test(graph, variables):
         path.append(next_node)
         count += 1
     return path, variables
+
+
+def process_conditions(conditions, variables):
+    """
+
+    :param conditions: [[(comp1), (comp2)],[(comp3), (comp4)]], each element is a list of conditions that
+    must be respected (and logical gate)
+    :param variables:
+    :return:
+    """
+    result = True
+    # we want AND between each condition
+    # -> if any of the condition is false, the result is false
+    if any(not process_or_conditions(condition, variables) for condition in conditions):
+        result = False
+
+    return result
+
+
+def process_or_conditions(conditions, variables):
+    result = False
+    # we want a OR between each condition
+    # -> if only one condition is true, the result is true
+    if any(process_comparison(condition, variables) for condition in conditions):
+        result = True
+
+    return result
+
+
+def process_comparison(comparison, variables):
+    # comparison : tuple ('<=', ['x', 0])
+    operator = comparison[0]
+    values = comparison[1]
+
+    # if variable, pass its value, else pass the value
+    return compare(
+        operator,
+        variables[values[0]] if values[0] in variables else values[0],
+        variables[values[1]] if values[1] in variables else values[1],
+    )
+
+
+def compare(operator, a, b):
+    if operator == "<=":
+        if a <= b:
+            return True
+        else:
+            return False
+    elif operator == "<":
+        if a < b:
+            return True
+        else:
+            return False
+    elif operator == "==":
+        if a == b:
+            return True
+        else:
+            return False
+    elif operator == ">":
+        if a > b:
+            return True
+        else:
+            return False
+    elif operator == ">=":
+        if a >= b:
+            return True
+        else:
+            return False
+    elif operator == "!=":
+        if a != b:
+            return True
+        else:
+            return False
 
 
 def get_all_paths(graph, start, path=None):
@@ -64,39 +134,6 @@ def replace_any_var_by_value(instruction, variables):
     for key, value in variables.items():
         instruction = instruction.replace(key, str(variables[key]))
     return instruction
-
-
-def process_comparison(a, b, operator, out1, out2):
-    if operator == "<=":
-        if a <= b:
-            return out1
-        else:
-            return out2
-    elif operator == "<":
-        if a < b:
-            return out1
-        else:
-            return out2
-    elif operator == "==":
-        if a == b:
-            return out1
-        else:
-            return out2
-    elif operator == ">":
-        if a > b:
-            return out1
-        else:
-            return out2
-    elif operator == ">=":
-        if a >= b:
-            return out1
-        else:
-            return out2
-    elif operator == "!=":
-        if a != b:
-            return out1
-        else:
-            return out2
 
 
 def all_affectations(values_test, graph):
@@ -131,7 +168,7 @@ def all_decisions(values_test, graph):
     for key, value in graph.items():
         if value[0] == "if" or value[0] == "while":
             objective.append(key)
-            for following_nodes in value[3]:
+            for following_nodes in value[-1]:
                 objective.append(following_nodes)
 
     print("We want the following nodes to be visited: " + str(objective))
@@ -228,24 +265,24 @@ if __name__ == '__main__':
     # (temporary - while ast_to_cfg isn't connected to process_tests)
 
     test_two_variables = {
-        1: ['if', '<=', ['x', 0], [2, 3]],
+        1: ['if', [[('<=', ['x', 0])]], [2, 3]],
         2: ['assign', {'y': 'x'}, [4]],
         3: ['assign', {'y': '0-x'}, [4]],
         4: ['assign', {'x': 'y*2'}, [0]]
     }
 
     graph_prog = {
-            1: ['if', '<=', ["x", 0], [2, 3]],
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
             3: ['assign', {'x': '1-x'}, [4]],
-            4: ['if', '==', ["x", 1], [5, 6]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }
 
     graph_factorial = {
         1: ['assign', {'n': '1'}, [2]],
-        2: ['while', '>=', ['x', 1], [3, 0]],
+        2: ['while', [[('>=', ['x', 1])]], [3, 0]],
         3: ['assign', {'n': 'n*x'}, [4]],
         4: ['assign', {'x': 'x-1'}, [2]]
     }

@@ -36,7 +36,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser = AstToCfgConverter(while_tree)
         result = parser.treat_while_node(while_tree)
         expected = {
-            1: ['while', '<', ['x', 5], [2, 3]],
+            1: ['while', [[('<', ['x', 5])]], [2, 3]],
             2: ['assign', {'x': 'x+1'}, [1]],
         }
         self.assertEqual(result, expected)
@@ -47,7 +47,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         result2 = parser2.treat_while_node(while_tree_seq)
 
         expected2 = {
-            1: ["while", '<', ['x', 5], [2, 4]],
+            1: ["while", [[('<', ['x', 5])]], [2, 4]],
             2: ['assign', {'x': 'x+x'}, [3]],
             3: ['assign', {'x': 'x-1'}, [1]]
         }
@@ -60,8 +60,8 @@ class TestAstToCfgMethods(unittest.TestCase):
         result3 = parser3.treat_while_node(while_with_if)
 
         expected3 = {
-            1: ['while', '<', ['x', 5], [2, 5]],
-            2: ['if', '==', ["x", 1], [3, 4]],
+            1: ['while', [[('<', ['x', 5])]], [2, 5]],
+            2: ['if', [[('==', ["x", 1])]], [3, 4]],
             3: ['assign', {'x': '1'}, [1]],
             4: ['assign', {'x': 'x+1'}, [1]]
         }
@@ -75,10 +75,10 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser = AstToCfgConverter(prog_tree)
         result = parser.treat_seq_node(prog_tree)
         expected = {
-            1: ['if', '<=', ["x", 0], [2, 3]],
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
             3: ['assign', {'x': '1-x'}, [4]],
-            4: ['if', '==', ["x", 1], [5, 6]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
             5: ['assign', {'x': '1'}, [7]],
             6: ['assign', {'x': 'x+1'}, [7]]
         }
@@ -88,10 +88,10 @@ class TestAstToCfgMethods(unittest.TestCase):
         seq_tree = GeneratorAstTree.seq_with_while()
 
         expected = {
-            1: ['if', '==', ["x", 1], [2, 3]],
+            1: ['if', [[('==', ["x", 1])]], [2, 3]],
             2: ['assign', {'x': '1'}, [4]],
             3: ['assign', {'x': 'x+1'}, [4]],
-            4: ['while', '<', ['x', 5], [5, 6]],
+            4: ['while', [[('<', ['x', 5])]], [5, 6]],
             5: ['assign', {'x': 'x+1'}, [4]]
         }
         parser = AstToCfgConverter(seq_tree)
@@ -105,7 +105,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser_for_basic = AstToCfgConverter(basic_if_tree)
         result_for_basic = parser_for_basic.treat_if_node(basic_if_tree)
         expected_basic = {
-            1: ['if', '==', ["x", 1], [2, 3]],
+            1: ['if', [[('==', ["x", 1])]], [2, 3]],
             2: ['assign', {'x': '1'}, [4]],
             3: ['assign', {'x': 'x+1'}, [4]]
         }
@@ -116,7 +116,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser = AstToCfgConverter(if_tree_with_seq)
         result = parser.treat_if_node(if_tree_with_seq)
         expected = {
-            1: ['if', '==', ["x", 1], [2, 3]],
+            1: ['if', [[('==', ["x", 1])]], [2, 3]],
             2: ['assign', {'x': '1'}, [5]],
             3: ['assign', {'x': '32'}, [4]],
             4: ['assign', {'x': 'x*4'}, [5]]
@@ -129,9 +129,9 @@ class TestAstToCfgMethods(unittest.TestCase):
         result_for_if_while_right = parser_for_if_while_right.treat_if_node(if_with_while_right)
 
         expected_for_if_while = {
-            1: ['if', '<', ['x', 5], [2, 3]],
+            1: ['if', [[('<', ['x', 5])]], [2, 3]],
             2: ['assign', {'x': '1'}, [5]],
-            3: ['while', '<', ['x', 5], [4, 5]],
+            3: ['while', [[('<', ['x', 5])]], [4, 5]],
             4: ['assign', {'x': 'x+1'}, [3]]
         }
 
@@ -143,8 +143,8 @@ class TestAstToCfgMethods(unittest.TestCase):
         result_for_if_while_left = parser_for_if_while_left.treat_if_node(if_with_while_left)
 
         expected_for_if_while_left = {
-            1: ['if', '<', ['x', 5], [2, 4]],
-            2: ['while', '<', ['x', 5], [3, 5]],
+            1: ['if', [[('<', ['x', 5])]], [2, 4]],
+            2: ['while', [[('<', ['x', 5])]], [3, 5]],
             3: ['assign', {'x': 'x+1'}, [2]],
             4: ['assign', {'x': '1'}, [5]]
         }
@@ -156,10 +156,10 @@ class TestAstToCfgMethods(unittest.TestCase):
         result_for_if_two_while = parser_for_if_two_while.treat_if_node(if_with_two_while)
 
         expected_for_if_two_while = {
-            1: ['if', '<', ['x', 5], [2, 4]],
-            2: ['while', '<', ['x', 5], [3, 6]],
+            1: ['if', [[('<', ['x', 5])]], [2, 4]],
+            2: ['while', [[('<', ['x', 5])]], [3, 6]],
             3: ['assign', {'x': 'x+1'}, [2]],
-            4: ['while', '<', ['x', 5], [5, 6]],
+            4: ['while', [[('<', ['x', 5])]], [5, 6]],
             5: ['assign', {'x': 'x+1'}, [4]],
         }
 
@@ -170,9 +170,9 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser_for_if_if = AstToCfgConverter(if_with_if)
         result_for_if_if = parser_for_if_if.treat_if_node(if_with_if)
         expected_for_if_within_if = {
-            1: ['if', '<', ['x', 5], [2, 3]],
+            1: ['if', [[('<', ['x', 5])]], [2, 3]],
             2: ['assign', {'x': '1'}, [6]],
-            3: ['if', '==', ['x', 1], [4, 5]],
+            3: ['if', [[('==', ['x', 1])]], [4, 5]],
             4: ['assign', {'x': '1'}, [6]],
             5: ['assign', {'x': 'x+1'}, [6]]
         }
@@ -191,7 +191,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser = AstToCfgConverter(assign_tree)
         result = parser.get_cfg_graph()
         expected = {
-            1: ['if', '<=', ['x', 0], [2, 3]],
+            1: ['if', [[('<=', ['x', 0])]], [2, 3]],
             2: ['assign', {'y': 'x'}, [4]],
             3: ['assign', {'y': '0-x'}, [4]],
             4: ['assign', {'x': 'y*2'}, [0]]
@@ -203,10 +203,10 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser_prog = AstToCfgConverter(prog_tree)
         result_prog = parser_prog.get_cfg_graph()
         expected_prog = {
-            1: ['if', '<=', ["x", 0], [2, 3]],
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
             3: ['assign', {'x': '1-x'}, [4]],
-            4: ['if', '==', ["x", 1], [5, 6]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }
@@ -217,14 +217,14 @@ class TestAstToCfgMethods(unittest.TestCase):
         parser_complex = AstToCfgConverter(complex_tree)
         result_complex = parser_complex.get_cfg_graph()
         expected_complex = {
-            1: ['if', '==', ["x", 1], [2, 3]],
+            1: ['if', [[('==', ["x", 1])]], [2, 3]],
             2: ['assign', {'x': '1'}, [5]],
             3: ['assign', {'x': '32'}, [4]],
             4: ['assign', {'x': 'x*4'}, [5]],
-            5: ['if', '<', ['x', 5], [6, 8]],
-            6: ['while', '<', ['x', 5], [7, 10]],
+            5: ['if', [[('<', ['x', 5])]], [6, 8]],
+            6: ['while', [[('<', ['x', 5])]], [7, 10]],
             7: ['assign', {'x': 'x+1'}, [6]],
-            8: ['while', '<', ['x', 5], [9, 10]],
+            8: ['while', [[('<', ['x', 5])]], [9, 10]],
             9: ['assign', {'x': 'x+1'}, [8]],
             10: ['assign', {'x': '1'}, [0]]
         }
@@ -237,7 +237,7 @@ class TestAstToCfgMethods(unittest.TestCase):
 
         expected_fact = {
             1: ['assign', {'n': '1'}, [2]],
-            2: ['while', '>=', ['x', 1], [3, 0]],
+            2: ['while', [[('>=', ['x', 1])]], [3, 0]],
             3: ['assign', {'n': 'n*x'}, [4]],
             4: ['assign', {'x': 'x-1'}, [2]]
         }
@@ -248,10 +248,10 @@ class TestAstToCfgMethods(unittest.TestCase):
 class TestProcessTestsMethods(unittest.TestCase):
     def test_process_value_test(self):
         graph_prog = {
-            1: ['if', '<=', ["x", 0], [2, 3]],
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
             3: ['assign', {'x': '1-x'}, [4]],
-            4: ['if', '==', ["x", 1], [5, 6]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }
@@ -261,7 +261,7 @@ class TestProcessTestsMethods(unittest.TestCase):
         self.assertEqual(result_var['x'], 1)
 
         graph_while = {
-            1: ["while", '<', ['x', 5], [2, 4]],
+            1: ["while", [[('<', ['x', 5])]], [2, 4]],
             2: ['assign', {'x': 'x+x'}, [3]],
             3: ['assign', {'x': 'x-1'}, [1]],
             4: ['assign', {'y': 'x*2'}, [0]]
@@ -273,7 +273,7 @@ class TestProcessTestsMethods(unittest.TestCase):
 
         graph_fact = {
             1: ['assign', {'n': '1'}, [2]],
-            2: ['while', '>=', ['x', 1], [3, 0]],
+            2: ['while', [[('>=', ['x', 1])]], [3, 0]],
             3: ['assign', {'n': 'n*x'}, [4]],
             4: ['assign', {'x': 'x-1'}, [2]]
         }
@@ -285,10 +285,10 @@ class TestProcessTestsMethods(unittest.TestCase):
 
     def test_get_all_paths(self):
         graph_prog = {
-            1: ['if', '<=', ["x", 0], [2, 3]],
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
             3: ['assign', {'x': '1-x'}, [4]],
-            4: ['if', '==', ["x", 1], [5, 6]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }

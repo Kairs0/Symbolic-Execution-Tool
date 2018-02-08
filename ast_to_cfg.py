@@ -9,9 +9,9 @@ The CFG Graph is stored as a dictionary.
     it can be "assign", "while", "if" or "skip"
 
     ***** "if" and "while" commands:
-        Value[1] is the comparator. It can be "<=", ..., ">="
+        Value[1] is the comparator. It can be "<=", ..., ">=" # TODO update with recent refator
 
-        Value[2] is a length 2 list of values on which the Value[1] operates.
+        Value[2] is a length 2 list of values on which the Value[1] operates.TODO update with recent refator
             list[0] is the first value to be compared,
             list[1] the second value
             These two values can either be a string ("x" or "y") or an int
@@ -154,7 +154,13 @@ class AstToCfgConverter(object):
         return full_graph
 
     def treat_while_node(self, node):
-        operator = self.treat_compare_node(node.children[0])
+        if node.children[0].category == 'compare':
+            operator = [[tuple(self.treat_compare_node(node.children[0]))]]
+        elif node.children[0].category == 'logic':
+            operator = self.treat_composed_condition(node.children[0])
+        else:
+            operator = 'true'  # TODO: fix this
+
         while_number_step = self.step
         delta = 1
 
@@ -191,14 +197,19 @@ class AstToCfgConverter(object):
             to_add = {}
 
         partial_graph = {while_number_step: ["while",
-                                             operator[0],
-                                             operator[1],
+                                             operator,
                                              [while_number_step + 1, while_number_step + delta]]}
         partial_graph.update(to_add)
         return partial_graph
 
     def treat_if_node(self, node):
-        operator = self.treat_compare_node(node.children[0])
+        # TODO: check if simple or composed node
+        if node.children[0].category == 'compare':
+            operator = [[tuple(self.treat_compare_node(node.children[0]))]]
+        elif node.children[0].category == 'logic':
+            operator = self.treat_composed_condition(node.children[0])
+        else:
+            operator = 'true'  # TODO fix this
 
         # delta is used to set the number of next step (by default one, and more for sequence, if, while)
         delta = 1
@@ -217,7 +228,7 @@ class AstToCfgConverter(object):
                 delta = length_child_node
 
         right_value_next_step = self.step + delta_left
-        partial_graph = {self.step: ["if", operator[0], operator[1], [self.step + 1, right_value_next_step]]}
+        partial_graph = {self.step: ["if", operator, [self.step + 1, right_value_next_step]]}
 
         # left member
         if node.children[1].category == "assign":

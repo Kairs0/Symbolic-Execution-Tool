@@ -14,7 +14,6 @@ c ::= l : skip
 
 
 ## WIP - todos
-- manage and, or in comparisons in cfg construction
 - implement criteria tests (4/9) on coverage analysis
 - push tests much further on ast to cfg converter
 
@@ -51,8 +50,8 @@ The CFG Graph is managed as a python dictionary.
     
    
 *"if" and "while" commands:*
-- Value[1] is the comparator. It can be "<=", ..., ">="
-- Value[2] is a length 2 list of values on which the Value[1] operates.
+- Value[1] is the comparator. It can be "<=", ..., ">=" TODO update with recent refator
+- Value[2] is a length 2 list of values on which the Value[1] operates.TODO update with recent refator
     - list[0] is the first value to be compared,
     - list[1] the second value.
 
