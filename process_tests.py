@@ -8,7 +8,7 @@ def process_value_test(graph, variables):
     """
     :param graph: CFG graph
     :param variables: a dictionary {var: initial_value}
-    :return: TODO
+    :return: steps the program went through, dic of final values of variables
     """
     path = []
     next_node = 1
