@@ -11,6 +11,7 @@ constant: data is the value of the constant,
 variable: data is the name of the variable
 compare : data is the operator (==, <=, ...)
 operation: data is the operator (+, *, ...)
+logic: data is the logic addition (and, or)
 
 """
 
@@ -24,6 +25,9 @@ class Node(object):
 
     def add_child(self, obj):
         self.children.append(obj)
+
+    def add_children(self, children):
+        self.children.extend(children)
 
     def calc_level(self):
         rec_calc_level(self, 0)
@@ -70,6 +74,74 @@ def rec_calc_level(node, lvl):
 
 
 class GeneratorAstTree(object):
+
+    @staticmethod
+    def and_condition():
+        # condition
+        # condition 1
+        compare1 = Node("compare", "<=")
+        var1 = Node("variable", "x")
+        cst1 = Node("constant", 0)
+        compare1.add_child(var1)
+        compare1.add_child(cst1)
+        # condition 2
+        compare2 = Node("compare", ">")
+        var2 = Node("variable", "y")
+        cst2 = Node("constant", 2)
+        compare2.add_child(var2)
+        compare2.add_child(cst2)
+        # and logic
+        and_node = Node("logic", "and")
+        and_node.add_child(compare1)
+        and_node.add_child(compare2)
+
+        return and_node
+
+    @staticmethod
+    def if_with_and_condition():
+        """
+        if (X <= 0 and Y > 2)
+        then X:= Y
+        else Y:=X
+        :returns: ast tree
+        """
+        if_node = Node("if")
+
+        # condition
+        # condition 1
+        compare1 = Node("compare", "<=")
+        var1 = Node("variable", "x")
+        cst1 = Node("constant", 0)
+        compare1.add_child(var1)
+        compare1.add_child(cst1)
+        # condition 2
+        compare2 = Node("compare", ">")
+        var2 = Node("variable", "y")
+        cst2 = Node("constant", 2)
+        compare2.add_child(var2)
+        compare2.add_child(cst2)
+        # and logic
+        and_node = Node("logic", "and")
+        and_node.add_child(compare1)
+        and_node.add_child(compare2)
+
+        # then body
+        assign = Node("assign")
+        var2 = Node("variable", "x")
+        var3 = Node("variable", "y")
+        assign.add_child(var2)
+        assign.add_child(var3)
+
+        # else body
+        assign2 = Node("assign")
+        var4 = Node("variable", "y")
+        var5 = Node("variable", "x")
+        assign2.add_child(var4)
+        assign2.add_child(var5)
+
+        # setting if node
+        if_node.add_children([and_node, assign, assign2])
+        return if_node
 
     @staticmethod
     def seq_if_and_assign():

@@ -12,6 +12,13 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(if_tree), False)
         self.assertEqual(AstToCfgConverter.check_children_are_cst_or_var(body_part), True)
 
+    def test_treat_multiple_cond(self):
+        and_cond = GeneratorAstTree.and_condition()
+        converter = AstToCfgConverter(and_cond)
+        result = converter.treat_composed_condition(and_cond)
+        expected = [[('<=', ['x', 0])], [('>', ['y', 2])]]
+        self.assertEqual(result, expected)
+
     def test_treat_while_node(self):
         # test simple while loop
         while_tree = GeneratorAstTree.basic_while_tree()

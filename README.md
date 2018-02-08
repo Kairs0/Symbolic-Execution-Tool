@@ -15,7 +15,7 @@ c ::= l : skip
 
 ## WIP - todos
 - manage and, or in comparisons in cfg construction
-- implement criteria tests (3/9) on coverage analysis
+- implement criteria tests (4/9) on coverage analysis
 - push tests much further on ast to cfg converter
 
 - parsing : see https://tomassetti.me/parsing-in-python/#tools
