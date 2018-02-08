@@ -14,9 +14,20 @@ class TestAstToCfgMethods(unittest.TestCase):
 
     def test_treat_multiple_cond(self):
         and_cond = GeneratorAstTree.and_condition()
+        or_cond = GeneratorAstTree.or_condition()
+        complex_cond = GeneratorAstTree.clean_cnf_conditions()
         converter = AstToCfgConverter(and_cond)
+        # or_cond
+        result = converter.treat_composed_condition(or_cond)
+        expected = [[('<=', ['x', 0]), ('>', ['y', 2])]]
+        self.assertEqual(result, expected)
+        # and_cond
         result = converter.treat_composed_condition(and_cond)
         expected = [[('<=', ['x', 0])], [('>', ['y', 2])]]
+        self.assertEqual(result, expected)
+        # complex cond (cnf format)
+        result = converter.treat_composed_condition(complex_cond)
+        expected = [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
         self.assertEqual(result, expected)
 
     def test_treat_while_node(self):

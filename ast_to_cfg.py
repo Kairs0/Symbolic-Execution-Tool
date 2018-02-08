@@ -280,14 +280,14 @@ class AstToCfgConverter(object):
     @staticmethod
     def treat_composed_condition(conditions):
         # we got : a node type 'logic' ('and'|'or) with children (conditions) that compose the node
+        # NOTE: condition tree is expected as CNF form (a1 or a2) and (b1 or b2 or b3)
         if conditions.data == 'or':
-            return AstToCfgConverter.treat_or_node(conditions.children)
+            return [AstToCfgConverter.treat_or_node(conditions.children)]
         elif conditions.data == 'and':
             return AstToCfgConverter.treat_and_node(conditions.children)
 
     @staticmethod
     def treat_or_node(conditions):
-        # todo: for now, we can only give simple conditions as parameter (x>5) and not (x>5 and y<0)
         result = []
         for condition in conditions:
             result.append(tuple(AstToCfgConverter.treat_compare_node(condition)))
@@ -295,11 +295,14 @@ class AstToCfgConverter(object):
 
     @staticmethod
     def treat_and_node(conditions):
-        # todo: for now, we can only give simple conditions as parameter (x>5) and not (x>5 and y<0)
+        # as we expect conditions in CNF form, we can have logical 'or' conditions here
         result = []
         for condition in conditions:
-            to_app = tuple(AstToCfgConverter.treat_compare_node(condition))
-            result.append([to_app])
+            if condition.category == 'logic' and condition.data == 'or':
+                result.append(AstToCfgConverter.treat_or_node(condition.children))
+            else:
+                to_app = tuple(AstToCfgConverter.treat_compare_node(condition))
+                result.append([to_app])
         return result
 
     @staticmethod

@@ -76,6 +76,35 @@ def rec_calc_level(node, lvl):
 class GeneratorAstTree(object):
 
     @staticmethod
+    def clean_cnf_conditions():
+        or_1 = GeneratorAstTree.or_condition()
+        or_2 = GeneratorAstTree.or_condition()
+        and_node = Node("logic", "and")
+        and_node.add_children([or_1, or_2])
+        return and_node
+
+    @staticmethod
+    def or_condition():
+        # condition
+        # condition 1
+        compare1 = Node("compare", "<=")
+        var1 = Node("variable", "x")
+        cst1 = Node("constant", 0)
+        compare1.add_child(var1)
+        compare1.add_child(cst1)
+        # condition 2
+        compare2 = Node("compare", ">")
+        var2 = Node("variable", "y")
+        cst2 = Node("constant", 2)
+        compare2.add_child(var2)
+        compare2.add_child(cst2)
+        # and logic
+        or_node = Node("logic", "or")
+        or_node.add_child(compare1)
+        or_node.add_child(compare2)
+        return or_node
+
+    @staticmethod
     def and_condition():
         # condition
         # condition 1
