@@ -15,7 +15,9 @@ c ::= l : skip
 
 ## WIP - todos
 - implement criteria tests (4/9) on coverage analysis
-- push tests much further on ast to cfg converter
+- push much further on ast to cfg converter
+
+- explain CFG modelling and its consequences on the way tests are made
 
 - parsing : see https://tomassetti.me/parsing-in-python/#tools
 - also see https://github.com/c2nes/javalang.git
@@ -50,14 +52,14 @@ The CFG Graph is managed as a python dictionary.
     
    
 *"if" and "while" commands:*
-- Value[1] are the conditions written in CNF format.
+- Value[1] are the boolean expressions written in CNF format.
 
 There is a AND relation between each element.
 
-Each element is a list of tuple ; each tuple being a primitive comparison (a < b)
+Each element is a list of tuples ; each tuple being a primitive condition (a < b)
 
 There is a OR relation between each tuple. Each tuple is a description of the comparison to evaluate.
-- tuple[0] is the comparator. It can be "<=", ..., ">="
+- tuple[0] is the operator. It can be "<=", ..., ">="
 - tuple[1] is a length 2 list of values on which the tuple[0] operates.
     - list[0] is the first value to be compared,
     - list[1] the second value. These two values can either be a string ("x" or "y") or an int.

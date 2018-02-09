@@ -11,7 +11,7 @@ The CFG Graph is stored as a dictionary.
     ***** "if" and "while" commands:
         Value[1] are the boolean expressions written in CNF format.
         There is a AND relation between each element.
-        Each element is a list of tuple ; each tuple being a primitive condition (a < b)
+        Each element is a list of tuples ; each tuple being a primitive condition (a < b)
         There is a OR relation between each tuple.
         Each tuple is a description of the comparison to evaluate.
         tuple[0] is the operator. It can be "<=", ..., ">="

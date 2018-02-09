@@ -133,8 +133,45 @@ def get_all_paths(graph, start, path=None):
 
 def replace_any_var_by_value(instruction, variables):
     for key, value in variables.items():
-        instruction = instruction.replace(key, str(variables[key]))
+        instruction = instruction.replace(key, str(value))
     return instruction
+
+
+def is_def(node, variable):
+    if node[0] != 'assign':
+        return False
+
+    if variable in node[1]:
+        return True
+    else:
+        return False
+
+
+def is_ref(node, variable):
+    if node[0] == 'while' or node[0] == 'if':
+        if variable in get_var_from_bool_expr(node[1]):
+            return True
+        else:
+            return False
+    elif node[0] == 'assign':
+
+        if variable in node[1].values():
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
+def get_var_from_bool_expr(expression):
+    variables = []
+    for or_expr in expression:
+        for condition in or_expr:
+            for value in condition[1]:
+                if isinstance(value, str):
+                    variables.append(value)
+
+    return variables
 
 
 def all_affectations(values_test, graph):
@@ -244,6 +281,11 @@ def all_i_loops(values_test, graph, k):
             print("On or more while loop was never visited.")
 
 
+def all_definitions(values_test, graph):
+    # Todo
+    pass
+
+
 def read_test_file(path_tests):
     values_tests = []
     with open(path_tests) as file:
@@ -279,7 +321,7 @@ if __name__ == '__main__':
             4: ['if', [[('==', ["x", 1])]], [5, 6]],
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
-        }
+    }
 
     graph_factorial = {
         1: ['assign', {'n': '1'}, [2]],
@@ -309,4 +351,7 @@ if __name__ == '__main__':
     all_affectations(test_values, graph_factorial)
 
     test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
+    all_i_loops(test_values, graph_factorial, 2)
+
+    test_values = read_test_file('sets_tests_txt/tests2.txt')
     all_i_loops(test_values, graph_factorial, 2)
