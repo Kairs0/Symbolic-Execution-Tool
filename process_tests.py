@@ -137,6 +137,31 @@ def replace_any_var_by_value(instruction, variables):
     return instruction
 
 
+def get_all_conditions_from_graph(graph):
+    conditions = []
+    for node, value in graph.items():
+        if value[0] == 'if' or value[0] == 'while':
+            conditions.append(get_conditions_from_bool_expression(value[1]))
+
+    return conditions
+
+
+def get_conditions_from_bool_expression(boolean_expression):
+    """
+    :param boolean_expression: simple: [[('<=', ['x', 0])]]
+    and: [[('<=', ['x', 0])], [('>', ['y', 2])]]
+    or: [[('<=', ['x', 0]), ('>', ['y', 2])]]
+    complex: [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
+    :return: list of conditions, without any structure to distinguish between and/or
+    """
+    conditions = []
+    for expressions in boolean_expression:
+        for condition in expressions:
+            conditions.append(condition)
+
+    return conditions
+
+
 def get_all_def(graph):
     """
     Returns a list of step that are assignments (definition) in a CFG
@@ -374,6 +399,9 @@ def all_definitions(values_test, graph):
         print("TDef: OK")
     else:
         print("TDef: fails")
+
+
+# def all_ut
 
 
 def read_test_file(path_tests):
