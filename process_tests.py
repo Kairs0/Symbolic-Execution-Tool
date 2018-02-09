@@ -378,6 +378,9 @@ def all_k_paths(values_test, graph, k):
 def all_i_loops(values_test, graph, k):
     # TODO: check the condition i loop: the a loop must be visited at must i times,
     #  but for every test value or for all the data set ?
+
+    # todo: wip - fixing
+    # interpretation: for every test value, the loop must be visited at must i times.
     print("\n ------")
     print("Criterion: all i loops")
 
@@ -389,12 +392,17 @@ def all_i_loops(values_test, graph, k):
     print("We want the following nodes " + str(objective) + " to be visited. (At must " + str(k) + " times.)")
 
     count_dic = {obj: 0 for obj in objective}
+    results = {value: count_dic.copy() for value in graph.values()}
 
     for value in values_test:
         path, var = process_value_test(graph, value)
         for step in path:
             if step in objective:
-                count_dic[step] += 1
+                results[value][step] += 1
+                # count_dic[step] += 1
+
+    # tODO: en cours (changement dans l'intérprétation du critère)
+    # if all(k >= count > 0 for count in count_dics.values() for count_dics in results.values())
 
     if all(k >= value > 0 for step, value in count_dic.items()):
         print(str(k) + "-TB: OK")

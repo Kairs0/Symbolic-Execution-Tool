@@ -165,7 +165,7 @@ class AstToCfgConverter(object):
         elif node.children[0].category == 'logic':
             operator = self.treat_composed_boolean_expr(node.children[0])
         else:
-            operator = 'true'  # TODO: fix this
+            return None
 
         while_number_step = self.step
         delta = 1
@@ -214,7 +214,7 @@ class AstToCfgConverter(object):
         elif node.children[0].category == 'logic':
             operator = self.treat_composed_boolean_expr(node.children[0])
         else:
-            operator = 'true'  # TODO fix this
+            return None
 
         # delta is used to set the number of next step (by default one, and more for sequence, if, while)
         delta = 1
