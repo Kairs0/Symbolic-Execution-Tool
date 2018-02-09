@@ -14,7 +14,7 @@ c ::= l : skip
 
 
 ## WIP - todos
-- implement criteria tests (4/9) on coverage analysis
+- implement criteria tests (5/9) on coverage analysis
 - push much further on ast to cfg converter
 
 - explain CFG modelling and its consequences on the way tests are made
@@ -94,3 +94,18 @@ graph_prog = {
             6: ['assign', {'x': 'x+1'}, [0]]
         }
 ```
+
+#### Abstract Syntax Tree - AST
+
+The AST tree is a little hand-written tree. Each node has:
+- A category :
+
+```'sequence, if, variable, constant, operation, assign, compare, while, logic'```
+- An optional data (depending on which category it belongs):
+    - constant: data is the value of the constant,
+    - variable: data is the name of the variable
+    - compare : data is the operator (==, <=, ...)
+    - operation: data is the operator (+, *, ...)
+    - logic: data is the logic addition (and, or)
+    
+- A list of children, each of them being other node

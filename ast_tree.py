@@ -2,7 +2,7 @@
 #### AST Tree structure:
 
 # Each node has a category (string), values can be : 
-sequence, if, variable, constant, operation, assign, compare, while
+sequence, if, variable, constant, operation, assign, compare, while, logic
 
 # Each node has a list of nodes which are his children
 
