@@ -165,6 +165,21 @@ def get_definition_for_variable(graph, variable):
     return steps
 
 
+def get_utilization_for_variable(graph, variable):
+    """
+    Returns a list of steps that are utilization (boolean expression or utilization in assignment)
+    in a CFG for a given variable
+    :param graph:
+    :param variable:
+    :return: list
+    """
+    steps = []
+    for key, value in graph.items():
+        if is_ref(value, variable):
+            steps.append(key)
+    return steps
+
+
 def get_all_var(graph):
     """
     returns the list of variable assigned/used in a program from a given CFG
@@ -181,25 +196,25 @@ def get_all_var(graph):
     return variables
 
 
-def is_def(node, variable):
-    if node[0] != 'assign':
+def is_def(value_node, variable):
+    if value_node[0] != 'assign':
         return False
 
-    if variable in node[1]:
+    if variable in value_node[1]:
         return True
     else:
         return False
 
 
-def is_ref(node, variable):
-    if node[0] == 'while' or node[0] == 'if':
-        if variable in get_var_from_bool_expr(node[1]):
+def is_ref(value_node, variable):
+    if value_node[0] == 'while' or value_node[0] == 'if':
+        if variable in get_var_from_bool_expr(value_node[1]):
             return True
         else:
             return False
-    elif node[0] == 'assign':
+    elif value_node[0] == 'assign':
 
-        if variable in node[1].values():
+        if variable in value_node[1].values():
             return True
         else:
             return False
@@ -326,9 +341,39 @@ def all_i_loops(values_test, graph, k):
 
 
 def all_definitions(values_test, graph):
-    # Todo
-    # interpretation : for every definition, there is a path from the affection to its utilization.
-    pass
+    print("\n ------")
+    print("Criterion: all definitions")
+
+
+    # interpretation : for every variable, for every definition, there is a path from the affection to its utilization.
+    variables_prog = get_all_var(graph)
+    steps_per_var = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
+
+    for variable in variables_prog:
+        steps_per_var[variable] += get_utilization_for_variable(graph, variable)
+        steps_per_var[variable] = list(set(steps_per_var[variable]))  # dirty way to remove duplicates
+
+    result = {variable: False for variable in variables_prog}
+
+    print("for following variables, we want the corresponding path to be taken: ")
+    print(steps_per_var)
+
+    # on veut que pour chaque variable, si une donnée de test assign cette variable, alors elle utilise cette variable
+    for value in values_test:
+        for var in variables_prog:
+            values_to_process = value.copy()  # we process a copy of the value dic so that the value of dic is not be modified
+            step_to_follow = steps_per_var[var]
+            path, result_vars = process_value_test(graph, values_to_process)
+            for step in path:
+                if step in step_to_follow:
+                    step_to_follow.remove(step)
+            if len(step_to_follow) == 0:
+                result[var] = True
+
+    if all(valid for valid in result.values()):
+        print("TDef: OK")
+    else:
+        print("TDef: fails")
 
 
 def read_test_file(path_tests):
@@ -400,3 +445,6 @@ if __name__ == '__main__':
 
     test_values = read_test_file('sets_tests_txt/tests2.txt')
     all_i_loops(test_values, graph_factorial, 2)
+
+    test_values = read_test_file('sets_tests_txt/tests_for_fact.txt')
+    all_definitions(test_values, graph_factorial)
