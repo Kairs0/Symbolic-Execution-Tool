@@ -9,15 +9,15 @@ def process_value_test(graph, variables, info_conditions=False):
     :param graph: CFG graph
     :param variables: a dictionary {var: initial_value}
     :param info_conditions: a boolean, if true: will return an additional value which is a dic,
-    stating how each condition was evaluated. (Todo)
+    stating how each condition was evaluated.
     :return: steps the program went through, dic of final values of variables
     """
     path = []
     next_node = 1
     path.append(next_node)
     count = 0
-    if info_conditions:
-        dic_result_cond = {}
+
+    dic_result_cond = {}
 
     while next_node != 0 and count <= LIMIT_FOR_INFINITE_LOOP:
         if count == LIMIT_FOR_INFINITE_LOOP:
@@ -410,8 +410,8 @@ def all_definitions(values_test, graph):
     print("\n ------")
     print("Criterion: all definitions")
 
-
-    # interpretation : for every variable, for every definition, there is a path from the affection to its utilization.
+    # interpretation : for every variable, for every definition,
+    # there is a path from the affection to its utilization.
     variables_prog = get_all_var(graph)
     steps_per_var = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
 
@@ -424,10 +424,11 @@ def all_definitions(values_test, graph):
     print("for following variables, we want the corresponding path to be taken: ")
     print(steps_per_var)
 
-    # on veut que pour chaque variable, si une donnée de test assign cette variable, alors elle utilise cette variable
+    # for each variable, if for a data test a variable is assigned, then this variable must be used.
     for value in values_test:
         for var in variables_prog:
-            values_to_process = value.copy()  # we process a copy of the value dic so that the value of dic is not be modified
+            values_to_process = value.copy()  # we process a copy
+            # of the value dic so that the value of dic is not be modified
             step_to_follow = steps_per_var[var]
             path, result_vars = process_value_test(graph, values_to_process)
             for step in path:
@@ -452,7 +453,8 @@ def all_conditions(values_test, graph):
     result_true = {str(condition): False for condition in conditions.values()}
     result_false = result_true.copy()
 
-    # when a condition is evaluated to true in the program, we set its value to true in result_true. When it's evaluated to false, we set its value to false in result_false.
+    # when a condition is evaluated to true in the program, we set its value to
+    # true in result_true. When it's evaluated to false, we set its value to false in result_false.
 
     for value in values_test:
         path, var, info_cond = process_value_test(graph, value, info_conditions=True)
