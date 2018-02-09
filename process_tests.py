@@ -137,6 +137,50 @@ def replace_any_var_by_value(instruction, variables):
     return instruction
 
 
+def get_all_def(graph):
+    """
+    Returns a list of step that are assignments (definition) in a CFG
+    :param graph:
+    :return: list
+    """
+    variables = get_all_var(graph)
+    steps = []
+    for variable in variables:
+        steps.extend(get_definition_for_variable(graph, variable))
+
+    return steps
+
+
+def get_definition_for_variable(graph, variable):
+    """
+    Returns a list of step that are assignments (definition) in a CFG for a given variable
+    :param graph:
+    :param variable:
+    :return: list
+    """
+    steps = []
+    for key, value in graph.items():
+        if is_def(value, variable):
+            steps.append(key)
+    return steps
+
+
+def get_all_var(graph):
+    """
+    returns the list of variable assigned/used in a program from a given CFG
+    :param graph:
+    :return: list
+    """
+    variables = []
+    for node, value in graph.items():
+        if any(value[0] == x for x in ('while', 'if')):
+            variables.extend(get_var_from_bool_expr(value[1]))
+        if value[0] == 'assign':
+            variables.extend(list(value[1].keys()))
+
+    return variables
+
+
 def is_def(node, variable):
     if node[0] != 'assign':
         return False
@@ -283,6 +327,7 @@ def all_i_loops(values_test, graph, k):
 
 def all_definitions(values_test, graph):
     # Todo
+    # interpretation : for every definition, there is a path from the affection to its utilization.
     pass
 
 
