@@ -592,8 +592,7 @@ def read_test_file(path_tests):
     return values_tests
 
 
-if __name__ == '__main__':
-
+def main():
     PATH_TESTS = "sets_tests_txt/test.txt"
 
     # Hand written CFG graphs
@@ -607,12 +606,12 @@ if __name__ == '__main__':
     }
 
     graph_prog = {
-            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
-            2: ['assign', {'x': '0-x'}, [4]],
-            3: ['assign', {'x': '1-x'}, [4]],
-            4: ['if', [[('==', ["x", 1])]], [5, 6]],
-            5: ['assign', {'x': '1'}, [0]],
-            6: ['assign', {'x': 'x+1'}, [0]]
+        1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+        2: ['assign', {'x': '0-x'}, [4]],
+        3: ['assign', {'x': '1-x'}, [4]],
+        4: ['if', [[('==', ["x", 1])]], [5, 6]],
+        5: ['assign', {'x': '1'}, [0]],
+        6: ['assign', {'x': 'x+1'}, [0]]
     }
 
     graph_factorial = {
@@ -659,3 +658,7 @@ if __name__ == '__main__':
 
     test_values = read_test_file(PATH_TESTS)
     all_utilization(test_values, test_two_variables)
+
+
+if __name__ == '__main__':
+    main()
