@@ -2,7 +2,7 @@ import unittest
 
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
-from analyze_coverage import *
+from analysis_coverage import *
 
 
 class TestAstToCfgMethods(unittest.TestCase):
