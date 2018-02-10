@@ -492,8 +492,16 @@ def all_definitions(values_test, graph):
         print("TDef: fails")
 
 
+def is_sub_path_in_path(sub_path, path):
+    if all(step in path for step in sub_path):
+        return True
+    else:
+        return False
+
+
 def all_utilization(values_test, graph):
-    # todo
+    print("\n ------")
+    print("Criterion: all utilization")
     # interpretation: for each variable, after all definition, the path that leads to the utilization
     # following the definition is taken (difference with former criteria: that the path leading to its execution)
 
@@ -503,18 +511,36 @@ def all_utilization(values_test, graph):
     dic_var_def = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
 
     # second: get all utilization accessible from each definition
+    targets_paths = {}
+    count_path = 0
+    for var in variables_prog:
+        for step_definition in dic_var_def[var]:
+            targets_paths[count_path] = [step_definition]
+            reachable_graph = get_accessible_graph(graph, step_definition)
+            steps_utilization = get_utilization_for_variable(reachable_graph, var)
+            targets_paths[count_path] += steps_utilization
+            count_path += 1
 
-    # dictionary of sub graph (rest of program after each definition for each variable)
-    sub_graph_after_def = {
-        variable: {
-            k: graph[k] for k in range(dic_var_def[variable][0], len(graph) + 1)
-        }
-        for variable in dic_var_def.keys()
-    }
+    # third : process value test and record the resulting path
+    result_paths = []
+    for data in values_test:
+        path, var = process_value_test(graph, data)
+        result_paths.append(path)
 
+    # fourth: validate targets path that have been taken
+    validated = []
+    for target_path in targets_paths.values():
+        for path_result in result_paths:
+            if is_sub_path_in_path(target_path, path_result):
+                validated.append(target_path)
 
-    # third
-    pass
+    # fifth: test results
+    targets_paths_list = [path for path in targets_paths.values()]
+
+    if set(map(tuple, validated)) == set(map(tuple, targets_paths_list)):
+        print("TU: Ok")
+    else:
+        print("TU: fails")
 
 
 def all_du_path(values_test, graph):
@@ -630,3 +656,6 @@ if __name__ == '__main__':
 
     test_values = read_test_file(PATH_TESTS)
     all_conditions(test_values, test_two_variables)
+
+    test_values = read_test_file(PATH_TESTS)
+    all_utilization(test_values, test_two_variables)
