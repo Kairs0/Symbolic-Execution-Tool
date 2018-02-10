@@ -14,7 +14,7 @@ c ::= l : skip
 
 
 ## WIP - todos
-- implement criteria tests (7/8) on coverage analysis
+- implement criteria tests (8/8) on coverage analysis
 - push tests much further on ast to cfg converter
 - refactor criteria test on coverage analysis and check correctness
 

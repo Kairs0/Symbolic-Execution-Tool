@@ -2,7 +2,7 @@ import unittest
 
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
-from analyze_coverage import process_value_test, get_all_paths, get_children, get_accessible_graph
+from analyze_coverage import *
 
 
 class TestAstToCfgMethods(unittest.TestCase):
@@ -364,6 +364,8 @@ class TestAnalyzeCoverageMethods(unittest.TestCase):
 
         self.assertEqual(result_var['n'], 120)
         self.assertEqual(result_var['x'], 0)
+        expected_path = [1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 0]
+        self.assertEqual(result_path, expected_path)
 
     def test_get_all_paths(self):
         graph_prog = {

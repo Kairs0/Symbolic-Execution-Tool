@@ -233,7 +233,7 @@ def get_conditions_from_bool_expression(boolean_expression):
     and: [[('<=', ['x', 0])], [('>', ['y', 2])]]
     or: [[('<=', ['x', 0]), ('>', ['y', 2])]]
     complex: [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
-    :return: list of conditions, without any structure to distinguish between and/or
+    :return: list of conditions (syntax: ('<=', ['x', 0])), without any structure to distinguish between and/or
     """
     conditions = []
     for expressions in boolean_expression:
@@ -404,7 +404,6 @@ def all_k_paths(values_test, graph, k):
 
     for value in values_test:
         path, var = process_value_test(graph, value)
-        # print("path for value " + str(value) + " : " + str(path))
         if path[:k] in target_paths:
             target_paths.remove(path[:k])
 
@@ -416,7 +415,8 @@ def all_k_paths(values_test, graph, k):
 
 
 def all_i_loops(values_test, graph, k):
-    # interpretation: for every test value, the loop must be visited at must i times.
+    # interpretation: for every test value, every loop must be visited at must i times.
+    # todo: redefine for inner loops
     print("\n ------")
     print("Criterion: all i loops")
 
@@ -455,7 +455,6 @@ def all_definitions(values_test, graph):
     print("Criterion: all definitions")
 
     # interpretation : for every variable, for every definition,
-    # todo: change (we must have at least one variable in the test that respects the condition, and not every
     # there is a path from the affection to its utilization.
 
     # first : we get all step corresponding to definition, and all steps corresponding to utilization
@@ -465,7 +464,7 @@ def all_definitions(values_test, graph):
 
     for variable in variables_prog:
         steps_per_var[variable] += get_utilization_for_variable(graph, variable)
-        steps_per_var[variable] = list(set(steps_per_var[variable]))  # dirty way to remove duplicates
+        steps_per_var[variable] = list(set(steps_per_var[variable]))  # remove duplicates
 
     result = {variable: False for variable in variables_prog}
 
@@ -485,7 +484,6 @@ def all_definitions(values_test, graph):
             if len(step_to_follow) == 0:
                 result[var] = True
 
-    # if any(valid for valid in result.values()): # todo new condition
     if all(valid for valid in result.values()):
         print("TDef: OK")
     else:
@@ -504,7 +502,6 @@ def all_utilization(values_test, graph):
     print("Criterion: all utilization")
     # interpretation: for each variable, after all definition, the path that leads to the utilization
     # following the definition is taken (difference with former criteria: that the path leading to its execution)
-
     variables_prog = get_all_var(graph)
 
     # first: get each definition
@@ -536,7 +533,6 @@ def all_utilization(values_test, graph):
 
     # fifth: test results
     targets_paths_list = [path for path in targets_paths.values()]
-
     if set(map(tuple, validated)) == set(map(tuple, targets_paths_list)):
         print("TU: Ok")
     else:
@@ -544,8 +540,73 @@ def all_utilization(values_test, graph):
 
 
 def all_du_path(values_test, graph):
-    # todo
-    pass
+    print("\n ------")
+    print("Criterion: all du-paths")
+    # interpretation: for each variable, for each couple definition-utilization, all simple path
+    # without redefinition of variable are executed one time
+
+    # first: for all variable, find all definition
+    variables_prog = get_all_var(graph)
+    dic_var_def = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
+
+    # second: for all variable, for all its definition, find the first utilization
+    # (without definition in the step), and build a list of couples (start-end) that must be reached.
+    couple_of_interest = []
+    for variable in variables_prog:
+        for step_definition in dic_var_def[variable]:
+            reachable_graph = get_accessible_graph(graph, step_definition)
+            # print(reachable_graph)
+            steps_redefine = get_definition_for_variable(reachable_graph, variable)
+            steps_utilization = get_utilization_for_variable(reachable_graph, variable)
+
+            # If step_redefine is empty or if first element of utilization is
+            # smaller than first element of utilization then we add the couple.
+            # In any other case we do not add the couple to couple of interests
+            try:
+                if (
+                        len(steps_redefine) == 0 and len(steps_utilization) > 0 or
+                        steps_utilization[0] < steps_redefine[0]
+                ):
+                    couple_of_interest.append((step_definition, steps_utilization[0]))
+            except IndexError:
+                pass
+
+    # third: build a list of nodes that are inside while loops
+    inside_while_loops_steps = []
+    for value in graph.values():
+        if type_node(value) == 'while':
+            inside_while_loops_steps.append(value[-1][0])
+
+    # fourth: process values from the set of tests
+    result_paths = []
+    for data in values_test:
+        path, var = process_value_test(graph, data)
+        result_paths.append(path)
+
+    # fifth: check if all path for each couple have been taken
+    # check if inner while loops haven't been looped more than one time
+    correctness_couples = {couple: False for couple in couple_of_interest}
+    correctness_while = {step: True for step in inside_while_loops_steps}
+    for path in result_paths:
+        for couple in couple_of_interest:
+            if is_sub_path_in_path(list(couple), path):
+                correctness_couples[couple] = True
+        for step_target in correctness_couples.keys():
+            if path.count(step_target) > 1:
+                correctness_while[step_target] = False
+
+    if (
+            all(result_couple for result_couple in correctness_couples.values())
+            and all(result_while for result_while in correctness_while.values())
+    ):
+        correct = True
+    else:
+        correct = False
+
+    if correct:
+        print("TDU: OK")
+    else:
+        print("TDU: fails")
 
 
 def all_conditions(values_test, graph):
@@ -593,7 +654,7 @@ def read_test_file(path_tests):
 
 
 def main():
-    PATH_TESTS = "sets_tests_txt/test.txt"
+    path_tests = "sets_tests_txt/test.txt"
 
     # Hand written CFG graphs
     # (temporary - while ast_to_cfg isn't connected to process_tests)
@@ -621,21 +682,23 @@ def main():
         4: ['assign', {'x': 'x-1'}, [2]]
     }
 
-    test_values = read_test_file(PATH_TESTS)
+    # todo : make copy of test values (do not read file at each time
+
+    test_values = read_test_file(path_tests)
     all_affectations(test_values, test_two_variables)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_decisions(test_values, test_two_variables)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_affectations(test_values, graph_prog)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_decisions(test_values, graph_prog)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_k_paths(test_values, graph_prog, 3)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_k_paths(test_values, graph_prog, 5)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_k_paths(test_values, test_two_variables, 3)
-    test_values = read_test_file(PATH_TESTS)
+    test_values = read_test_file(path_tests)
     all_k_paths(test_values, test_two_variables, 5)
 
     test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
@@ -653,11 +716,14 @@ def main():
     test_values = read_test_file('sets_tests_txt/tests_for_fact.txt')
     all_conditions(test_values, graph_factorial)
 
-    test_values = read_test_file(PATH_TESTS)
-    all_conditions(test_values, test_two_variables)
+    test_values = read_test_file(path_tests)
+    all_conditions(test_values, graph_prog)
 
-    test_values = read_test_file(PATH_TESTS)
-    all_utilization(test_values, test_two_variables)
+    test_values = read_test_file(path_tests)
+    all_utilization(test_values, graph_prog)
+
+    test_values = read_test_file(path_tests)
+    all_du_path(test_values, graph_prog)
 
 
 if __name__ == '__main__':
