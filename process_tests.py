@@ -376,10 +376,6 @@ def all_k_paths(values_test, graph, k):
 
 
 def all_i_loops(values_test, graph, k):
-    # TODO: check the condition i loop: the a loop must be visited at must i times,
-    #  but for every test value or for all the data set ?
-
-    # todo: wip - fixing
     # interpretation: for every test value, the loop must be visited at must i times.
     print("\n ------")
     print("Criterion: all i loops")
@@ -392,20 +388,17 @@ def all_i_loops(values_test, graph, k):
     print("We want the following nodes " + str(objective) + " to be visited. (At must " + str(k) + " times.)")
 
     count_dic = {obj: 0 for obj in objective}
+    results = {str(data): count_dic.copy() for data in values_test}
 
-    # todo: ici le problème est qu'on passe value mais le dic values_test va être modifié,
-    # ce qui va impliquer une KeyError sur str(value) à la ligne 405
-    results = {str(value): count_dic.copy() for value in values_test}
-    print(results)
-
-    for value in values_test:
-        path, var = process_value_test(graph, value)
+    for data in values_test:
+        # make a string copy of data in order to retrieve in result the count dictionary corresponding
+        # (value dictionary dic is modified while data is processed
+        str_data = str(data)
+        path, var = process_value_test(graph, data)
         for step in path:
             if step in objective:
-                results[str(value)][step] += 1
-                # count_dic[step] += 1
+                results[str_data][step] += 1
 
-    # en cours (changement dans l'intérprétation du critère), todo : check if correct
     correct = True
     for result in results.values():
         if not all(k >= value > 0 for value in result.values()):
@@ -415,16 +408,6 @@ def all_i_loops(values_test, graph, k):
         print(str(k) + "-TB: OK")
     else:
         print(str(k) + "-TB fails:")
-
-    # OLD
-    # if all(k >= value > 0 for step, value in count_dic.items()):
-    #     print(str(k) + "-TB: OK")
-    # else:
-    #     print(str(k) + "-TB fails:")
-    #     if any(value > k for step, value in count_dic.items()):
-    #         print("One or more while loop was visited more than " + str(k) + " time.")
-    #     if any(value == 0 for step, value in count_dic.items()):
-    #         print("On or more while loop was never visited.")
 
 
 def all_definitions(values_test, graph):
