@@ -415,6 +415,7 @@ def all_definitions(values_test, graph):
     print("Criterion: all definitions")
 
     # interpretation : for every variable, for every definition,
+    # todo: change (we must have at least one variable in the test that respects the condition, and not every
     # there is a path from the affection to its utilization.
     variables_prog = get_all_var(graph)
     steps_per_var = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
@@ -441,10 +442,23 @@ def all_definitions(values_test, graph):
             if len(step_to_follow) == 0:
                 result[var] = True
 
+    # if any(valid for valid in result.values()): # todo new condition
     if all(valid for valid in result.values()):
         print("TDef: OK")
     else:
         print("TDef: fails")
+
+
+def all_utilization(values_test, graph):
+    # todo
+    # interpretation: for each variable, after all definition, the path that leads to the utilization
+    # following the definition is taken
+    pass
+
+
+def all_du_path(values_test, graph):
+    # todo
+    pass
 
 
 def all_conditions(values_test, graph):
