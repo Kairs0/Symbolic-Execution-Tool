@@ -24,16 +24,16 @@ def process_value_test(graph, variables, info_conditions=False):
             raise ValueError('Infinite loop - program stopped')
 
         node = graph[next_node]
-        if node[0] == "if" or node[0] == "while":
+        if type_node(node) == "if" or type_node(node) == "while":
             bool_result = process_bool_expression(node[1], variables)  # check condition, returns True or False
 
             if info_conditions:
                 dic_result_cond[next_node] = analyze_conditions(node[1], variables)
 
             next_node = node[-1][0] if bool_result else node[-1][1]
-        elif node[0] == "skip":
+        elif type_node(node) == "skip":
             next_node = node[1][0]
-        elif node[0] == "assign":
+        elif type_node(node) == "assign":
             instruct = node[1]
             for key, instruction in instruct.items():
                 variables[key] = eval(replace_any_var_by_value(instruction, variables))
@@ -46,6 +46,10 @@ def process_value_test(graph, variables, info_conditions=False):
         return path, variables, dic_result_cond
     else:
         return path, variables
+
+
+def type_node(node_value):
+    return node_value[0]
 
 
 def analyze_conditions(bool_expr, variables):
@@ -172,6 +176,42 @@ def replace_any_var_by_value(instruction, variables):
     for key, value in variables.items():
         instruction = instruction.replace(key, str(value))
     return instruction
+
+
+def get_following_nodes(node_value):
+    return node_value[-1]
+
+
+def get_children(step_number, graph, visited=None):
+    if visited is None:
+        visited = []
+
+    children = []
+    if step_number == 0:
+        return children
+    else:
+        following_nodes = graph[step_number][-1]
+
+        # we add the list of following nodes
+        children.extend(following_nodes)
+
+        # for each following node, we add their following nodes
+        # to avoid issue when we encounter potential cycle, we keep track of visited nodes
+        for following in [e for e in following_nodes if e not in visited]:
+            visited.append(following)
+            children.extend(get_children(following, graph, visited))
+
+        return set(children)
+
+
+def get_accessible_graph(graph, number_node):
+    """
+    Returns the graph that is accessible starting from a given node
+    :param graph:
+    :param number_node:
+    :return: dictionary
+    """
+    return {key: graph[key] for key in get_children(number_node, graph) if key != 0}
 
 
 def get_all_conditions_from_graph(graph):
@@ -417,6 +457,9 @@ def all_definitions(values_test, graph):
     # interpretation : for every variable, for every definition,
     # todo: change (we must have at least one variable in the test that respects the condition, and not every
     # there is a path from the affection to its utilization.
+
+    # first : we get all step corresponding to definition, and all steps corresponding to utilization
+    # for each variable
     variables_prog = get_all_var(graph)
     steps_per_var = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
 
@@ -452,7 +495,25 @@ def all_definitions(values_test, graph):
 def all_utilization(values_test, graph):
     # todo
     # interpretation: for each variable, after all definition, the path that leads to the utilization
-    # following the definition is taken
+    # following the definition is taken (difference with former criteria: that the path leading to its execution)
+
+    variables_prog = get_all_var(graph)
+
+    # first: get each definition
+    dic_var_def = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
+
+    # second: get all utilization accessible from each definition
+
+    # dictionary of sub graph (rest of program after each definition for each variable)
+    sub_graph_after_def = {
+        variable: {
+            k: graph[k] for k in range(dic_var_def[variable][0], len(graph) + 1)
+        }
+        for variable in dic_var_def.keys()
+    }
+
+
+    # third
     pass
 
 
@@ -488,10 +549,6 @@ def all_conditions(values_test, graph):
     if all(correct for correct in result_true.values()) and all(correct for correct in result_false.values()):
         print("TC: OK")
     else:
-        # print("result_true")
-        # print(result_true)
-        # print("result_false")
-        # print(result_false)
         print("TC: fails")
 
 

@@ -2,7 +2,7 @@ import unittest
 
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
-from process_tests import process_value_test, get_all_paths
+from analyze_coverage import process_value_test, get_all_paths, get_children, get_accessible_graph
 
 
 class TestAstToCfgMethods(unittest.TestCase):
@@ -245,7 +245,89 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(result_fact, expected_fact)
 
 
-class TestProcessTestsMethods(unittest.TestCase):
+class TestAnalyzeCoverageMethods(unittest.TestCase):
+    def test_get_children(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+
+        result = get_children(2, graph_prog)
+
+        expected = {0, 4, 5, 6}
+        self.assertEqual(result, expected)
+        result = get_children(1, graph_prog)
+        expected = {0, 2, 3, 4, 5, 6}
+        self.assertEqual(result, expected)
+
+        other_graph = {
+            1: ['if', [[('==', ["x", 1])]], [2, 3]],
+            2: ['assign', {'x': '1'}, [5]],
+            3: ['assign', {'x': '32'}, [4]],
+            4: ['assign', {'x': 'x*4'}, [5]],
+            5: ['if', [[('<', ['x', 5])]], [6, 8]],
+            6: ['while', [[('<', ['x', 5])]], [7, 10]],
+            7: ['assign', {'x': 'x+1'}, [6]],
+            8: ['while', [[('<', ['x', 5])]], [9, 10]],
+            9: ['assign', {'x': 'x+1'}, [8]],
+            10: ['assign', {'x': '1'}, [0]]
+        }
+
+        result = get_children(6, other_graph)
+        expected = {0, 6, 7, 10}
+        self.assertEqual(result, expected)
+
+    def test_get_accessible_graph(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        result = get_accessible_graph(graph_prog, 2)
+        expected = {
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        self.assertEqual(result, expected)
+
+        result = get_accessible_graph(graph_prog, 1)
+        expected = {
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        self.assertEqual(result, expected)
+
+        other_graph = {
+            1: ['if', [[('==', ["x", 1])]], [2, 3]],
+            2: ['assign', {'x': '1'}, [5]],
+            3: ['assign', {'x': '32'}, [4]],
+            4: ['assign', {'x': 'x*4'}, [5]],
+            5: ['if', [[('<', ['x', 5])]], [6, 8]],
+            6: ['while', [[('<', ['x', 5])]], [7, 10]],
+            7: ['assign', {'x': 'x+1'}, [6]],
+            8: ['while', [[('<', ['x', 5])]], [9, 10]],
+            9: ['assign', {'x': 'x+1'}, [8]],
+            10: ['assign', {'x': '1'}, [0]]
+        }
+        result = get_accessible_graph(other_graph, 6)
+        expected = {
+            6: ['while', [[('<', ['x', 5])]], [7, 10]],
+            7: ['assign', {'x': 'x+1'}, [6]],
+            10: ['assign', {'x': '1'}, [0]]
+        }
+        self.assertEqual(result, expected)
+
     def test_process_value_test(self):
         graph_prog = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],

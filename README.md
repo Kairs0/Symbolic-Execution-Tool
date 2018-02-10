@@ -15,7 +15,7 @@ c ::= l : skip
 
 ## WIP - todos
 - implement criteria tests (6/8) on coverage analysis
-- push much further on ast to cfg converter
+- push tests much further on ast to cfg converter
 
 - explain CFG modelling and its consequences on the way tests are made
 
