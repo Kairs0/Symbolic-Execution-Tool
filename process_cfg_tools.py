@@ -344,3 +344,10 @@ def get_var_from_bool_expr(expression):
                     variables.append(value)
 
     return variables
+
+
+def is_sub_path_in_path(sub_path, path):
+    if all(step in path for step in sub_path):
+        return True
+    else:
+        return False

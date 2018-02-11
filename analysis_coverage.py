@@ -2,18 +2,24 @@
 # -*- coding: utf-8 -*-
 
 from process_cfg_tools import *
+from sys import argv, exit
+import my_parser
+from ast_tree import GeneratorAstTree
+from ast_to_cfg import AstToCfgConverter
 
 
-def all_affectations(values_test, graph):
-    print("\n ------")
-    print("Criterion: all affectations")
+def all_affectations(values_test, graph, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all affectations")
 
     objective = []
     for key, value in graph.items():
         if value[0] == "assign":
             objective.append(key)
 
-    print("We want the following nodes to be visited: " + str(objective))
+    if verbose:
+        print("We want the following nodes to be visited: " + str(objective))
 
     for value in values_test:
         path, var = process_value_test(graph, value)
@@ -22,15 +28,20 @@ def all_affectations(values_test, graph):
                 objective.remove(step)
     
     if len(objective) == 0:
-        print("TA: OK")
+        if verbose:
+            print("TA: OK")
+        return True
     else:
-        print("TA fails:")
-        print("Nodes " + str(objective) + " were never reached.")
+        if verbose:
+            print("TA fails:")
+            print("Nodes " + str(objective) + " were never reached.")
+        return False
 
 
-def all_decisions(values_test, graph):
-    print("\n ------")
-    print("Criterion: all decisions")
+def all_decisions(values_test, graph, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all decisions")
 
     objective = []
     for key, value in graph.items():
@@ -39,7 +50,8 @@ def all_decisions(values_test, graph):
             for following_nodes in value[-1]:
                 objective.append(following_nodes)
 
-    print("We want the following nodes to be visited: " + str(objective))
+    if verbose:
+        print("We want the following nodes to be visited: " + str(objective))
 
     for value in values_test:
         path, var = process_value_test(graph, value)
@@ -48,15 +60,20 @@ def all_decisions(values_test, graph):
                 objective.remove(step)
     
     if len(objective) == 0:
-        print("TD: OK")
+        if verbose:
+            print("TD: OK")
+        return True
     else:
-        print("TD fails:")
-        print("Nodes " + str(objective) + " were never reached.")
+        if verbose:
+            print("TD fails:")
+            print("Nodes " + str(objective) + " were never reached.")
+        return False
 
 
-def all_k_paths(values_test, graph, k):
-    print("\n ------")
-    print("Criterion: all k paths for k = " + str(k))
+def all_k_paths(values_test, graph, k, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all k paths for k = " + str(k))
 
     all_paths = get_all_paths(graph, 1)
 
@@ -65,7 +82,8 @@ def all_k_paths(values_test, graph, k):
         if not path[:k] in target_paths:
             target_paths.append(path[:k])
 
-    print("We want the following paths to be taken: " + str(target_paths))
+    if verbose:
+        print("We want the following paths to be taken: " + str(target_paths))
 
     for value in values_test:
         path, var = process_value_test(graph, value)
@@ -73,24 +91,30 @@ def all_k_paths(values_test, graph, k):
             target_paths.remove(path[:k])
 
     if len(target_paths) == 0:
-        print("All k paths for k = " + str(k) + ": OK")
+        if verbose:
+            print("All k paths for k = " + str(k) + ": OK")
+        return True
     else:
-        print("All k paths for k = " + str(k) + " fails:")
-        print("Paths " + str(target_paths) + " were never taken entirely.")
+        if verbose:
+            print("All k paths for k = " + str(k) + " fails:")
+            print("Paths " + str(target_paths) + " were never taken entirely.")
+        return False
 
 
-def all_i_loops(values_test, graph, k):
+def all_i_loops(values_test, graph, k, verbose):
     # interpretation: for every test value, every loop must be visited at must i times.
     # todo: redefine for inner loops
-    print("\n ------")
-    print("Criterion: all i loops")
+    if verbose:
+        print("\n ------")
+        print("Criterion: all i loops")
 
     objective = []
     for key, value in graph.items():
         if value[0] == "while":
             objective.append(value[-1][0])
 
-    print("We want the following nodes " + str(objective) + " to be visited. (At must " + str(k) + " times.)")
+    if verbose:
+        print("We want the following nodes " + str(objective) + " to be visited. (At must " + str(k) + " times.)")
 
     count_dic = {obj: 0 for obj in objective}
     results = {str(data): count_dic.copy() for data in values_test}
@@ -110,14 +134,19 @@ def all_i_loops(values_test, graph, k):
             correct = False
 
     if correct:
-        print(str(k) + "-TB: OK")
+        if verbose:
+            print(str(k) + "-TB: OK")
+        return True
     else:
-        print(str(k) + "-TB fails:")
+        if verbose:
+            print(str(k) + "-TB fails:")
+        return False
 
 
-def all_definitions(values_test, graph):
-    print("\n ------")
-    print("Criterion: all definitions")
+def all_definitions(values_test, graph, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all definitions")
 
     # interpretation : for every variable, for every definition,
     # there is a path from the affection to its utilization.
@@ -133,8 +162,9 @@ def all_definitions(values_test, graph):
 
     result = {variable: False for variable in variables_prog}
 
-    print("for following variables, we want the corresponding path to be taken: ")
-    print(steps_per_var)
+    if verbose:
+        print("for following variables, we want the corresponding path to be taken: ")
+        print(steps_per_var)
 
     # for each variable, if for a data test a variable is assigned, then this variable must be used.
     for value in values_test:
@@ -150,21 +180,19 @@ def all_definitions(values_test, graph):
                 result[var] = True
 
     if all(valid for valid in result.values()):
-        print("TDef: OK")
-    else:
-        print("TDef: fails")
-
-
-def is_sub_path_in_path(sub_path, path):
-    if all(step in path for step in sub_path):
+        if verbose:
+            print("TDef: OK")
         return True
     else:
+        if verbose:
+            print("TDef: fails")
         return False
 
 
-def all_utilization(values_test, graph):
-    print("\n ------")
-    print("Criterion: all utilization")
+def all_utilization(values_test, graph, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all utilization")
     # interpretation: for each variable, after all definition, the path that leads to the utilization
     # following the definition is taken (difference with former criteria: that the path leading to its execution)
     variables_prog = get_all_var(graph)
@@ -199,14 +227,19 @@ def all_utilization(values_test, graph):
     # fifth: test results
     targets_paths_list = [path for path in targets_paths.values()]
     if set(map(tuple, validated)) == set(map(tuple, targets_paths_list)):
-        print("TU: Ok")
+        if verbose:
+            print("TU: Ok")
+        return True
     else:
-        print("TU: fails")
+        if verbose:
+            print("TU: fails")
+        return False
 
 
-def all_du_path(values_test, graph):
-    print("\n ------")
-    print("Criterion: all du-paths")
+def all_du_path(values_test, graph, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all du-paths")
     # interpretation: for each variable, for each couple definition-utilization, all simple path
     # without redefinition of variable are executed one time
 
@@ -269,14 +302,19 @@ def all_du_path(values_test, graph):
         correct = False
 
     if correct:
-        print("TDU: OK")
+        if verbose:
+            print("TDU: OK")
+        return True
     else:
-        print("TDU: fails")
+        if verbose:
+            print("TDU: fails")
+        return False
 
 
-def all_conditions(values_test, graph):
-    print("\n ------")
-    print("Criterion: all conditions")
+def all_conditions(values_test, graph, verbose):
+    if verbose:
+        print("\n ------")
+        print("Criterion: all conditions")
 
     # dictionary {node: list(conditions)}
     conditions = get_all_conditions_from_graph(graph)
@@ -299,9 +337,13 @@ def all_conditions(values_test, graph):
                     result_false[str([condition_just_evaluated])] = True
 
     if all(correct for correct in result_true.values()) and all(correct for correct in result_false.values()):
-        print("TC: OK")
+        if verbose:
+            print("TC: OK")
+        return True
     else:
-        print("TC: fails")
+        if verbose:
+            print("TC: fails")
+        return False
 
 
 def read_test_file(path_tests):
@@ -318,77 +360,75 @@ def read_test_file(path_tests):
     return values_tests
 
 
+def treat_command():
+    try:
+        file_program = argv[1]
+        file_test = argv[2]
+        verbose = False
+        if len(argv) == 4:
+            verbose = argv[3] == '-v'
+        return file_program, file_test, verbose
+    except IndexError:
+        display_usage()
+        exit()
+
+
+def display_usage():
+    print("Usage: ")
+    print("$ python analysis_coverage.py path_prog.txt path_data_test.txt [-v]")
+
+
+def get_name_file_from_path(path):
+    return path.split('\\')[-1].split('.')[0]
+
+
+def calc_coverage(cfg_graph, test_values, verbose):
+    print("Starting analysis...")
+    number_tests = 8
+    copies_values = []
+    for i in range(number_tests):
+        copies_values.append(test_values.copy())
+
+    # noinspection PyListCreation
+    results = []
+    results.append(all_affectations(copies_values[0], cfg_graph, verbose))
+    results.append(all_decisions(copies_values[1], cfg_graph, verbose))
+    results.append(all_k_paths(copies_values[2], cfg_graph, 4, verbose))
+    results.append(all_i_loops(copies_values[3], cfg_graph, 2, verbose))
+    results.append(all_decisions(copies_values[4], cfg_graph, verbose))
+    results.append(all_utilization(copies_values[5], cfg_graph, verbose))
+    results.append(all_du_path(copies_values[6], cfg_graph, verbose))
+    results.append(all_conditions(copies_values[7], cfg_graph, verbose))
+
+    count_pass = 0
+    for result in results:
+        if result:
+            count_pass += 1
+
+    print("End analysis coverage.")
+
+    print("Tests are passing " + str(count_pass) + " criterion on " + str(len(results)))
+
+
 def main():
-    path_tests = "sets_tests_txt/test.txt"
+    file_program, file_test, verbose = treat_command()
+    test_values = read_test_file(file_test)
 
-    # Hand written CFG graphs
-    # (temporary - while ast_to_cfg isn't connected to process_tests)
+    # if parser is on, we get the AST Tree by parsing the file program.
+    # if not, we get the AST tree already written from ast_tree.py module
+    if my_parser.is_on():
+        # TODO
+        ast_tree_prog = {}
+    else:
+        name_prog = get_name_file_from_path(file_program)
+        ast_tree_prog = GeneratorAstTree.get_ast_from_name(name_prog)
 
-    test_two_variables = {
-        1: ['if', [[('<=', ['x', 0])]], [2, 3]],
-        2: ['assign', {'y': 'x'}, [4]],
-        3: ['assign', {'y': '0-x'}, [4]],
-        4: ['assign', {'x': 'y*2'}, [0]]
-    }
+    # Convert AST to CFG
+    converter = AstToCfgConverter(ast_tree_prog)
+    cfg_graph_prog = converter.get_cfg_graph()
 
-    graph_prog = {
-        1: ['if', [[('<=', ["x", 0])]], [2, 3]],
-        2: ['assign', {'x': '0-x'}, [4]],
-        3: ['assign', {'x': '1-x'}, [4]],
-        4: ['if', [[('==', ["x", 1])]], [5, 6]],
-        5: ['assign', {'x': '1'}, [0]],
-        6: ['assign', {'x': 'x+1'}, [0]]
-    }
-
-    graph_factorial = {
-        1: ['assign', {'n': '1'}, [2]],
-        2: ['while', [[('>=', ['x', 1])]], [3, 0]],
-        3: ['assign', {'n': 'n*x'}, [4]],
-        4: ['assign', {'x': 'x-1'}, [2]]
-    }
-
-    # todo : make copy of test values (do not read file at each time
-
-    test_values = read_test_file(path_tests)
-    all_affectations(test_values, test_two_variables)
-    test_values = read_test_file(path_tests)
-    all_decisions(test_values, test_two_variables)
-    test_values = read_test_file(path_tests)
-    all_affectations(test_values, graph_prog)
-    test_values = read_test_file(path_tests)
-    all_decisions(test_values, graph_prog)
-    test_values = read_test_file(path_tests)
-    all_k_paths(test_values, graph_prog, 3)
-    test_values = read_test_file(path_tests)
-    all_k_paths(test_values, graph_prog, 5)
-    test_values = read_test_file(path_tests)
-    all_k_paths(test_values, test_two_variables, 3)
-    test_values = read_test_file(path_tests)
-    all_k_paths(test_values, test_two_variables, 5)
-
-    test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
-    all_affectations(test_values, graph_factorial)
-
-    test_values = read_test_file("sets_tests_txt/tests_for_fact.txt")
-    all_i_loops(test_values, graph_factorial, 2)
-
-    test_values = read_test_file('sets_tests_txt/tests2.txt')
-    all_i_loops(test_values, graph_factorial, 2)
-
-    test_values = read_test_file('sets_tests_txt/tests_for_fact.txt')
-    all_definitions(test_values, graph_factorial)
-
-    test_values = read_test_file('sets_tests_txt/tests_for_fact.txt')
-    all_conditions(test_values, graph_factorial)
-
-    test_values = read_test_file(path_tests)
-    all_conditions(test_values, graph_prog)
-
-    test_values = read_test_file(path_tests)
-    all_utilization(test_values, graph_prog)
-
-    test_values = read_test_file(path_tests)
-    all_du_path(test_values, graph_prog)
+    # Process tests to get coverage
+    calc_coverage(cfg_graph_prog, test_values, verbose)
 
 
 if __name__ == '__main__':

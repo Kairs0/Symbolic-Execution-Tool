@@ -76,6 +76,11 @@ def rec_calc_level(node, lvl):
 class GeneratorAstTree(object):
 
     @staticmethod
+    def get_ast_from_name(name):
+        if name == "prog_1":
+            return GeneratorAstTree.prog_tree()
+
+    @staticmethod
     def clean_cnf_conditions():
         or_1 = GeneratorAstTree.or_condition()
         or_2 = GeneratorAstTree.or_condition()

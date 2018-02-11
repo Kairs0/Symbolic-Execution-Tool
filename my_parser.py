@@ -1,4 +1,3 @@
-from collections import deque
 
 booleans = ["true", "false"]
 operators = ['+', '-', '*']
@@ -6,6 +5,11 @@ comparators = ['==', '<=', '<', '>', '>=', '!=']
 keywords = ['if', 'then', 'else', 'while', ':=']
 separators = ['(', ')', '{', '}', ';']
 numbers = [x for x in range(10)]
+
+
+def is_on():
+    # set to True when operational
+    return False
 
 
 def tokenize(program_lines_as_list):
@@ -97,5 +101,5 @@ def main():
     # print(tokens)
 
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()

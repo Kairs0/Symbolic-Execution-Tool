@@ -2,7 +2,7 @@ import unittest
 
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
-from analysis_coverage import *
+from process_cfg_tools import *
 
 
 class TestAstToCfgMethods(unittest.TestCase):
@@ -245,7 +245,7 @@ class TestAstToCfgMethods(unittest.TestCase):
         self.assertEqual(result_fact, expected_fact)
 
 
-class TestAnalyzeCoverageMethods(unittest.TestCase):
+class TestProcessCfgMethods(unittest.TestCase):
     def test_get_children(self):
         graph_prog = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
