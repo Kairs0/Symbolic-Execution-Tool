@@ -60,13 +60,46 @@ def type_node(node_value):
     return node_value[0]
 
 
+def booleans_condition_on_path(graph, path):
+    result = {}
+    for node_number in path:
+        value_bool = False
+        if isinstance(node_number, list):
+            # TODO
+            print(node_number)
+            node_number = node_number[0]
+            print(node_number[-1])
+            # value_bool = bool(node_number[-1])
+        if is_test_boolean_expression(graph[node_number]):
+            condition = graph[node_number][1]
+            result[node_number] = [condition, value_bool]
+
+    return result
+
+
+def is_test_boolean_expression(node_value):
+    if node_value[0] == 'while' or node_value[0] == 'if':
+        return True
+    else:
+        return False
+
+
 def how_to_get_to_node(node_key, graph):
-    path_result = []
+    path_result = [node_key]
     current_node = node_key
+
     previous_nodes = get_father_for_node(current_node, graph)
     while previous_nodes:
         choice_to_get_up = [node for node in previous_nodes if node not in path_result][0]
-        path_result.append(choice_to_get_up)
+        if is_test_boolean_expression(graph[choice_to_get_up]):
+            if graph[choice_to_get_up][-1][0] in path_result:
+                path_result.append([choice_to_get_up, True])
+            elif graph[choice_to_get_up][-1][1] in path_result:
+                path_result.append([choice_to_get_up, False])
+            else:
+                path_result.append("fail")
+        else:
+            path_result.append(choice_to_get_up)
         previous_nodes = get_father_for_node(choice_to_get_up, graph)
 
     return path_result

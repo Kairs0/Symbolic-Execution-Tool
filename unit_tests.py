@@ -416,11 +416,11 @@ class TestProcessCfgMethods(unittest.TestCase):
             6: ['assign', {'x': 'x+1'}, [0]]
         }
         result = how_to_get_to_node(6, graph_prog)
-        expected = [4, 2, 1]
+        expected = [6, [4, False], 2, [1, True]]
         self.assertEqual(result, expected)
 
         result = how_to_get_to_node(3, graph_prog)
-        expected = [1]
+        expected = [3, [1, False]]
         self.assertEqual(result, expected)
 
         graph_fact = {
@@ -430,7 +430,20 @@ class TestProcessCfgMethods(unittest.TestCase):
             4: ['assign', {'x': 'x-1'}, [2]]
         }
         result = how_to_get_to_node(4, graph_fact)
-        expected = [3, 2, 1]
+        expected = [4, 3, [2, True], 1]
+        self.assertEqual(result, expected)
+
+    def test_booleans_condition_on_path(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        result = booleans_condition_on_path(graph_prog, how_to_get_to_node(3, graph_prog))
+        expected = {1: [[('<=', ["x", 0])], False]}
         self.assertEqual(result, expected)
 
 
