@@ -384,6 +384,55 @@ class TestProcessCfgMethods(unittest.TestCase):
 
         self.assertEqual(all_paths, expected)
 
+    def test_get_father_for_node(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        fathers = get_father_for_node(1, graph_prog)
+        expected = []
+        self.assertEqual(fathers, expected)
+        fathers = get_father_for_node(4, graph_prog)
+        expected = [2, 3]
+        self.assertEqual(fathers, expected)
+        fathers = get_father_for_node(0, graph_prog)
+        expected = [5, 6]
+        self.assertEqual(fathers, expected)
+        fathers = get_father_for_node(5, graph_prog)
+        expected = [4]
+        self.assertEqual(fathers, expected)
+
+    def test_how_to_get_to_node(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        result = how_to_get_to_node(6, graph_prog)
+        expected = [4, 2, 1]
+        self.assertEqual(result, expected)
+
+        result = how_to_get_to_node(3, graph_prog)
+        expected = [1]
+        self.assertEqual(result, expected)
+
+        graph_fact = {
+            1: ['assign', {'n': '1'}, [2]],
+            2: ['while', [[('>=', ['x', 1])]], [3, 0]],
+            3: ['assign', {'n': 'n*x'}, [4]],
+            4: ['assign', {'x': 'x-1'}, [2]]
+        }
+        result = how_to_get_to_node(4, graph_fact)
+        expected = [3, 2, 1]
+        self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

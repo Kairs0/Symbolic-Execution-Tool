@@ -60,6 +60,33 @@ def type_node(node_value):
     return node_value[0]
 
 
+def how_to_get_to_node(node_key, graph):
+    path_result = []
+    current_node = node_key
+    previous_nodes = get_father_for_node(current_node, graph)
+    while previous_nodes:
+        choice_to_get_up = [node for node in previous_nodes if node not in path_result][0]
+        path_result.append(choice_to_get_up)
+        previous_nodes = get_father_for_node(choice_to_get_up, graph)
+
+    return path_result
+
+
+def get_father_for_node(node_key, graph):
+    """
+    Returns list of nodes that precede given node
+    :param node_key:
+    :param graph:
+    :return:
+    """
+    result = []
+    for key, value in graph.items():
+        if node_key in value[-1]:
+            result.append(key)
+
+    return result
+
+
 def process_bool_expression(conditions, variables):
     """
     :param conditions: [[(comp1), (comp2)],[(comp3), (comp4)]], each element is a list of conditions that
