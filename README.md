@@ -16,30 +16,12 @@ c ::= l : skip
 ## WIP - todos
 - push tests much further on ast to cfg converter
 - refactor criteria test on coverage analysis and check correctness
-- start test generation
+- refactor process_cfg_tools in order to separate analysis tools from generator tools
+- refactor names
+- comment and doc on most modules
+- report:
+    - explain CFG modelling and its consequences on the way tests are made
 
-- explain CFG modelling and its consequences on the way tests are made
-
-- parsing : see https://tomassetti.me/parsing-in-python/#tools
-- also see https://github.com/c2nes/javalang.git
-- and also: http://lisperator.net/pltut/parser/
-
-## Summary parts of project
-#### Part 1
-- Inputs:
-    - AST
-    - Requirements
-    - Value tests
-- Output:
-    - Coverage
-
-#### Part 2
-- Inputs:
-    - AST
-    - Requirements
-- Output:
-    - Values tests
-    - Coverage
     
 ## Structures - descriptions
 
@@ -110,3 +92,20 @@ The AST tree is a little hand-written tree. Each node has:
     - logic: data is the logic addition (and, or)
     
 - A list of children, each of them being other node
+
+## Summary parts of project
+#### Part 1
+- Inputs:
+    - AST
+    - Requirements
+    - Value tests
+- Output:
+    - Coverage
+
+#### Part 2
+- Inputs:
+    - AST
+    - Requirements
+- Output:
+    - Values tests
+    - Coverage
