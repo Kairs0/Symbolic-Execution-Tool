@@ -5,6 +5,7 @@ import unittest
 from ast_to_cfg import AstToCfgConverter
 from ast_tree import GeneratorAstTree
 from process_cfg_tools import *
+from symbolic_exec_tools import *
 
 
 class TestAstToCfgMethods(unittest.TestCase):

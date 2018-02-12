@@ -16,7 +16,6 @@ c ::= l : skip
 ## WIP - todos
 - push tests much further on ast to cfg converter
 - refactor criteria test on coverage analysis and check correctness
-- refactor process_cfg_tools in order to separate analysis tools from generator tools
 - refactor names
 - comment and doc on most modules
 - report:
