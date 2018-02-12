@@ -68,38 +68,106 @@ def booleans_condition_on_path(graph, path):
             # TODO
             print(node_number)
             node_number = node_number[0]
-            print(node_number[-1])
+            print(list(node_number))
             # value_bool = bool(node_number[-1])
-        if is_test_boolean_expression(graph[node_number]):
+        if is_boolean_expression_node(graph[node_number]):
             condition = graph[node_number][1]
             result[node_number] = [condition, value_bool]
 
     return result
 
 
-def is_test_boolean_expression(node_value):
+def is_boolean_expression_node(node_value):
     if node_value[0] == 'while' or node_value[0] == 'if':
         return True
     else:
         return False
 
 
-def how_to_get_to_node(node_key, graph):
+def path_predicate(detailed_steps, graph):
+    variables = get_all_var(graph)
+
+    dic_var_step = {step: variables for step in detailed_steps}
+
+    order = detailed_steps.keys().sort()
+
+    # todo: voir Cours\IVF\Execsymb\cours6.pdf
+    # we do not consider last step (not relevant)
+    order.remove(0)
+
+
+def constraints_from_detailed_steps(detailed_steps, graph):
+    # todo: semmes that we abandon this function
+    variables = {var: var for var in get_all_var(graph)}
+
+    order = detailed_steps.keys().sort(reverse=True)
+
+    # we do not consider last step (not relevant)
+    order.remove(0)
+
+    for step in order:
+        if isinstance(detailed_steps[step], dict):
+            # assign. for ex : {'x': 'x-1'}
+            var = list(detailed_steps[step].keys())[0]
+            if var in detailed_steps[step][var]:
+                pass
+            # previous = depends if variable in value
+
+            # n = n*x
+            # n = 1
+
+            pass
+        elif isinstance(detailed_steps[step], list):
+            # boolean expresssion
+            # apply constraints on current states of variables
+            pass
+
+    # returns a list of constraints [ 'x>1', 'y<x' ] on state when starting program
+
+
+def detailed_steps_path(path, graph):
+    result = {}
+    for index, step in enumerate(path):
+        if type_node(graph[step]) == 'assign':
+            result[step] = graph[step][1]
+        elif is_boolean_expression_node(graph[step]):
+            result[step] = [graph[step][1]]
+            if graph[step][-1][0] == path[index - 1]:
+                result[step].append(True)
+            elif graph[step][-1][1] == path[index - 1]:
+                result[step].append(False)
+    return result
+
+
+def path_to_node(node_key, graph):
     path_result = [node_key]
     current_node = node_key
 
     previous_nodes = get_father_for_node(current_node, graph)
     while previous_nodes:
         choice_to_get_up = [node for node in previous_nodes if node not in path_result][0]
-        if is_test_boolean_expression(graph[choice_to_get_up]):
+        path_result.append(choice_to_get_up)
+        previous_nodes = get_father_for_node(choice_to_get_up, graph)
+
+    return path_result
+
+
+def old_how_to_get_to_node(node_key, graph):
+    path_result = [[node_key]]
+    current_node = node_key
+
+    previous_nodes = get_father_for_node(current_node, graph)
+    while previous_nodes:
+        choice_to_get_up = [node for node in previous_nodes if node not in path_result][0]
+        if is_boolean_expression_node(graph[choice_to_get_up]):
             if graph[choice_to_get_up][-1][0] in path_result:
                 path_result.append([choice_to_get_up, True])
             elif graph[choice_to_get_up][-1][1] in path_result:
                 path_result.append([choice_to_get_up, False])
             else:
-                path_result.append("fail")
+                path_result.append('fail')
         else:
-            path_result.append(choice_to_get_up)
+            path_result.append([choice_to_get_up])
         previous_nodes = get_father_for_node(choice_to_get_up, graph)
 
     return path_result

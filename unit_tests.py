@@ -406,7 +406,7 @@ class TestProcessCfgMethods(unittest.TestCase):
         expected = [4]
         self.assertEqual(fathers, expected)
 
-    def test_how_to_get_to_node(self):
+    def test_path_to_node(self):
         graph_prog = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
@@ -415,12 +415,12 @@ class TestProcessCfgMethods(unittest.TestCase):
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }
-        result = how_to_get_to_node(6, graph_prog)
-        expected = [6, [4, False], 2, [1, True]]
+        result = path_to_node(6, graph_prog)
+        expected = [6, 4, 2, 1]
         self.assertEqual(result, expected)
 
-        result = how_to_get_to_node(3, graph_prog)
-        expected = [3, [1, False]]
+        result = path_to_node(3, graph_prog)
+        expected = [3, 1]
         self.assertEqual(result, expected)
 
         graph_fact = {
@@ -429,11 +429,11 @@ class TestProcessCfgMethods(unittest.TestCase):
             3: ['assign', {'n': 'n*x'}, [4]],
             4: ['assign', {'x': 'x-1'}, [2]]
         }
-        result = how_to_get_to_node(4, graph_fact)
-        expected = [4, 3, [2, True], 1]
+        result = path_to_node(4, graph_fact)
+        expected = [4, 3, 2, 1]
         self.assertEqual(result, expected)
 
-    def test_booleans_condition_on_path(self):
+    def test_detailed_steps_path(self):
         graph_prog = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
@@ -442,8 +442,34 @@ class TestProcessCfgMethods(unittest.TestCase):
             5: ['assign', {'x': '1'}, [0]],
             6: ['assign', {'x': 'x+1'}, [0]]
         }
-        result = booleans_condition_on_path(graph_prog, how_to_get_to_node(3, graph_prog))
-        expected = {1: [[('<=', ["x", 0])], False]}
+        result = detailed_steps_path(path_to_node(3, graph_prog), graph_prog)
+        expected = {
+            1: [[[('<=', ["x", 0])]], False],
+            3: {'x': '1-x'}
+        }
+        self.assertEqual(result, expected)
+
+        result = detailed_steps_path(path_to_node(5, graph_prog), graph_prog)
+        expected = {
+            1: [[[('<=', ["x", 0])]], True],
+            2: {'x': '0-x'},
+            4: [[[('==', ["x", 1])]], True],
+            5: {'x': '1'}
+        }
+        self.assertEqual(result, expected)
+
+        graph_fact = {
+            1: ['assign', {'n': '1'}, [2]],
+            2: ['while', [[('>=', ['x', 1])]], [3, 0]],
+            3: ['assign', {'n': 'n*x'}, [4]],
+            4: ['assign', {'x': 'x-1'}, [2]]
+        }
+        result = detailed_steps_path(path_to_node(3, graph_fact), graph_fact)
+        expected = {
+            1: {'n': '1'},
+            2: [[[('>=', ['x', 1])]], True],
+            3: {'n': 'n*x'}
+        }
         self.assertEqual(result, expected)
 
 
