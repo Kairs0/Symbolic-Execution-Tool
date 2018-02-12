@@ -472,6 +472,30 @@ class TestProcessCfgMethods(unittest.TestCase):
         }
         self.assertEqual(result, expected)
 
+    def test_transform_bool_expr_to_str(self):
+        result = transform_bool_expr_to_str([[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]])
+        expected = '(x<=0 or y>2) and (x<=0 or y>2)'
+        self.assertEqual(result, expected)
+
+    def test_path_predicate(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+
+        to_node_five = path_to_node(5, graph_prog)
+        detailed_path = detailed_steps_path(to_node_five, graph_prog)
+
+        # print(detailed_path)
+
+        result = path_predicate(detailed_path, graph_prog)
+        expected = ['(x1<=0)', 'x2=0-x1', '(x4==1)']
+        self.assertEqual(result, expected)
+
 
 if __name__ == "__main__":
     unittest.main()

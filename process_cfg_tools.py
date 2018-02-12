@@ -85,15 +85,67 @@ def is_boolean_expression_node(node_value):
 
 
 def path_predicate(detailed_steps, graph):
-    variables = get_all_var(graph)
+    variables = list(set(get_all_var(graph)))
 
-    dic_var_step = {step: variables for step in detailed_steps}
+    order = list(detailed_steps.keys())
 
-    order = detailed_steps.keys().sort()
+    order.sort()
 
     # todo: voir Cours\IVF\Execsymb\cours6.pdf
     # we do not consider last step (not relevant)
-    order.remove(0)
+    order.pop()
+
+
+    # todo rename to set a more accurate name
+    list_dic_vars = []
+
+    for step in order:
+        if isinstance(detailed_steps[step], dict):
+            # assign. For ex: {'x': 'x-1'}
+            var = list(detailed_steps[step].keys())[0]
+            value = detailed_steps[step][var]
+            # process value (eg replace each occurrence of variable 'x' by its value at step 'x8')
+            for variable in variables:
+                if variable in value:
+                    value = value.replace(variable, variable + str(step-1))
+            # value_processed = value
+            list_dic_vars.append(
+                var + str(step) + '=' + value
+            )
+        elif isinstance(detailed_steps[step], list):
+            # boolean expression and its  [[[('<=', ["x", 0])]], False]
+            bool_expr_str = transform_bool_expr_to_str(detailed_steps[step][0])
+            if not detailed_steps[step][1]:
+                bool_expr_str = 'not (' + bool_expr_str + ')'
+
+            for variable in variables:
+                if variable in bool_expr_str:
+                    bool_expr_str = bool_expr_str.replace(variable, variable + str(step))
+
+            list_dic_vars.append(
+                bool_expr_str
+            )
+        else:
+            print("bite")
+
+    return list_dic_vars
+
+
+def transform_bool_expr_to_str(boolean_expression):
+    # [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
+    # don't know if util
+    and_str_list = []
+    for and_expr in boolean_expression:
+        # and_str = '('
+        or_str_list = []
+        for or_expr in and_expr:
+            or_str = str(or_expr[1][0]) + or_expr[0] + str(or_expr[1][1])
+            or_str_list.append(or_str)
+        full_or_str = " or ".join(or_str_list)
+        and_str = '(' + full_or_str + ')'
+        and_str_list.append(and_str)
+    full_and_str = " and ".join(and_str_list)
+    return full_and_str
 
 
 def constraints_from_detailed_steps(detailed_steps, graph):
