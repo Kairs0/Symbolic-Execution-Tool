@@ -479,6 +479,7 @@ class TestProcessCfgMethods(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_path_predicate(self):
+        # todo: avec graph_fact
         graph_prog = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
             2: ['assign', {'x': '0-x'}, [4]],
@@ -501,19 +502,41 @@ class TestProcessCfgMethods(unittest.TestCase):
         self.assertEqual(result, expected)
 
     def test_clean_path_predicate(self):
+        # todo: avec graph_fact
         test_path = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
         result = clean_path_predicate(test_path)
         expected = ['(x2 == 1)', 'x2 = 0-x1', '(x1 <= 0)']
         self.assertEqual(result, expected)
-        # todo: à partir d'ici ça plante
-        # test_path = ['not ((x1 <= 0))']
-        # result = clean_path_predicate(test_path)
-        # self.assertEqual(result, expected)
+
+        test_path = ['not ((x1 <= 0))']
+        result = clean_path_predicate(test_path)
+        expected = ['not ((x1 <= 0))']
+        self.assertEqual(result, expected)
 
     def test_solve_path_predicate(self):
         data_input = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
         result = solve_path_predicate(data_input)
         self.assertTrue(result['x1'] == -1)
+
+        data_input = ['not ((x1 <= 0))']
+        result = solve_path_predicate(data_input)
+        self.assertTrue(result['x1'] >= 0)
+
+    def test_generate_value(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+
+        result = generate_value(graph_prog, 5)
+        self.assertTrue(result['x'] == -1)
+
+        result = generate_value(graph_prog, 6)
+        self.assertTrue(result['x'] != -1)
 
 
 if __name__ == "__main__":

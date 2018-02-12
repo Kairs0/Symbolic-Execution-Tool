@@ -1,14 +1,27 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from symbolic_exec_tools import generate_value, get_all_var
+
 
 def all_affectations(graph):
-    objective = []
+    objectives = []
     for key, value in graph.items():
         if value[0] == "assign":
-            objective.append(key)
+            objectives.append(key)
 
-    for step in objective:
-        # get_path_to_get_there
-        # get_father_for_node
-        pass
+    variables = get_all_var(graph)
+    solutions = []
+
+    for objective in objectives:
+        solutions.append(generate_value(graph, objective))
+
+    merge_solutions = {}
+    # merge solution dictionaries
+    # how to deal with multiple solutions ?
+    # TODO: en cours
+    for solution in solutions:
+        for key, value in solution:
+            if key in merge_solutions:
+                merge_solutions[key].append()
+

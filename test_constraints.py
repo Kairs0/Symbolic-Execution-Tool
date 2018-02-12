@@ -7,6 +7,7 @@ problem.addVariable('x2', range(-1, 1))
 # exec('problem.addConstraint(lambda x1, x2, x4: (x4 == 1))')
 # exec('problem.addConstraint(lambda x1, x2, x4: x2 == x4)')
 # exec('problem.addConstraint(lambda x1, x2, x4: x2 == 0-x1)')
-exec('problem.addConstraint(lambda x1, x2: not (x1 == 0))')
+# exec('problem.addConstraint(lambda x1, x2: not (x1 == 0))')
+problem.addConstraint(lambda x1, x2: not ((x1 < 0)))
 print(problem.getSolutions())
 

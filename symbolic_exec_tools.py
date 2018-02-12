@@ -2,8 +2,25 @@ from constraint import *
 from process_cfg_tools import get_all_var, type_node, is_boolean_expression_node
 
 
+def generate_value(graph, target):
+    path = path_to_node(target, graph)
+    detailed_path = detailed_steps_path(path, graph)
+    predicate = path_predicate(detailed_path, graph)
+    solution = solve_path_predicate(predicate)
+    return clean_solution(solution)
+
+
+def clean_solution(solution):
+    # {'x1': 0, 'x2': 0}
+    key_values_solution = []
+    for key in solution:
+        if key[1] == '1':
+            key_values_solution.append(key)
+    cleaned_solution = {key[0]: solution[key] for key in key_values_solution}
+    return cleaned_solution
+
+
 def is_assign_predicate(step):
-    # TODO : ! set spaces between all operators in paths
     if ' = ' in step:
         return True
     else:
@@ -19,9 +36,11 @@ def get_variable_from_assign_predicate(step):
 
 
 def get_variable_from_bool_predicate(step):
+    # (x1 <= 0)
+    # not ((x1 <= 0))
     comparators = ['==', '<=', '<', '>', '>=', '!=']
     separator = '=='
-    step = step.replace('(', '').replace(')', '')
+    step = step.replace('(', '').replace(')', '').replace('not', '')
     for comparator in comparators:
         if comparator in step:
             separator = comparator
@@ -39,6 +58,8 @@ def get_next_occurrence_variable(predicate_path, variable):
 def clean_path_predicate(predicate_path):
     # ['(x1<=0)', 'x2=0-x1', '(x4==1)'] => ['(x4==1)', 'x2=0-x1', '(x1<=0)']
     # => ['(x2==1)', 'x2=0-x1', '(x1<=0)']
+    # ou
+    # ['not ((x1 <= 0))'] => ['not ((x1 <= 0))']
     reversed_predicate_path = list(reversed(predicate_path))
     output = []
     for index, step in enumerate(reversed_predicate_path):
@@ -73,8 +94,17 @@ def solve_path_predicate(predicate_path):
     clean_path = clean_path_predicate(predicate_path)
     variables = set(get_variables_from_predicate(clean_path))
 
+    # if only one variable, we add an useless and arbitrary variable in order to be able to write
+    # functioning lambda functions. indeed, python constraint api seems to be written in python 2.x
+    # and calling solution over a constraint defined with only one variable returns an error 'TypeError'
+    # which seems to come from dic.keys() which returned a list in py 2.x. With python3.x, d.keys()
+    # returns a dict_keys.
+
+    if len(variables) == 1:
+        variables.add('pp')
+
     for var in variables:
-        problem.addVariable(var, range(-10, 10))
+        problem.addVariable(var, range(-50, 50))
 
     str_add_cs = 'problem.addConstraint(lambda ' + ','.join(variables) + ':'
 
@@ -82,7 +112,9 @@ def solve_path_predicate(predicate_path):
     for step in clean_path:
         if is_assign_predicate(step):
             step = step.replace('=', '==')
+
         exec(str_add_cs + step + ')')
+
     return problem.getSolution()
 
 

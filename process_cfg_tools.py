@@ -60,21 +60,21 @@ def type_node(node_value):
     return node_value[0]
 
 
-def booleans_condition_on_path(graph, path):
-    result = {}
-    for node_number in path:
-        value_bool = False
-        if isinstance(node_number, list):
-            # TODO
-            print(node_number)
-            node_number = node_number[0]
-            print(list(node_number))
-            # value_bool = bool(node_number[-1])
-        if is_boolean_expression_node(graph[node_number]):
-            condition = graph[node_number][1]
-            result[node_number] = [condition, value_bool]
-
-    return result
+# def booleans_condition_on_path(graph, path):
+#             # TODO : is util ??
+#     result = {}
+#     for node_number in path:
+#         value_bool = False
+#         if isinstance(node_number, list):
+#             print(node_number)
+#             node_number = node_number[0]
+#             print(list(node_number))
+#             # value_bool = bool(node_number[-1])
+#         if is_boolean_expression_node(graph[node_number]):
+#             condition = graph[node_number][1]
+#             result[node_number] = [condition, value_bool]
+#
+#     return result
 
 
 def is_boolean_expression_node(node_value):
