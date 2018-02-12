@@ -474,7 +474,7 @@ class TestProcessCfgMethods(unittest.TestCase):
 
     def test_transform_bool_expr_to_str(self):
         result = transform_bool_expr_to_str([[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]])
-        expected = '(x<=0 or y>2) and (x<=0 or y>2)'
+        expected = '(x <= 0 or y > 2) and (x <= 0 or y > 2)'
         self.assertEqual(result, expected)
 
     def test_path_predicate(self):
@@ -489,12 +489,30 @@ class TestProcessCfgMethods(unittest.TestCase):
 
         to_node_five = path_to_node(5, graph_prog)
         detailed_path = detailed_steps_path(to_node_five, graph_prog)
-
-        # print(detailed_path)
-
         result = path_predicate(detailed_path, graph_prog)
-        expected = ['(x1<=0)', 'x2=0-x1', '(x4==1)']
+        expected = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
         self.assertEqual(result, expected)
+
+        to_node_three = path_to_node(3, graph_prog)
+        detailed_path = detailed_steps_path(to_node_three, graph_prog)
+        result = path_predicate(detailed_path, graph_prog)
+        expected = ['not ((x1 <= 0))']
+        self.assertEqual(result, expected)
+
+    def test_clean_path_predicate(self):
+        test_path = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
+        result = clean_path_predicate(test_path)
+        expected = ['(x2 == 1)', 'x2 = 0-x1', '(x1 <= 0)']
+        self.assertEqual(result, expected)
+        # todo: à partir d'ici ça plante
+        # test_path = ['not ((x1 <= 0))']
+        # result = clean_path_predicate(test_path)
+        # self.assertEqual(result, expected)
+
+    def test_solve_path_predicate(self):
+        data_input = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
+        result = solve_path_predicate(data_input)
+        self.assertTrue(result['x1'] == -1)
 
 
 if __name__ == "__main__":

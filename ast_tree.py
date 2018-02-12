@@ -607,9 +607,9 @@ class GeneratorAstTree(object):
         assign1.add_child(cst)
 
         # seq part 2
-        whileloop = Node("while")
+        while_loop = Node("while")
 
-        # compar
+        # compare
         comp = Node("compare", ">=")
         var2 = Node("variable", "x")
         cst1 = Node("constant", 1)
@@ -642,11 +642,11 @@ class GeneratorAstTree(object):
         seq_inside_while.add_child(assign2)
         seq_inside_while.add_child(assign3)
 
-        whileloop.add_child(comp)
-        whileloop.add_child(seq_inside_while)
+        while_loop.add_child(comp)
+        while_loop.add_child(seq_inside_while)
 
         seq.add_child(assign1)
-        seq.add_child(whileloop)
+        seq.add_child(while_loop)
         return seq
 
     @staticmethod
