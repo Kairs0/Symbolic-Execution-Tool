@@ -47,8 +47,6 @@ def all_decisions(graph):
 
     solutions = []
 
-    print(objectives)
-
     for objective in objectives:
         # /!\ generate_value seems to be a dic, but it could be a list of dic!
         result_objective = generate_value(graph, objective)

@@ -370,6 +370,33 @@ class TestProcessCfgMethods(unittest.TestCase):
         expected_path = [1, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 3, 4, 2, 0]
         self.assertEqual(result_path, expected_path)
 
+    def test_get_all_k_paths_brute(self):
+        graph_prog = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+        }
+        result = get_all_k_paths_brute(graph_prog, 10)
+        self.assertTrue([1, 2, 4, 5, 0] in result)
+        self.assertTrue([1, 2, 4, 6, 0] in result)
+        self.assertTrue([1, 3, 4, 5, 0] in result)
+        self.assertTrue([1, 3, 4, 6, 0] in result)
+
+        graph_fact = {
+            1: ['assign', {'n': '1'}, [2]],
+            2: ['while', [[('>=', ['x', 1])]], [3, 0]],
+            3: ['assign', {'n': 'n*x'}, [4]],
+            4: ['assign', {'x': 'x-1'}, [2]]
+        }
+
+        result = get_all_k_paths_brute(graph_fact, 10)
+        self.assertTrue([1, 2, 0] in result and [1, 2, 3, 4, 2, 0] in result)
+        result = get_all_k_paths_brute(graph_fact, 2)
+        self.assertEqual(result, [[1, 2]])
+
     def test_get_all_paths(self):
         graph_prog = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
@@ -384,6 +411,17 @@ class TestProcessCfgMethods(unittest.TestCase):
         all_paths = get_all_paths(graph_prog, 1)
 
         self.assertEqual(all_paths, expected)
+
+        graph_fact = {
+            1: ['assign', {'n': '1'}, [2]],
+            2: ['while', [[('>=', ['x', 1])]], [3, 0]],
+            3: ['assign', {'n': 'n*x'}, [4]],
+            4: ['assign', {'x': 'x-1'}, [2]]
+        }
+        result = get_all_paths(graph_fact, 1)
+        # print(result)
+        # expected = [4, 3, 2, 1]
+        # self.assertEqual(result, expected)
 
     def test_get_father_for_node(self):
         graph_prog = {
@@ -533,7 +571,7 @@ class TestProcessCfgMethods(unittest.TestCase):
         }
 
         result = generate_value(graph_prog, 5)
-        print(result)
+        # print(result)
         self.assertTrue(result['x'] == -1)
 
         result = generate_value(graph_prog, 6)

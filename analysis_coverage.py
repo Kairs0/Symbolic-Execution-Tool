@@ -75,12 +75,15 @@ def all_k_paths(values_test, graph, k, verbose):
         print("\n ------")
         print("Criterion: all k paths for k = " + str(k))
 
-    all_paths = get_all_paths(graph, 1)
+    # all_paths = get_all_paths(graph, 1)
 
-    target_paths = []
-    for path in all_paths:
-        if not path[:k] in target_paths:
-            target_paths.append(path[:k])
+    # target_paths = []
+    # for path in all_paths:
+    #     if not path[:k] in target_paths:
+    #         target_paths.append(path[:k])
+
+    target_paths = get_all_k_paths_brute(graph, k)
+    copy_to_conclusion = target_paths.copy()
 
     if verbose:
         print("We want the following paths to be taken: " + str(target_paths))
@@ -92,12 +95,14 @@ def all_k_paths(values_test, graph, k, verbose):
 
     if len(target_paths) == 0:
         if verbose:
-            print("All k paths for k = " + str(k) + ": OK")
+            print("All k paths for k = " + str(k) + ": OK. (Coverage 100%)")
         return True
     else:
         if verbose:
             print("All k paths for k = " + str(k) + " fails:")
             print("Paths " + str(target_paths) + " were never taken entirely.")
+            coverage = (len(copy_to_conclusion) - len(target_paths)) / len(copy_to_conclusion)
+            print("Coverage: " + str(round(coverage, 2)) + " %.")
         return False
 
 
@@ -432,4 +437,5 @@ def main():
 
 
 if __name__ == '__main__':
+    # python .\analysis_coverage.py .\sources_txt\prog_1.txt .\sets_tests_txt\tests_generated.txt -v
     main()

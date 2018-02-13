@@ -5,6 +5,8 @@ This module provides tools and functions in order to process a set of values on 
 We expect a CFG graph for program processed and a dictionary of value for every variable of the program
 """
 
+import random
+
 LIMIT_FOR_INFINITE_LOOP = 100
 
 
@@ -215,9 +217,36 @@ def get_conditions_from_bool_expression(boolean_expression):
     return conditions
 
 
+def get_all_k_paths_brute(graph, k):
+    """
+    A brute force way to get k paths by choosing at each step randomly the next step.
+    We iterate 100 times to be sure to cover all probables paths (TODO: justify why 100)
+    :param graph:
+    :param k:
+    :return: a list of list, each list being a path [1, 4, 5]
+    """
+    paths = []
+
+    limit = 100
+    for i in range(limit):
+        path = []
+        next_step = 1
+        for j in range(k):
+            path.append(next_step)
+            if next_step == 0:
+                break
+            next_step = random.choice(graph[next_step][-1])
+
+        if path not in paths:
+            paths.append(path)
+    return paths
+
+
 def get_all_paths(graph, start, path=None):
     """
-    Returns all path possible in a CFG graph given and from a starting point
+    /!\ non functional when there are while loops
+    Returns all path possible in a CFG graph given and from a starting point. Used for
+    all k-path criteria test
     :param graph: a CFG graph
     :param start: a start point
     :param path: a list of step in current path, used for recursive call of the function
@@ -238,7 +267,9 @@ def get_all_paths(graph, start, path=None):
     paths = []
     for node in graph[start][-1]:
         if node not in path:
+
             new_paths = get_all_paths(graph, node, path)
+
             for new_path in new_paths:
                 paths.append(new_path)
     return paths
