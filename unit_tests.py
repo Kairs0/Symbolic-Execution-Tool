@@ -570,11 +570,11 @@ class TestProcessCfgMethods(unittest.TestCase):
             6: ['assign', {'x': 'x+1'}, [0]]
         }
 
-        result = generate_value(graph_prog, 5)
+        result = generate_value_from_node(graph_prog, 5)
         # print(result)
         self.assertTrue(result['x'] == -1)
 
-        result = generate_value(graph_prog, 6)
+        result = generate_value_from_node(graph_prog, 6)
         self.assertTrue(result['x'] != -1)
 
 

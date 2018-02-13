@@ -75,13 +75,6 @@ def all_k_paths(values_test, graph, k, verbose):
         print("\n ------")
         print("Criterion: all k paths for k = " + str(k))
 
-    # all_paths = get_all_paths(graph, 1)
-
-    # target_paths = []
-    # for path in all_paths:
-    #     if not path[:k] in target_paths:
-    #         target_paths.append(path[:k])
-
     target_paths = get_all_k_paths_brute(graph, k)
     copy_to_conclusion = target_paths.copy()
 

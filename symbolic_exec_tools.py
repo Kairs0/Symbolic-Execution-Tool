@@ -1,8 +1,8 @@
 from constraint import *
 from process_cfg_tools import get_all_var, type_node, is_boolean_expression_node
+import re
 
-
-def generate_value(graph, target):
+def generate_value_from_node(graph, target):
     path = path_to_node(target, graph)
     detailed_path = detailed_steps_path(path, graph)
     predicate = path_predicate(detailed_path, graph)
@@ -11,6 +11,18 @@ def generate_value(graph, target):
         return clean_solution(solution)
     else:
         return {}
+
+
+def generate_value_from_path(graph, target_path):
+    target_path.reverse()
+    detailed_path = detailed_steps_path(target_path, graph)
+    predicate = path_predicate(detailed_path, graph)
+    solution = solve_path_predicate(predicate)
+    if solution is not None:
+        return clean_solution(solution)
+    else:
+        return {}
+
 
 
 def clean_solution(solution):
@@ -34,8 +46,46 @@ def is_bool_predicate(step):
     return not is_assign_predicate(step)
 
 
+def split(txt, seps):
+    """
+    todo clean
+    :param txt:
+    :param seps:
+    :return:
+    """
+    default_sep = seps[0]
+
+    # we skip seps[0] because that's the default seperator
+    for sep in seps[1:]:
+        txt = txt.replace(sep, default_sep)
+    return [i.strip() for i in txt.split(default_sep)]
+
+def str_repre_number(str):
+    try:
+        result = float(str)
+        return True
+    except ValueError:
+        return False
+
 def get_variable_from_assign_predicate(step):
-    return step.split(' = ')[0].replace(' ', '')
+    """
+    'x2 = 1'
+    'x3 = 1 - x2'
+    :param step:
+    :return:
+    """
+    operators = ['+', '-', '*']
+
+    result = [step.split(' = ')[0].replace(' ', '')]
+    # first_var = step.split(' = ')[0].replace(' ', '')
+
+    maybe_vars = split(step.split(' = ')[1].replace(' ', ''), operators)
+
+    for potential_var in maybe_vars:
+        if not str_repre_number(potential_var):
+            result.append(potential_var)
+
+    return result
 
 
 def get_variable_from_bool_predicate(step):
@@ -80,7 +130,7 @@ def get_variables_from_predicate(predicate_path):
     variables = []
     for step in predicate_path:
         if is_assign_predicate(step):
-            variables.append(get_variable_from_assign_predicate(step))
+            variables.extend(get_variable_from_assign_predicate(step))
         elif is_bool_predicate(step):
             variables.append(get_variable_from_bool_predicate(step))
     return variables
@@ -121,6 +171,11 @@ def solve_path_predicate(predicate_path):
     return problem.getSolution()
 
 
+def clean_value_assign(value, variable):
+    # ' x= 2' ' x = 2' ' x =2', 'x'
+    pass
+
+
 def path_predicate(detailed_steps, graph):
     variables = list(set(get_all_var(graph)))
     order = list(detailed_steps.keys())
@@ -138,6 +193,7 @@ def path_predicate(detailed_steps, graph):
             # assign. For ex: {'x': 'x-1'}
             var = list(detailed_steps[step].keys())[0]
             value = detailed_steps[step][var]
+            # todo: here, in value, replace any symbol operation (+, -, *) that is not espace by a space
             # process value (eg replace each occurrence of variable 'x' by its value at step 'x8')
             for variable in variables:
                 if variable in value:
