@@ -533,6 +533,7 @@ class TestProcessCfgMethods(unittest.TestCase):
         }
 
         result = generate_value(graph_prog, 5)
+        print(result)
         self.assertTrue(result['x'] == -1)
 
         result = generate_value(graph_prog, 6)

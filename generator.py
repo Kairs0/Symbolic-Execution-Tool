@@ -10,18 +10,46 @@ def all_affectations(graph):
         if value[0] == "assign":
             objectives.append(key)
 
-    variables = get_all_var(graph)
     solutions = []
 
     for objective in objectives:
-        solutions.append(generate_value(graph, objective))
+        # /!\ generate_value seems to be a dic, but it could be a list of dic!
+        result_objective = generate_value(graph, objective)
+        if isinstance(result_objective, dict):
+            solutions.append(result_objective)
+        elif isinstance(result_objective, list):
+            solutions.extend(result_objective)
 
     merge_solutions = {}
     # merge solution dictionaries
-    # how to deal with multiple solutions ?
-    # TODO: en cours
+    # multiple solutions -> we always get the first that contain our solution (?)
     for solution in solutions:
-        for key, value in solution:
+        for key, value in solution.items():
             if key in merge_solutions:
-                merge_solutions[key].append()
+                merge_solutions[key].append(value)
+            else:
+                merge_solutions[key] = [value]
 
+    # remove double in list
+    for key, value in merge_solutions.items():
+        merge_solutions[key] = list(set(value))
+
+    return merge_solutions
+
+
+def main():
+    graph = {
+            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
+            2: ['assign', {'x': '0-x'}, [4]],
+            3: ['assign', {'x': '1-x'}, [4]],
+            4: ['if', [[('==', ["x", 1])]], [5, 6]],
+            5: ['assign', {'x': '1'}, [0]],
+            6: ['assign', {'x': 'x+1'}, [0]]
+    }
+
+    # result {'x': [0, 49, -1], 'y':[43, 6]}
+    result = all_affectations(graph)
+
+
+if __name__ == "__main__":
+    main()
