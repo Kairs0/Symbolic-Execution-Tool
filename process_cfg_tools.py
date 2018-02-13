@@ -14,7 +14,8 @@ def process_value_test(graph, variables, info_conditions=False):
     :param variables: a dictionary {var: initial_value}
     :param info_conditions: a boolean, if true: will return an additional value which is a dic,
     stating how each condition was evaluated.
-    :return: steps the program went through, dic of final values of variables
+    :return: steps the program went through, dic of final values of variables, and perhaps a dic of
+    value of boolean for each condition in a node.
     """
     path = []
     next_node = 1
@@ -52,6 +53,18 @@ def process_value_test(graph, variables, info_conditions=False):
         return path, variables
 
 
+def replace_any_var_by_value(instruction, variables):
+    """
+    Used to replace a variable by its current value
+    :param instruction: a string 'a = b*3'
+    :param variables: the dictionary of variables and their current values
+    :return: the instruction to be executed
+    """
+    for key, value in variables.items():
+        instruction = instruction.replace(key, str(value))
+    return instruction
+
+
 def type_node(node_value):
     """
     :param node_value: ['if', [[('<=', ["x", 0])]], [2, 3]]
@@ -60,24 +73,12 @@ def type_node(node_value):
     return node_value[0]
 
 
-# def booleans_condition_on_path(graph, path):
-#             # TODO : is util ??
-#     result = {}
-#     for node_number in path:
-#         value_bool = False
-#         if isinstance(node_number, list):
-#             print(node_number)
-#             node_number = node_number[0]
-#             print(list(node_number))
-#             # value_bool = bool(node_number[-1])
-#         if is_boolean_expression_node(graph[node_number]):
-#             condition = graph[node_number][1]
-#             result[node_number] = [condition, value_bool]
-#
-#     return result
-
-
 def is_boolean_expression_node(node_value):
+    """
+    Check whether a node in CFG contains a boolean expression or not
+    :param node_value:
+    :return:
+    """
     if node_value[0] == 'while' or node_value[0] == 'if':
         return True
     else:
@@ -101,6 +102,12 @@ def process_bool_expression(conditions, variables):
 
 
 def process_or_expression(conditions, variables):
+    """
+    :param conditions: [(comp1), (comp2)] List, each element being a condition, one of them must
+    be respected (or logical gate)
+    :param variables:
+    :return: evaluated boolean expression
+    """
     result = False
     # we want a OR between each condition
     # -> if only one condition is true, the result is true
@@ -111,6 +118,11 @@ def process_or_expression(conditions, variables):
 
 
 def process_condition(comparison, variables):
+    """
+    :param comparison:  ('<=', ["x", 0])
+    :param variables: dictionary of variables in which we take the values
+    :return: A boolean, stating if the condition is true or false
+    """
     # comparison : tuple ('<=', ['x', 0])
     operator = comparison[0]
     values = comparison[1]
@@ -148,23 +160,13 @@ def analyze_conditions(bool_expr, variables):
     return result
 
 
-def get_conditions_from_bool_expression(boolean_expression):
-    """
-    :param boolean_expression: simple: [[('<=', ['x', 0])]]
-    and: [[('<=', ['x', 0])], [('>', ['y', 2])]]
-    or: [[('<=', ['x', 0]), ('>', ['y', 2])]]
-    complex: [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
-    :return: list of conditions (syntax: ('<=', ['x', 0])), without any structure to distinguish between and/or
-    """
-    conditions = []
-    for expressions in boolean_expression:
-        for condition in expressions:
-            conditions.append(condition)
-
-    return conditions
-
-
 def compare(operator, a, b):
+    """
+    :param operator: a string which an operator ('==', '<=', ...)
+    :param a: the first value to compare
+    :param b: the second value to compare
+    :return: boolean, result of the comparison
+    """
     if operator == "<=":
         if a <= b:
             return True
@@ -197,13 +199,30 @@ def compare(operator, a, b):
             return False
 
 
-def replace_any_var_by_value(instruction, variables):
-    for key, value in variables.items():
-        instruction = instruction.replace(key, str(value))
-    return instruction
+def get_conditions_from_bool_expression(boolean_expression):
+    """
+    :param boolean_expression: simple: [[('<=', ['x', 0])]]
+    and: [[('<=', ['x', 0])], [('>', ['y', 2])]]
+    or: [[('<=', ['x', 0]), ('>', ['y', 2])]]
+    complex: [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
+    :return: list of conditions (syntax: ('<=', ['x', 0])), without any structure to distinguish between and/or
+    """
+    conditions = []
+    for expressions in boolean_expression:
+        for condition in expressions:
+            conditions.append(condition)
+
+    return conditions
 
 
 def get_all_paths(graph, start, path=None):
+    """
+    Returns all path possible in a CFG graph given and from a starting point
+    :param graph: a CFG graph
+    :param start: a start point
+    :param path: a list of step in current path, used for recursive call of the function
+    :return: a list of list, each list being a path [1, 4, 5]
+    """
     if path is None:
         path = []
 
@@ -226,10 +245,23 @@ def get_all_paths(graph, start, path=None):
 
 
 def get_following_nodes(node_value):
+    """
+    For the value of a given node in a CFG graph, return the list of following(s) value(s)
+    :param node_value: a value of a node in cfg
+    :return: a list of steps
+    """
     return node_value[-1]
 
 
 def get_children(step_number, graph, visited=None):
+    """
+    For a graph and a given step number,
+    Return the list of children (eg following nodes from this starting point)
+    :param step_number: starting step_number
+    :param graph: a CFG graph
+    :param visited: argument used for recursive calls of function (a list of already visited nodes)
+    :return: set: the list of following steps
+    """
     if visited is None:
         visited = []
 
@@ -254,17 +286,17 @@ def get_children(step_number, graph, visited=None):
 def get_accessible_graph(graph, number_node):
     """
     Returns the graph that is accessible starting from a given node
-    :param graph:
-    :param number_node:
-    :return: dictionary
+    :param graph: a cfg graph
+    :param number_node: the starting step
+    :return: dictionary : a sub-cfg graph
     """
     return {key: graph[key] for key in get_children(number_node, graph) if key != 0}
 
 
 def get_all_conditions_from_graph(graph):
     """
-    :param graph:
-    :return: returns a dictionary {node: list(conditions)}
+    :param graph: a cfg graph
+    :return: returns a dictionary {node_number: list(conditions)}
     """
     conditions = {}
     for node, value in graph.items():
@@ -277,8 +309,8 @@ def get_all_conditions_from_graph(graph):
 def get_all_def(graph):
     """
     Returns a list of step that are assignments (definition) in a CFG
-    :param graph:
-    :return: list
+    :param graph: a CFG graph
+    :return: list: a list of steps [1, 4]
     """
     variables = get_all_var(graph)
     steps = []
@@ -291,9 +323,9 @@ def get_all_def(graph):
 def get_definition_for_variable(graph, variable):
     """
     Returns a list of step that are assignments (definition) in a CFG for a given variable
-    :param graph:
-    :param variable:
-    :return: list
+    :param graph: a CFG graph
+    :param variable: a variable 'x'
+    :return: list: a list of steps [1, 4]
     """
     steps = []
     for key, value in graph.items():
@@ -306,9 +338,9 @@ def get_utilization_for_variable(graph, variable):
     """
     Returns a list of steps that are utilization (boolean expression or utilization in assignment)
     in a CFG for a given variable
-    :param graph:
-    :param variable:
-    :return: list
+    :param graph: a CFG graph
+    :param variable: a variable 'x'
+    :return: list: a list of steps [1, 4]
     """
     steps = []
     for key, value in graph.items():
@@ -319,9 +351,9 @@ def get_utilization_for_variable(graph, variable):
 
 def get_all_var(graph):
     """
-    returns the list of variable assigned/used in a program from a given CFG
-    :param graph:
-    :return: list
+    Returns the list of variable assigned/used in a program from a given CFG
+    :param graph: a CFG graph
+    :return: list: the list of variables ['e', 'r']
     """
     variables = []
     for node, value in graph.items():
@@ -334,6 +366,12 @@ def get_all_var(graph):
 
 
 def is_def(value_node, variable):
+    """
+    Check if a node is a definition for a given variable
+    :param value_node:
+    :param variable:
+    :return: boolean True if def, else False
+    """
     if value_node[0] != 'assign':
         return False
 
@@ -344,6 +382,12 @@ def is_def(value_node, variable):
 
 
 def is_ref(value_node, variable):
+    """
+    Check if a node is a reference for a given variable
+    :param value_node:
+    :param variable:
+    :return: boolean True if ref, else False
+    """
     if value_node[0] == 'while' or value_node[0] == 'if':
         if variable in get_var_from_bool_expr(value_node[1]):
             return True
@@ -360,6 +404,10 @@ def is_ref(value_node, variable):
 
 
 def get_var_from_bool_expr(expression):
+    """
+    :param expression: A boolean expression in same format as in CFG graph
+    :return: a list of variables ['x', 'y', ..]
+    """
     variables = []
     for or_expr in expression:
         for condition in or_expr:
@@ -371,6 +419,12 @@ def get_var_from_bool_expr(expression):
 
 
 def is_sub_path_in_path(sub_path, path):
+    """
+    Function used in advanced criteria tests, in order to check if a shorter path is part of a larger path
+    :param sub_path: list of steps [1, 4, 5]
+    :param path: list of steps [1, 4, 5, 6, 8]
+    :return: boolean : True if sub path, else False
+    """
     if all(step in path for step in sub_path):
         return True
     else:
@@ -379,9 +433,10 @@ def is_sub_path_in_path(sub_path, path):
 
 def deep_copy_list_dic(list_dic):
     """
-    Copy a list of dictionary by creating a copy of each dic that is inside the list
-    :param list_dic:
-    :return:
+    Copy a list of dictionary by creating a copy of each dic that is inside the list.
+    Will be used for using functions that modify the graph in place
+    :param list_dic: a list of dictionary
+    :return: a copy of this list
     """
     new_list = []
     for dic in list_dic:
