@@ -74,6 +74,10 @@ def all_decisions(graph):
     return merge_solutions
 
 
+def all_k_paths(graph, k):
+    pass
+
+
 def main():
     graph = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],

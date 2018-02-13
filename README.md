@@ -16,6 +16,7 @@ c ::= l : skip
 ## WIP - todos
 - push tests much further on ast to cfg converter
 - refactor criteria test on coverage analysis and check correctness
+- test generation (2/8)
 - refactor names
 - comment and doc on most modules
 - report:
