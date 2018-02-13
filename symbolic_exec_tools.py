@@ -7,7 +7,10 @@ def generate_value(graph, target):
     detailed_path = detailed_steps_path(path, graph)
     predicate = path_predicate(detailed_path, graph)
     solution = solve_path_predicate(predicate)
-    return clean_solution(solution)
+    if solution is not None:
+        return clean_solution(solution)
+    else:
+        return {}
 
 
 def clean_solution(solution):
