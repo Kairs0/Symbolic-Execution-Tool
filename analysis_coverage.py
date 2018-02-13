@@ -387,7 +387,7 @@ def calc_coverage(cfg_graph, test_values, verbose):
     number_tests = 8
     copies_values = []
     for i in range(number_tests):
-        copies_values.append(test_values.copy())
+        copies_values.append(deep_copy_list_dic(test_values))
 
     # noinspection PyListCreation
     results = []

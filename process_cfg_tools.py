@@ -375,3 +375,15 @@ def is_sub_path_in_path(sub_path, path):
         return True
     else:
         return False
+
+
+def deep_copy_list_dic(list_dic):
+    """
+    Copy a list of dictionary by creating a copy of each dic that is inside the list
+    :param list_dic:
+    :return:
+    """
+    new_list = []
+    for dic in list_dic:
+        new_list.append(dic.copy())
+    return new_list
