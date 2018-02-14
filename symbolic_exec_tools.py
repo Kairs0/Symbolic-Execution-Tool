@@ -46,17 +46,17 @@ def is_bool_predicate(step):
     return not is_assign_predicate(step)
 
 
-def split(txt, seps):
+def split(txt, separators):
     """
-    todo clean
-    :param txt:
-    :param seps:
-    :return:
+    Split a string using a list of separators
+    :param txt: a string
+    :param separators: a list of separators
+    :return: the list of string, split
     """
-    default_sep = seps[0]
+    default_sep = separators[0]
 
-    # we skip seps[0] because that's the default seperator
-    for sep in seps[1:]:
+    # skip seps[0] because that's the default separator
+    for sep in separators[1:]:
         txt = txt.replace(sep, default_sep)
     return [i.strip() for i in txt.split(default_sep)]
 
@@ -79,8 +79,8 @@ def get_variable_from_assign_predicate(step):
     """
     operators = ['+', '-', '*']
 
+    # add first var (before the assign)
     result = [step.split(' = ')[0].replace(' ', '')]
-    # first_var = step.split(' = ')[0].replace(' ', '')
 
     maybe_vars = split(step.split(' = ')[1].replace(' ', ''), operators)
 
@@ -127,15 +127,21 @@ def atoi(text):
 
 def natural_keys(text):
     """
-    todo: doc
-    alist.sort(key=natural_keys) sorts in human order
+    Util made in order to sort a list of string + number following the numbers.
+    list.sort(key=natural_keys) : sorts in human order
+    source
     http://nedbatchelder.com/blog/200712/human_sorting.html
-    (See Toothy's implementation in the comments)
     """
     return [atoi(c) for c in re.split('(\d+)', text)]
 
 
 def order_var(set_variables):
+    """
+    From a set of variables + number step ('x1', 'x4', 'y1', 'y6'), organize by variable name ('x', 'y'
+    and for each variable order the set
+    :param set_variables: a set of variables + steps {'x1', 'x4', 'y1'}
+    :return: a dictionary {variable: order variable } {'x': ['x1', 'x3', 'x4']}
+    """
     dic_res = {}
     for var in set_variables:
         name_var = var[0]  # 'x'
@@ -149,11 +155,16 @@ def order_var(set_variables):
     return dic_res
 
 
-def orga_in_couple(dic_orga_var):
+def organization_in_couple(dic_organization_var):
+    """
+    make couple of variable
+    :param dic_organization_var: a dic of variable: variable + step ordered
+    :return: a list of couples [['x1', 'x2'], ['y1', 'y2']]
+    """
     # input: a dic {'x':['x1', ...], 'y' : ['y3', 'y5', ...]}
 
     result = []
-    for key, value in dic_orga_var.items():
+    for key, value in dic_organization_var.items():
         for i in range(len(value) - 1):
             result.append([value[i], value[i+1]])
 
@@ -161,20 +172,31 @@ def orga_in_couple(dic_orga_var):
     return result
 
 
-def check_autoreference(predicate_path):
-    list_autoref = []
+def check_auto_reference(predicate_path):
+    list_auto_references = []
     for step in predicate_path:
         if not is_bool_predicate(step):
             variables = get_variable_from_assign_predicate(step)
-            # assume that variable are ordened and variables[0] is the variable that is being assigned.
+            # assume that variables are ordered and variables[0] is the variable that is being assigned.
             array_type_var = [var[0] for var in variables]
             # if first variable (the one that is assigned) is inside
-            # the reste of variable, variables are autoassigned
+            # the rest of variable, variables are auto assigned
             if variables[0][0] in array_type_var[1:]:
                 for referenced_variable in variables[1:]:
                     if variables[0][0] in referenced_variable:
-                        list_autoref.append([variables[0], referenced_variable])
-    return list_autoref
+                        list_auto_references.append([variables[0], referenced_variable])
+    return list_auto_references
+
+
+def couples_equals(predicate_path_reversed, couples_variables):
+    couple_auto_ref = check_auto_reference(predicate_path_reversed)
+    couple_auto_ref2 = couple_auto_ref.copy()
+    for couple in couple_auto_ref2:
+        couple.reverse()
+    couple_to_stick_together = [couple for couple in couples_variables if couple not in couple_auto_ref]
+    if couple_auto_ref2 is not None:
+        couple_to_stick_together = [couple for couple in couple_to_stick_together if couple not in couple_auto_ref2]
+    return couple_to_stick_together
 
 
 def solve_path_predicate(predicate_path):
@@ -183,32 +205,19 @@ def solve_path_predicate(predicate_path):
     :return:
     """
     problem = Problem()
-    # si on a une expression booléenne, il faut donner une relation d'égalité entre la variable isolée
-    # et la dernière assignation
-    # clean_path = clean_path_predicate(predicate_path)
-    predicate_path.reverse()
 
-    couple_auto_ref = check_autoreference(predicate_path)
-    couple_auto_ref2 = couple_auto_ref.copy()
-    for couple in couple_auto_ref2:
-        couple.reverse()
-    # reverse_couple_auto_ref = [couple.re for couple in couple_auto_ref2]
+    predicate_path.reverse()
 
     variables = set(get_variables_from_predicate(predicate_path))
 
-    dic_ordened_variables = order_var(variables)
-    variables_orga = orga_in_couple(dic_ordened_variables)
-
-    couple_to_stick_together = [couple for couple in variables_orga if couple not in couple_auto_ref]
-    if couple_auto_ref2 is not None:
-        couple_to_stick_together = [couple for couple in couple_to_stick_together if couple not in couple_auto_ref2]
+    dic_ordered_variables = order_var(variables)
+    couples_variables = organization_in_couple(dic_ordered_variables)
 
     # if only one variable, we add an useless and arbitrary variable in order to be able to write
     # functioning lambda functions. indeed, python constraint api seems to be written in python 2.x
     # and calling solution over a constraint defined with only one variable returns an error 'TypeError'
     # which seems to come from dic.keys() which returned a list in py 2.x. With python3.x, d.keys()
     # returns a dict_keys.
-
     if len(variables) == 1:
         variables.add('pp')
 
@@ -218,10 +227,9 @@ def solve_path_predicate(predicate_path):
     str_add_cs = 'problem.addConstraint(lambda ' + ','.join(variables) + ':'
 
     # equality between all variables following themselves (x1 == x2 , x3 == x4),
-    # exceptect for variable that already (assign : 'x2 = - x1')
-    # for instance
-
-    for couple_var in couple_to_stick_together:
+    # except for variables that are assigned (assign : 'x2 = - x1' -> x2 !=x1)
+    couples_to_stick_together = couples_equals(predicate_path, couples_variables)
+    for couple_var in couples_to_stick_together:
         to_add = couple_var[0] + '==' + couple_var[1]
         exec(str_add_cs + to_add + ')')
 
@@ -241,7 +249,6 @@ def path_predicate(detailed_steps, graph):
 
     order.sort()
 
-    # voir Cours\IVF\Execsymb\cours6.pdf
     # we do not consider last step (not relevant)
     order.pop()
 
@@ -252,7 +259,7 @@ def path_predicate(detailed_steps, graph):
             # assign. For ex: {'x': 'x-1'}
             var = list(detailed_steps[step].keys())[0]
             value = detailed_steps[step][var]
-            # todo: here, in value, replace any symbol operation (+, -, *) that is not espace by a space
+            # todo: here, in value, replace any symbol operation (+, -, *) that is not spaced out by a space
             # process value (eg replace each occurrence of variable 'x' by its value at step 'x8')
             for variable in variables:
                 if variable in value:
@@ -279,8 +286,11 @@ def path_predicate(detailed_steps, graph):
 
 
 def transform_bool_expr_to_str(boolean_expression):
-    # [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
-    # don't know if util
+    """
+    From a structured boolean expression (from CFG graph) returns its equivalent in str
+    :param boolean_expression: eg [[('<=', ['x', 0]), ('>', ['y', 2])], [('<=', ['x', 0]), ('>', ['y', 2])]]
+    :return: str (boolean expression)
+    """
     and_str_list = []
     for and_expr in boolean_expression:
         or_str_list = []
@@ -316,25 +326,6 @@ def path_to_node(node_key, graph):
     while previous_nodes:
         choice_to_get_up = [node for node in previous_nodes if node not in path_result][0]
         path_result.append(choice_to_get_up)
-        previous_nodes = get_father_for_node(choice_to_get_up, graph)
-
-    return path_result
-
-
-def old_how_to_get_to_node(node_key, graph):
-    path_result = [[node_key]]
-    current_node = node_key
-
-    previous_nodes = get_father_for_node(current_node, graph)
-    while previous_nodes:
-        choice_to_get_up = [node for node in previous_nodes if node not in path_result][0]
-        if is_boolean_expression_node(graph[choice_to_get_up]):
-            if graph[choice_to_get_up][-1][0] in path_result:
-                path_result.append([choice_to_get_up, True])
-            elif graph[choice_to_get_up][-1][1] in path_result:
-                path_result.append([choice_to_get_up, False])
-        else:
-            path_result.append([choice_to_get_up])
         previous_nodes = get_father_for_node(choice_to_get_up, graph)
 
     return path_result
