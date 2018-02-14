@@ -539,18 +539,6 @@ class TestProcessCfgMethods(unittest.TestCase):
         expected = ['not ((x1 <= 0))']
         self.assertEqual(result, expected)
 
-    def test_clean_path_predicate(self):
-        # todo: avec graph_fact
-        test_path = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
-        result = clean_path_predicate(test_path)
-        expected = ['(x2 == 1)', 'x2 = 0-x1', '(x1 <= 0)']
-        self.assertEqual(result, expected)
-
-        test_path = ['not ((x1 <= 0))']
-        result = clean_path_predicate(test_path)
-        expected = ['not ((x1 <= 0))']
-        self.assertEqual(result, expected)
-
     def test_solve_path_predicate(self):
         data_input = ['(x1 <= 0)', 'x2 = 0-x1', '(x4 == 1)']
         result = solve_path_predicate(data_input)

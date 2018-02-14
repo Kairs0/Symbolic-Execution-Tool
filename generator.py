@@ -125,8 +125,8 @@ def main():
     print(result_all_dec)
 
     # do not work : return 49 in value for step [1, 3, 4, 5] which is false (and also these steps are impossible)
-    result_k_paths = all_k_paths(graph, 10)
-    print(result_k_paths)
+    # result_k_paths = all_k_paths(graph, 10)
+    # print(result_k_paths)
 
 
 if __name__ == "__main__":

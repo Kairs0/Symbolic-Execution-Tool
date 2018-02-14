@@ -2,6 +2,7 @@ from constraint import *
 from process_cfg_tools import get_all_var, type_node, is_boolean_expression_node
 import re
 
+
 def generate_value_from_node(graph, target):
     path = path_to_node(target, graph)
     detailed_path = detailed_steps_path(path, graph)
@@ -22,7 +23,6 @@ def generate_value_from_path(graph, target_path):
         return clean_solution(solution)
     else:
         return {}
-
 
 
 def clean_solution(solution):
@@ -60,12 +60,15 @@ def split(txt, seps):
         txt = txt.replace(sep, default_sep)
     return [i.strip() for i in txt.split(default_sep)]
 
-def str_repre_number(str):
+
+def str_represents_number(test_string):
     try:
-        result = float(str)
+        # noinspection PyListCreation
+        float(test_string)
         return True
     except ValueError:
         return False
+
 
 def get_variable_from_assign_predicate(step):
     """
@@ -82,7 +85,7 @@ def get_variable_from_assign_predicate(step):
     maybe_vars = split(step.split(' = ')[1].replace(' ', ''), operators)
 
     for potential_var in maybe_vars:
-        if not str_repre_number(potential_var):
+        if not str_represents_number(potential_var):
             result.append(potential_var)
 
     return result
@@ -108,34 +111,6 @@ def get_next_occurrence_variable(predicate_path, variable):
             return step[index_var:index_var + 2]
 
 
-# def clean_path_predicate_v2
-
-
-def clean_path_predicate(predicate_path):
-    # ['(x1<=0)', 'x2=0-x1', '(x4==1)'] => ['(x4==1)', 'x2=0-x1', '(x1<=0)']
-    # => ['(x2==1)', 'x2=0-x1', '(x1<=0)']
-    # ou
-    # ['not ((x1 <= 0))'] => ['not ((x1 <= 0))']
-    reversed_predicate_path = list(reversed(predicate_path))
-    output = []
-    for index, step in enumerate(reversed_predicate_path):
-        if is_bool_predicate(step):
-            var = get_variable_from_bool_predicate(step)
-            value_next = get_next_occurrence_variable(reversed_predicate_path[index + 1:], var[0])
-            if value_next is not None:
-                # replace its value by next variable that has same first letter
-                step = step.replace(var.replace(' ', ''), value_next)
-        else:
-            # is assign
-            # must replace values of variable in assign part (x:= ici)
-            # by after value
-            # TODO: en cours
-            vars = get_variable_from_assign_predicate(step) # todo
-            # value_next = get_next_occurrence_variable(reversed_predicate_path[index + 1:], var[0])
-        output.append(step)
-    return output
-
-
 def get_variables_from_predicate(predicate_path):
     variables = []
     for step in predicate_path:
@@ -151,11 +126,12 @@ def atoi(text):
 
 
 def natural_keys(text):
-    '''
+    """
+    todo: doc
     alist.sort(key=natural_keys) sorts in human order
     http://nedbatchelder.com/blog/200712/human_sorting.html
     (See Toothy's implementation in the comments)
-    '''
+    """
     return [atoi(c) for c in re.split('(\d+)', text)]
 
 
@@ -172,6 +148,7 @@ def order_var(set_variables):
         value.sort(key=natural_keys)
     return dic_res
 
+
 def orga_in_couple(dic_orga_var):
     # input: a dic {'x':['x1', ...], 'y' : ['y3', 'y5', ...]}
 
@@ -182,6 +159,7 @@ def orga_in_couple(dic_orga_var):
 
     # output a list of couple [('x1', 'x3'), ('y1', 'y4')] to set equal
     return result
+
 
 def check_autoreference(predicate_path):
     list_autoref = []
@@ -197,7 +175,6 @@ def check_autoreference(predicate_path):
                     if variables[0][0] in referenced_variable:
                         list_autoref.append([variables[0], referenced_variable])
     return list_autoref
-
 
 
 def solve_path_predicate(predicate_path):
@@ -256,11 +233,6 @@ def solve_path_predicate(predicate_path):
         exec(str_add_cs + step + ')')
 
     return problem.getSolution()
-
-
-def clean_value_assign(value, variable):
-    # ' x= 2' ' x = 2' ' x =2', 'x'
-    pass
 
 
 def path_predicate(detailed_steps, graph):
