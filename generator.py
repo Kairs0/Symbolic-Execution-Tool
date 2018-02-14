@@ -119,8 +119,10 @@ def main():
 
     # result {'x': [0, 49, -1], 'y':[43, 6]}
     result_all_aff = all_affectations(graph)
+    print(result_all_aff)
 
     result_all_dec = all_decisions(graph)
+    print(result_all_dec)
 
     # do not work : return 49 in value for step [1, 3, 4, 5] which is false (and also these steps are impossible)
     result_k_paths = all_k_paths(graph, 10)

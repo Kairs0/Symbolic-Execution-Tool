@@ -146,6 +146,60 @@ def get_variables_from_predicate(predicate_path):
     return variables
 
 
+def atoi(text):
+    return int(text) if text.isdigit() else text
+
+
+def natural_keys(text):
+    '''
+    alist.sort(key=natural_keys) sorts in human order
+    http://nedbatchelder.com/blog/200712/human_sorting.html
+    (See Toothy's implementation in the comments)
+    '''
+    return [atoi(c) for c in re.split('(\d+)', text)]
+
+
+def order_var(set_variables):
+    dic_res = {}
+    for var in set_variables:
+        name_var = var[0]  # 'x'
+        if name_var not in dic_res.keys():
+            dic_res[name_var] = [var]
+        else:
+            dic_res[name_var].append(var)
+    # in each value of dic, we order variable by order x1=>x2=>x4
+    for value in dic_res.values():
+        value.sort(key=natural_keys)
+    return dic_res
+
+def orga_in_couple(dic_orga_var):
+    # input: a dic {'x':['x1', ...], 'y' : ['y3', 'y5', ...]}
+
+    result = []
+    for key, value in dic_orga_var.items():
+        for i in range(len(value) - 1):
+            result.append([value[i], value[i+1]])
+
+    # output a list of couple [('x1', 'x3'), ('y1', 'y4')] to set equal
+    return result
+
+def check_autoreference(predicate_path):
+    list_autoref = []
+    for step in predicate_path:
+        if not is_bool_predicate(step):
+            variables = get_variable_from_assign_predicate(step)
+            # assume that variable are ordened and variables[0] is the variable that is being assigned.
+            array_type_var = [var[0] for var in variables]
+            # if first variable (the one that is assigned) is inside
+            # the reste of variable, variables are autoassigned
+            if variables[0][0] in array_type_var[1:]:
+                for referenced_variable in variables[1:]:
+                    if variables[0][0] in referenced_variable:
+                        list_autoref.append([variables[0], referenced_variable])
+    return list_autoref
+
+
+
 def solve_path_predicate(predicate_path):
     """
     :param predicate_path:
@@ -154,8 +208,23 @@ def solve_path_predicate(predicate_path):
     problem = Problem()
     # si on a une expression booléenne, il faut donner une relation d'égalité entre la variable isolée
     # et la dernière assignation
-    clean_path = clean_path_predicate(predicate_path)
-    variables = set(get_variables_from_predicate(clean_path))
+    # clean_path = clean_path_predicate(predicate_path)
+    predicate_path.reverse()
+
+    couple_auto_ref = check_autoreference(predicate_path)
+    couple_auto_ref2 = couple_auto_ref.copy()
+    for couple in couple_auto_ref2:
+        couple.reverse()
+    # reverse_couple_auto_ref = [couple.re for couple in couple_auto_ref2]
+
+    variables = set(get_variables_from_predicate(predicate_path))
+
+    dic_ordened_variables = order_var(variables)
+    variables_orga = orga_in_couple(dic_ordened_variables)
+
+    couple_to_stick_together = [couple for couple in variables_orga if couple not in couple_auto_ref]
+    if couple_auto_ref2 is not None:
+        couple_to_stick_together = [couple for couple in couple_to_stick_together if couple not in couple_auto_ref2]
 
     # if only one variable, we add an useless and arbitrary variable in order to be able to write
     # functioning lambda functions. indeed, python constraint api seems to be written in python 2.x
@@ -171,8 +240,16 @@ def solve_path_predicate(predicate_path):
 
     str_add_cs = 'problem.addConstraint(lambda ' + ','.join(variables) + ':'
 
+    # equality between all variables following themselves (x1 == x2 , x3 == x4),
+    # exceptect for variable that already (assign : 'x2 = - x1')
+    # for instance
+
+    for couple_var in couple_to_stick_together:
+        to_add = couple_var[0] + '==' + couple_var[1]
+        exec(str_add_cs + to_add + ')')
+
     # ['(x2 == 1)', 'x2 = 0-x1', '(x1 <= 0)']
-    for step in clean_path:
+    for step in predicate_path:
         if is_assign_predicate(step):
             step = step.replace('=', '==')
 
