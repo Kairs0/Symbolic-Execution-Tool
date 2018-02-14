@@ -106,6 +106,7 @@ def all_k_paths(graph, k):
 
     return merge_solutions
 
+
 def main():
     graph = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
@@ -121,6 +122,7 @@ def main():
 
     result_all_dec = all_decisions(graph)
 
+    # do not work : return 49 in value for step [1, 3, 4, 5] which is false (and also these steps are impossible)
     result_k_paths = all_k_paths(graph, 10)
     print(result_k_paths)
 

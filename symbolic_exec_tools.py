@@ -108,6 +108,9 @@ def get_next_occurrence_variable(predicate_path, variable):
             return step[index_var:index_var + 2]
 
 
+# def clean_path_predicate_v2
+
+
 def clean_path_predicate(predicate_path):
     # ['(x1<=0)', 'x2=0-x1', '(x4==1)'] => ['(x4==1)', 'x2=0-x1', '(x1<=0)']
     # => ['(x2==1)', 'x2=0-x1', '(x1<=0)']
@@ -122,6 +125,13 @@ def clean_path_predicate(predicate_path):
             if value_next is not None:
                 # replace its value by next variable that has same first letter
                 step = step.replace(var.replace(' ', ''), value_next)
+        else:
+            # is assign
+            # must replace values of variable in assign part (x:= ici)
+            # by after value
+            # TODO: en cours
+            vars = get_variable_from_assign_predicate(step) # todo
+            # value_next = get_next_occurrence_variable(reversed_predicate_path[index + 1:], var[0])
         output.append(step)
     return output
 
