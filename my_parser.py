@@ -46,8 +46,6 @@ def build_blocks(tokens):
     blocks = []
 
     while len(tokens) != 0:
-        # print("tokens remaining:")
-        # print(tokens)
         blocks.append(process_list(tokens))
 
     return blocks
@@ -88,20 +86,3 @@ def main():
 
     tokens = tokenize(program)
 
-    # print('tokens')
-    # print(tokens)
-
-
-    blocks = build_blocks(tokens)
-
-    print('blocks')
-    for block in blocks:
-        print(block)
-
-
-    # print('tokens remaining')
-    # print(tokens)
-
-
-# if __name__ == "__main__":
-#     main()

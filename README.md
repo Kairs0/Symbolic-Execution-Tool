@@ -12,15 +12,29 @@ c ::= l : skip
 | while l : b do c
 ```
 
+## Usage
 
-## WIP - todos
-- push tests much further on ast to cfg converter
-- refactor criteria test on coverage analysis and check correctness
+- Test coverage
+```
+$ python analysis_coverage.py <source_file.txt> <set_tests.txt> [-v]
+```
+- Test generation
+``
+$ python generator.py <source_file.txt> 
+``
+
+## WIP - TODO
 - test generation (2/8)
 - refactor names
 - comment and doc on most modules
+- test coverage: provide a coverage (%) in each test
 - report:
+    - explain parsing, objective, and dealing with AST tree
     - explain CFG modelling and its consequences on the way tests are made
+    - explain module ast to cfg
+    - explain each coverage test
+    - explain generation
+    - results
 
     
 ## Structures - descriptions
