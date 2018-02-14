@@ -1,6 +1,27 @@
 from constraint import *
 from process_cfg_tools import get_all_var, type_node, is_boolean_expression_node
 import re
+from contextlib import contextmanager
+import threading
+import _thread
+
+
+class TimeoutException(Exception):
+    def __init__(self, msg=''):
+        self.msg = msg
+
+
+@contextmanager
+def time_limit(seconds, msg=''):
+    timer = threading.Timer(seconds, lambda: _thread.interrupt_main())
+    timer.start()
+    try:
+        yield
+    except KeyboardInterrupt:
+        raise TimeoutException("Timed out for operation {}".format(msg))
+    finally:
+        # if the action ends in specified time, timer is canceled
+        timer.cancel()
 
 
 def generate_value_from_node(graph, target):
@@ -22,7 +43,7 @@ def generate_value_from_path(graph, target_path):
     if solution is not None:
         return clean_solution(solution)
     else:
-        return {}
+        return None
 
 
 def clean_solution(solution):
@@ -240,7 +261,13 @@ def solve_path_predicate(predicate_path):
 
         exec(str_add_cs + step + ')')
 
-    return problem.getSolution()
+    try:
+        with time_limit(15, ''):
+            solution = problem.getSolution()
+    except TimeoutException:
+        solution = None
+
+    return solution
 
 
 def path_predicate(detailed_steps, graph):
