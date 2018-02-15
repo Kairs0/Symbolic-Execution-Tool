@@ -82,6 +82,9 @@ class GeneratorAstTree(object):
         if name == "prog_1":
             return GeneratorAstTree.prog_tree()
 
+        elif name == "fact":
+            return GeneratorAstTree.fact_tree()
+
     @staticmethod
     def clean_cnf_conditions():
         or_1 = GeneratorAstTree.or_condition()

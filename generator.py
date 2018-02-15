@@ -110,6 +110,58 @@ def all_k_paths(graph, k):
     return merge_solutions
 
 
+def generate_sets_tests(graph_prog, path_folder_to_write, name_file='generated.txt'):
+    all_results = {}
+    result_all_aff = all_affectations(graph_prog)
+
+    for key, value in result_all_aff.items():
+        if key not in all_results:
+            all_results[key] = value
+        else:
+            all_results[key] += value
+
+    result_all_dec = all_decisions(graph_prog)
+
+    for key, value in result_all_dec.items():
+        if key not in all_results:
+            all_results[key] = value
+        else:
+            all_results[key] += value
+
+    result_k_paths = all_k_paths(graph_prog, 10)
+
+    for key, value in result_k_paths.items():
+        if key not in all_results:
+            all_results[key] = value
+        else:
+            all_results[key] += value
+
+    # TODO: concat others generated files
+
+    # remove duplicates in all value of all_results:
+    for key, value in all_results.items():
+        all_results[key] = list(set(value))
+
+    len_longest = 0
+    for values in all_results.values():
+        if len(values) > len_longest:
+            len_longest = len(values)
+
+    # write values on disk
+    with open(path_folder_to_write + '/' + name_file, 'w') as file:
+        for i in range(len_longest):
+            array_to_write = []
+            for key, value in all_results.items():
+                try:
+                    array_to_write.append(key + ':' + str(value[i]))
+                except IndexError:
+                    array_to_write.append(key + ':' + str(0))
+
+            str_to_write = ",".join(array_to_write) + "\n"
+            file.write(str_to_write)
+        file.close()
+
+
 def main():
     graph = {
             1: ['if', [[('<=', ["x", 0])]], [2, 3]],
@@ -122,13 +174,13 @@ def main():
 
     # result {'x': [0, 49, -1], 'y':[43, 6]}
     result_all_aff = all_affectations(graph)
-    print(result_all_aff)
+    # print(result_all_aff)
 
     result_all_dec = all_decisions(graph)
-    print(result_all_dec)
+    # print(result_all_dec)
 
     result_k_paths = all_k_paths(graph, 10)
-    print(result_k_paths)
+    # print(result_k_paths)
 
 
 if __name__ == "__main__":

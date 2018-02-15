@@ -142,7 +142,8 @@ def all_i_loops(values_test, graph, k, verbose):
     for result in results.values():
         for obj, value_result in result.items():
             if k >= value_result > 0:
-                objective.remove(obj)
+                if obj in objective:
+                    objective.remove(obj)
 
     if len(objective) == 0:
         if verbose:
