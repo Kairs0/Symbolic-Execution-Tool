@@ -12,6 +12,27 @@ c ::= l : skip
 | while l : b do c
 ```
 
+## Content 
+
+###### Files: 
+
+- **my_parser.py**: module that contains a set of function to tokenize and parse a program written in While language to an Abstract Syntax Tree (AST).
+- **ast_tree.py**: this module contains two class definitions : Node, which describes the structure of an AST 
+ node, and GeneratorAstTree, used to write and directly programs in AST data structure.
+- **ast_to_cfg.py**: a class that contains a set of function to transform an AST data structure into Control Flow Graph (CFG)
+- **process_cfg_tools.py**: this module provides a set of functions that will be used to perform the analysis of test coverage.
+- **analysis_coverage.py**: this modules contains a set of functions to perform structural analysis on program in AST.
+- **symbolic_exec_tools.py**: this module provides a set of functions that will be used to perform test generation.
+- **generator.py**: module used to generates sets of test according to tests criteria. 
+- **unit_tests.py**: a few classes of test to perform tests on functions from different modules.
+
+###### Directories:
+
+- **sources_txt**: directory used to store files written in While language, on which we will perform test coverage analysis
+- **sets_tests_txt**: directory used to store files containing sets of tests value
+- **generated_tests**: directory where generated sets of tests value will be stored 
+
+
 ## Usage
 
 - Test coverage
@@ -19,9 +40,9 @@ c ::= l : skip
 $ python analysis_coverage.py <source_file.txt> <set_tests.txt> [-v]
 ```
 - Test generation
-``
+```
 $ python generator.py <source_file.txt> 
-``
+```
 
 ## WIP - TODO
 - test generation (2/8)
