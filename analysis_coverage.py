@@ -18,6 +18,8 @@ def all_affectations(values_test, graph, verbose):
         if value[0] == "assign":
             objective.append(key)
 
+    objective_copy = objective.copy()
+
     if verbose:
         print("We want the following nodes to be visited: " + str(objective))
 
@@ -30,11 +32,14 @@ def all_affectations(values_test, graph, verbose):
     if len(objective) == 0:
         if verbose:
             print("TA: OK")
+            print("Coverage: 100%")
         return True
     else:
         if verbose:
             print("TA fails:")
             print("Nodes " + str(objective) + " were never reached.")
+            coverage = round((len(objective_copy) - len(objective)) / len(objective_copy), 4) * 100
+            print("Coverage: " + str(coverage) + "%")
         return False
 
 
@@ -50,6 +55,8 @@ def all_decisions(values_test, graph, verbose):
             for following_nodes in value[-1]:
                 objective.append(following_nodes)
 
+    objective_copy = objective.copy()
+
     if verbose:
         print("We want the following nodes to be visited: " + str(objective))
 
@@ -62,11 +69,14 @@ def all_decisions(values_test, graph, verbose):
     if len(objective) == 0:
         if verbose:
             print("TD: OK")
+            print("Coverage: 100%")
         return True
     else:
         if verbose:
             print("TD fails:")
             print("Nodes " + str(objective) + " were never reached.")
+            coverage = round((len(objective_copy) - len(objective)) / len(objective_copy), 4) * 100
+            print("Coverage: " + str(coverage) + "%")
         return False
 
 
@@ -88,20 +98,21 @@ def all_k_paths(values_test, graph, k, verbose):
 
     if len(target_paths) == 0:
         if verbose:
-            print("All k paths for k = " + str(k) + ": OK. (Coverage 100%)")
+            print("All k paths for k = " + str(k) + ": OK.")
+            print("Coverage 100%")
         return True
     else:
         if verbose:
             print("All k paths for k = " + str(k) + " fails:")
             print("Paths " + str(target_paths) + " were never taken entirely.")
-            coverage = (len(copy_to_conclusion) - len(target_paths)) / len(copy_to_conclusion)
-            print("Coverage: " + str(round(coverage, 2)) + " %.")
+            coverage = round((len(copy_to_conclusion) - len(target_paths)) / len(copy_to_conclusion), 4) * 100
+            print("Coverage: " + str(coverage) + " %.")
         return False
 
 
 def all_i_loops(values_test, graph, k, verbose):
-    # interpretation: for every test value, every loop must be visited at must i times.
-    # todo: redefine for inner loops
+    # interpretation: every loop must be visited at must i times.
+    # todo if time allows it: redefine to check for inner loops that are visited multiple time
     if verbose:
         print("\n ------")
         print("Criterion: all i loops")
@@ -110,6 +121,8 @@ def all_i_loops(values_test, graph, k, verbose):
     for key, value in graph.items():
         if value[0] == "while":
             objective.append(value[-1][0])
+
+    objective_copy = objective.copy()
 
     if verbose:
         print("We want the following nodes " + str(objective) + " to be visited. (At must " + str(k) + " times.)")
@@ -126,18 +139,21 @@ def all_i_loops(values_test, graph, k, verbose):
             if step in objective:
                 results[str_data][step] += 1
 
-    correct = True
     for result in results.values():
-        if not all(k >= value > 0 for value in result.values()):
-            correct = False
+        for obj, value_result in result.items():
+            if k >= value_result > 0:
+                objective.remove(obj)
 
-    if correct:
+    if len(objective) == 0:
         if verbose:
             print(str(k) + "-TB: OK")
+            print("Coverage: 100 %")
         return True
     else:
         if verbose:
             print(str(k) + "-TB fails:")
+            coverage = round((len(objective_copy) - len(objective)) / len(objective_copy), 4) * 100
+            print("Coverage: " + str(coverage) + "%")
         return False
 
 
@@ -153,6 +169,10 @@ def all_definitions(values_test, graph, verbose):
     # for each variable
     variables_prog = get_all_var(graph)
     steps_per_var = {variable: get_definition_for_variable(graph, variable) for variable in variables_prog}
+
+    # there could be variable that are never defined. In this case, we remove them from list of variable
+    # of interest.
+    variables_prog = [key for key, value in steps_per_var.items() if len(value) != 0]
 
     for variable in variables_prog:
         steps_per_var[variable] += get_utilization_for_variable(graph, variable)
@@ -180,10 +200,14 @@ def all_definitions(values_test, graph, verbose):
     if all(valid for valid in result.values()):
         if verbose:
             print("TDef: OK")
+            print("Coverage: 100 %")
         return True
     else:
         if verbose:
+            nb_valid = len(["ok" for valid in result.values() if valid])
+            coverage = (1 - round((len(result) - nb_valid) / len(result), 4)) * 100
             print("TDef: fails")
+            print("Coverage: " + str(coverage) + "%")
         return False
 
 
@@ -227,10 +251,15 @@ def all_utilization(values_test, graph, verbose):
     if set(map(tuple, validated)) == set(map(tuple, targets_paths_list)):
         if verbose:
             print("TU: Ok")
+            print("Coverage: 100 %")
         return True
     else:
         if verbose:
+            len_validated = len(set(map(tuple, validated)))
+            len_target = len(set(map(tuple, targets_paths_list)))
+            coverage = round((len_target - len_validated) / len_target, 4) * 100
             print("TU: fails")
+            print("Coverage: " + str(coverage) + "%")
         return False
 
 
@@ -302,10 +331,20 @@ def all_du_path(values_test, graph, verbose):
     if correct:
         if verbose:
             print("TDU: OK")
+            print("Coverage: 100%")
         return True
     else:
         if verbose:
+            nb_bad_result = len(
+                [key for key, result_couple in correctness_couples.items() if not result_couple]
+            ) + len(
+                [key for key, result_while in correctness_while.items() if not result_while]
+            )
+
+            coverage = round((len(correctness_couples) + len(correctness_while) - nb_bad_result) /
+                             (len(correctness_couples) + len(correctness_while)), 4) * 100
             print("TDU: fails")
+            print("Coverage: " + str(coverage) + "%")
         return False
 
 
@@ -337,10 +376,19 @@ def all_conditions(values_test, graph, verbose):
     if all(correct for correct in result_true.values()) and all(correct for correct in result_false.values()):
         if verbose:
             print("TC: OK")
+            print("Coverage: 100%")
         return True
     else:
         if verbose:
+            nb_total_cond = len(result_true) + len(result_false)
+            nb_total_valid = len(
+                [correct for correct in result_true.values() if correct]
+            ) + len(
+                [correct for correct in result_false.values() if correct]
+            )
+            coverage = round((nb_total_cond - nb_total_valid) / nb_total_cond, 4) * 100
             print("TC: fails")
+            print("coverage: " + str(coverage) + "%")
         return False
 
 
@@ -393,7 +441,7 @@ def calc_coverage(cfg_graph, test_values, verbose):
     results.append(all_decisions(copies_values[1], cfg_graph, verbose))
     results.append(all_k_paths(copies_values[2], cfg_graph, 4, verbose))
     results.append(all_i_loops(copies_values[3], cfg_graph, 2, verbose))
-    results.append(all_decisions(copies_values[4], cfg_graph, verbose))
+    results.append(all_definitions(copies_values[4], cfg_graph, verbose))
     results.append(all_utilization(copies_values[5], cfg_graph, verbose))
     results.append(all_du_path(copies_values[6], cfg_graph, verbose))
     results.append(all_conditions(copies_values[7], cfg_graph, verbose))
