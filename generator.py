@@ -90,6 +90,7 @@ def all_k_paths(graph, k):
         elif isinstance(result_objective, list):
             solutions.extend(result_objective)
         elif result_objective is None:
+            target.reverse()
             print("[All k-paths] Impossible to cover path " + str(target))
 
     merge_solutions = {}
