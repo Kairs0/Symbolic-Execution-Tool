@@ -35,6 +35,12 @@ c ::= l : skip
 
 ## Usage
 
+**Dependencies : package constraint**: 
+
+```
+$ pip install git+https://github.com/python-constraint/python-constraint.git
+```
+
 - Test coverage
 ```
 $ python analysis_coverage.py <source_file.txt> <set_tests.txt> [-v]
