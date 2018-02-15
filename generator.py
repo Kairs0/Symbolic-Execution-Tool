@@ -44,7 +44,8 @@ def all_decisions(graph):
         if value[0] == "if" or value[0] == "while":
             objectives.append(key)
             for following_nodes in value[-1]:
-                objectives.append(following_nodes)
+                if following_nodes != 0:
+                    objectives.append(following_nodes)
 
     solutions = []
 
@@ -78,7 +79,8 @@ def all_k_paths(graph, k):
 
     # remove 0 for all targets
     for target in target_paths:
-        target.remove(0)
+        if 0 in target:
+            target.remove(0)
 
     solutions = []
 

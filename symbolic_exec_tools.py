@@ -49,8 +49,21 @@ def generate_value_from_path(graph, target_path):
 def clean_solution(solution):
     # {'x1': 0, 'x2': 0}
     key_values_solution = []
+
+    variables = [key[0] for key in solution.keys()]
+
+    smaller_for_var = {var: '100' for var in variables}
+
+    for key in solution.keys():
+        try:
+            smaller = int(smaller_for_var[key[0]])
+            if int(key[1]) < smaller:
+                smaller_for_var[key[0]] = key[1]
+        except ValueError:
+            continue
+
     for key in solution:
-        if key[1] == '1':
+        if key[1] == smaller_for_var[key[0]]:
             key_values_solution.append(key)
     cleaned_solution = {key[0]: solution[key] for key in key_values_solution}
     return cleaned_solution
@@ -84,7 +97,6 @@ def split(txt, separators):
 
 def str_represents_number(test_string):
     try:
-        # noinspection PyListCreation
         float(test_string)
         return True
     except ValueError:

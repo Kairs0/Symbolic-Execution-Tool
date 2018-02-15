@@ -1,5 +1,6 @@
 from analysis_coverage import *
 from generator import *
+import time
 
 
 def main():
@@ -14,8 +15,10 @@ def main():
     print("Coverage analysis on prog offered in subject and set of value for x: -3;-2;-1;0;1;2;3")
     calc_coverage(cfg_graph_prog, test_values, True)
     # Generate tests to match coverage
-    print("Generation test for program prog")
-    # generate_sets_tests(cfg_graph_prog, 'generated_tests', 'generated_prog.txt')
+    print("Generation tests for program prog ...")
+    start = time.time()
+    generate_sets_tests(cfg_graph_prog, 'generated_tests', 'generated_prog.txt')
+    print("End generation test values (" + round(time.time() - start, 2) + "s)")
 
     # DEMO ON FACT PROG
 
@@ -29,7 +32,9 @@ def main():
     print("Coverage analysis on factorial program (see code in sources_txt/fact.txt) for x: -3;-2;-1;0;1;2;3")
     calc_coverage(cfg_graph_fact, test_values, True)
     print("Generation test for factorial program")
+    start = time.time()
     generate_sets_tests(cfg_graph_fact, 'generated_tests', 'generated_fact.txt')
+    print("End generation test values (" + round(time.time() - start, 2) + "s)")
 
 
 if __name__ == '__main__':
