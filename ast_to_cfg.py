@@ -368,7 +368,6 @@ class AstToCfgConverter(object):
 
     @staticmethod
     def get_length_if(node):
-        # TODO maybe not correct (what is the "length" of a if?)
         if node.children[1] == "sequence":
             length_if_body = AstToCfgConverter.get_length_sequence(node.children[1])
         elif node.children[1] == "while":
@@ -386,7 +385,6 @@ class AstToCfgConverter(object):
             length_else_body = AstToCfgConverter.get_length_if(node.children[2])
         else:
             length_else_body = 1
-        # TODO understand why 2 is correct
         return 2 + max(length_if_body, length_else_body)
 
     @staticmethod
