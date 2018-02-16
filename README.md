@@ -25,7 +25,7 @@ c ::= l : skip
 - **symbolic_exec_tools.py**: this module provides a set of functions that will be used to perform test generation.
 - **generator.py**: module used to generates sets of test according to tests criteria. 
 - **unit_tests.py**: a few classes of test to perform tests on functions from different modules.
-- **demo.py**: a file with on function to execute the project on two programs with two sets of values data.
+- **demo.py**: a file with one function. Execute the project on two programs with two sets of values data.
 
 ###### Directories:
 
