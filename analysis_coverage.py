@@ -153,6 +153,7 @@ def all_i_loops(values_test, graph, k, verbose):
     else:
         if verbose:
             print(str(k) + "-TB fails:")
+            print("Nodes " + str(objective) + " were either not visited too many times or never visited.")
             coverage = round((len(objective_copy) - len(objective)) / len(objective_copy), 4) * 100
             print("Coverage: " + str(coverage) + "%")
         return False
@@ -205,9 +206,10 @@ def all_definitions(values_test, graph, verbose):
         return True
     else:
         if verbose:
-            nb_valid = len(["ok" for valid in result.values() if valid])
-            coverage = (1 - round((len(result) - nb_valid) / len(result), 4)) * 100
+            non_valid_variables = [key for key, valid in result.items() if not valid]
+            coverage = round(len(result) - len(non_valid_variables) / len(result), 4) * 100
             print("TDef: fails")
+            print("Variables " + str(non_valid_variables) + " were not used.")
             print("Coverage: " + str(coverage) + "%")
         return False
 
@@ -233,6 +235,13 @@ def all_utilization(values_test, graph, verbose):
             steps_utilization = get_utilization_for_variable(reachable_graph, var)
             targets_paths[count_path] += steps_utilization
             count_path += 1
+    # clean target path (we want only couple def - utilization)
+    key_to_remove = []
+    for key, value in targets_paths.items():
+        if len(value) == 1:
+            key_to_remove.append(key)
+    for key in key_to_remove:
+        targets_paths.pop(key)
 
     # third : process value test and record the resulting path
     result_paths = []
@@ -256,10 +265,13 @@ def all_utilization(values_test, graph, verbose):
         return True
     else:
         if verbose:
-            len_validated = len(set(map(tuple, validated)))
+            not_validated = [path for path in targets_paths.values() if path not in validated]
+            len_not_validated = len(set(map(tuple, not_validated)))
+
             len_target = len(set(map(tuple, targets_paths_list)))
-            coverage = round((len_target - len_validated) / len_target, 4) * 100
+            coverage = round((len_target - len_not_validated) / len_target, 4) * 100
             print("TU: fails")
+            print("Following paths were never taken: " + str(list(set(map(tuple, not_validated)))))
             print("Coverage: " + str(coverage) + "%")
         return False
 
@@ -336,15 +348,18 @@ def all_du_path(values_test, graph, verbose):
         return True
     else:
         if verbose:
-            nb_bad_result = len(
-                [key for key, result_couple in correctness_couples.items() if not result_couple]
-            ) + len(
+            bad_results = [key for key, result_couple in correctness_couples.items() if not result_couple]
+            bad_results.append(
                 [key for key, result_while in correctness_while.items() if not result_while]
             )
+
+            nb_bad_result = len(bad_results)
 
             coverage = round((len(correctness_couples) + len(correctness_while) - nb_bad_result) /
                              (len(correctness_couples) + len(correctness_while)), 4) * 100
             print("TDU: fails")
+            print("Following couples definition - utilisation were never taken"
+                  "or were executed more than one time: " + str(bad_results))
             print("Coverage: " + str(coverage) + "%")
         return False
 
@@ -382,13 +397,12 @@ def all_conditions(values_test, graph, verbose):
     else:
         if verbose:
             nb_total_cond = len(result_true) + len(result_false)
-            nb_total_valid = len(
-                [correct for correct in result_true.values() if correct]
-            ) + len(
-                [correct for correct in result_false.values() if correct]
-            )
-            coverage = round((nb_total_cond - nb_total_valid) / nb_total_cond, 4) * 100
+            cond_non_valid = [cond for cond, correct in result_true.items() if not correct]
+            cond_non_valid.append([cond for cond, correct in result_false.items() if not correct])
+            len_non_valid = len(cond_non_valid)
+            coverage = round((nb_total_cond - len_non_valid) / nb_total_cond, 4) * 100
             print("TC: fails")
+            print("Following conditions were not evaluated entirely: " + str(cond_non_valid))
             print("coverage: " + str(coverage) + "%")
         return False
 
