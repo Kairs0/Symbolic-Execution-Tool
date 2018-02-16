@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from analysis_coverage import get_name_file_from_path
+from ast_tree import GeneratorAstTree
+from ast_to_cfg import AstToCfgConverter
+from sys import argv, exit
 from symbolic_exec_tools import generate_value_from_node, generate_value_from_path
 from process_cfg_tools import get_all_k_paths_brute
 
@@ -113,6 +117,13 @@ def all_k_paths(graph, k):
 
 
 def generate_sets_tests(graph_prog, path_folder_to_write, name_file='generated.txt'):
+    """
+    For a given CFG, generate the sets of tests respecting coverage of all criteria already defined
+    :param graph_prog: a CFG of a program
+    :param path_folder_to_write: path of folder in which the output file will be written (must exist)
+    :param name_file: name of file output (default: generated.txt)
+    :return: void (write on disk)
+    """
     all_results = {}
     result_all_aff = all_affectations(graph_prog)
 
@@ -165,25 +176,34 @@ def generate_sets_tests(graph_prog, path_folder_to_write, name_file='generated.t
 
 
 def main():
-    graph = {
-            1: ['if', [[('<=', ["x", 0])]], [2, 3]],
-            2: ['assign', {'x': '0 - x'}, [4]],
-            3: ['assign', {'x': '1 - x'}, [4]],
-            4: ['if', [[('==', ["x", 1])]], [5, 6]],
-            5: ['assign', {'x': '1'}, [0]],
-            6: ['assign', {'x': 'x + 1'}, [0]]
-    }
+    file_program = treat_command()
+    name_prog = get_name_file_from_path(file_program)
+    ast_tree_prog = GeneratorAstTree.get_ast_from_name(name_prog)
 
-    # result {'x': [0, 49, -1], 'y':[43, 6]}
-    result_all_aff = all_affectations(graph)
-    # print(result_all_aff)
+    # Convert AST to CFG
+    converter = AstToCfgConverter(ast_tree_prog)
+    graph = converter.get_cfg_graph()
 
-    result_all_dec = all_decisions(graph)
-    # print(result_all_dec)
+    # generates
+    all_affectations(graph)
+    all_decisions(graph)
+    all_k_paths(graph, 10)
 
-    result_k_paths = all_k_paths(graph, 10)
-    # print(result_k_paths)
+
+def treat_command():
+    try:
+        file_program = argv[1]
+        return file_program
+    except IndexError:
+        display_usage()
+        exit()
+
+
+def display_usage():
+    print("Usage: ")
+    print("$ python generator.py path_prog.txt")
 
 
 if __name__ == "__main__":
+    # python .\generator.py .\sources_txt\prog_1.txt
     main()

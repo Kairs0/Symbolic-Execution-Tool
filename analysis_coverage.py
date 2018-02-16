@@ -398,7 +398,9 @@ def all_conditions(values_test, graph, verbose):
         if verbose:
             nb_total_cond = len(result_true) + len(result_false)
             cond_non_valid = [cond for cond, correct in result_true.items() if not correct]
-            cond_non_valid.append([cond for cond, correct in result_false.items() if not correct])
+            not_valid_list = [cond for cond, correct in result_false.items() if not correct]
+            if len(not_valid_list) != 0:
+                cond_non_valid.append(not_valid_list)
             len_non_valid = len(cond_non_valid)
             coverage = round((nb_total_cond - len_non_valid) / nb_total_cond, 4) * 100
             print("TC: fails")

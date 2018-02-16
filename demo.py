@@ -18,7 +18,7 @@ def main():
     print("Generation tests for program prog ...")
     start = time.time()
     generate_sets_tests(cfg_graph_prog, 'generated_tests', 'generated_prog.txt')
-    print("End generation test values (" + round(time.time() - start, 2) + "s)")
+    print("End generation test values (" + str(round(time.time() - start, 2)) + "s)")
 
     # DEMO ON FACT PROG
 
@@ -34,7 +34,7 @@ def main():
     print("Generation test for factorial program")
     start = time.time()
     generate_sets_tests(cfg_graph_fact, 'generated_tests', 'generated_fact.txt')
-    print("End generation test values (" + round(time.time() - start, 2) + "s)")
+    print("End generation test values (" + str(round(time.time() - start, 2)) + "s)")
 
 
 if __name__ == '__main__':
